@@ -221,3 +221,38 @@ gmp-place-autocomplete::part(input) {
 gmp-place-autocomplete::part(clear-button) {
     display: none; /* We have our own clear button */
 }
+/* --- FIX FOR GOOGLE SEARCH BOX --- */
+
+/* 1. Make the pill container hold its shape */
+.search-pill {
+    display: flex !important;
+    align-items: center !important;
+    height: 50px !important; /* Force height */
+    overflow: hidden;
+    position: relative;
+    z-index: 1001;
+}
+
+/* 2. Force the Google Component to fill the pill */
+gmp-place-autocomplete {
+    display: inline-block !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    top: 0;
+    left: 40px; /* Leave room for the search icon */
+    right: 0;
+}
+
+/* 3. Style the internal input text */
+gmp-place-autocomplete::part(input) {
+    height: 100% !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #000 !important;
+    padding-top: 14px !important; /* Centers text vertically */
+}
+
