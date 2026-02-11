@@ -1,81 +1,80 @@
-const fetch = require('node-fetch');
+const https = require('https');
 
 exports.handler = async function(event, context) {
   const params = event.queryStringParameters;
   const q = params.q || "";
   const lat = params.lat;
   const lng = params.lng;
-  
+
   // 1. Get Date/Time
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];
   const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
   const dayOfWeek = now.getDay() + 1;
 
-  // 2. Start building the URL (Base)
+  // 2. Build URL
   let baseUrl = "";
-  let urlParams = new URLSearchParams();
+  let queryParams = [
+    `pagenumber=1`,
+    `users_date=${dateStr}`,
+    `current_time=${timeStr}`,
+    `todays_day=${dayOfWeek}`
+  ];
 
-  // Always add these required defaults
-  urlParams.append("pagenumber", "1");
-  urlParams.append("users_date", dateStr);
-  urlParams.append("current_time", timeStr);
-  urlParams.append("todays_day", dayOfWeek);
+  if (params.nusach) queryParams.push(`nusach=${encodeURIComponent(params.nusach)}`);
+  if (params.tefillah) queryParams.push(`tefillah=${encodeURIComponent(params.tefillah)}`);
 
-  // 3. Add Optional Filters (ONLY if they exist)
-  if (params.nusach) urlParams.append("nusach", params.nusach);
-  if (params.tefillah) urlParams.append("tefillah", params.tefillah);
-
-  // 4. Decide Endpoint
   if (lat && lng) {
     baseUrl = "https://www.godaven.com/api/V2/shuls/radius-search";
-    urlParams.append("lat", lat);
-    urlParams.append("lng", lng);
-    urlParams.append("distance", "20"); // Increased radius to 20 miles
+    queryParams.push(`lat=${lat}`);
+    queryParams.push(`lng=${lng}`);
+    queryParams.push(`distance=20`);
   } else {
     baseUrl = "https://www.godaven.com/api/V2/shuls/search-all";
-    urlParams.append("query", q);
+    queryParams.push(`query=${encodeURIComponent(q)}`);
   }
 
-  const FINAL_URL = `${baseUrl}?${urlParams.toString()}`;
-  const API_KEY = process.env.GODAVEN_PRIVATE_KEY; 
+  const finalUrl = `${baseUrl}?${queryParams.join('&')}`;
+  const API_KEY = process.env.GODAVEN_PRIVATE_KEY;
 
-  try {
-    const response = await fetch(FINAL_URL, {
-      method: 'GET',
+  console.log(`Requesting: ${finalUrl}`);
+
+  // 3. Perform Request (Using Native Node HTTPS - No Dependencies needed)
+  return new Promise((resolve, reject) => {
+    const options = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`
       }
-    });
+    };
 
-    const data = await response.json();
+    https.get(finalUrl, options, (res) => {
+      let data = '';
 
-    // DEBUGGING HELPER:
-    // If we get 0 results, we send back a special message to help you debug
-    if (!data || (Array.isArray(data) && data.length === 0) || (data.SearchResults && data.SearchResults.length === 0)) {
-         return {
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve({
             statusCode: 200,
-            body: JSON.stringify({ 
-                results: [], 
-                debug_info: {
-                    message: "API returned 0 results",
-                    url_used: FINAL_URL // This will let us see exactly what URL was sent!
-                }
-            })
-         };
-    }
+            body: data
+          });
+        } else {
+          resolve({
+            statusCode: res.statusCode,
+            body: JSON.stringify({ error: true, message: `GoDaven Error: ${res.statusMessage}` })
+          });
+        }
+      });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data)
-    };
-
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: true, message: error.message })
-    };
-  }
+    }).on('error', (e) => {
+      resolve({
+        statusCode: 500,
+        body: JSON.stringify({ error: true, message: e.message })
+      });
+    });
+  });
 };
