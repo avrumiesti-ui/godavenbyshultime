@@ -6,15 +6,19 @@
     <title>ShulTime Redesign</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </head>
 <body>
 
     <div id="app-interface">
         <div class="app-header">
             <div class="search-row">
-                <div class="search-pill" id="autocomplete-container">
+                <div class="search-pill">
                     <i class="material-icons search-icon">search</i>
-                    </div>
+                    <div id="google-input-container"></div>
+                    <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
+                </div>
                 
                 <button class="toggle-btn" onclick="toggleView()">
                     <i class="material-icons" id="toggle-icon">map</i>
@@ -26,14 +30,6 @@
                     <select id="filter-sort" onchange="applyFilters()">
                         <option value="time">Sort: Time</option>
                         <option value="distance">Sort: Distance</option>
-                    </select>
-                    <i class="material-icons">expand_more</i>
-                </div>
-                <div class="select-wrapper">
-                    <select id="filter-time" onchange="applyFilters()">
-                        <option value="">Time: All</option>
-                        <option value="now">Now</option>
-                        <option value="upcoming">Upcoming</option>
                     </select>
                     <i class="material-icons">expand_more</i>
                 </div>
@@ -58,7 +54,7 @@
             </div>
             
             <div class="results-count" id="results-count">
-                Enter a location to search
+                Enter a location
             </div>
         </div>
 
@@ -77,7 +73,6 @@
     </button>
 
     <script>
-     <script>
         let map;
         let markers = [];
         let infoWindow;
@@ -85,7 +80,7 @@
 
         // 1. Initialize App
         async function initApp() {
-            // Import libraries
+            // Import Libraries
             const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
             const { Marker } = await google.maps.importLibrary("marker");
@@ -95,51 +90,37 @@
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 13,
                 disableDefaultUI: true,
-                mapId: "DEMO_MAP_ID"
+                mapId: "DEMO_MAP_ID" // Required
             });
-            
             infoWindow = new google.maps.InfoWindow();
 
-            // Init Autocomplete
+            // Init Google Autocomplete Input
             const autocomplete = new PlaceAutocompleteElement();
-            autocomplete.id = "location-input";
-            autocomplete.placeholder = "Search location...";
+            autocomplete.id = "gmp-input";
+            // We remove the placeholder here to avoid double text, handled by CSS/Container
             
-            // Clear old container and add new element
-            const container = document.querySelector('.search-pill');
-            container.innerHTML = '<i class="material-icons search-icon">search</i>'; // Keep icon
+            // Inject into the page
+            const container = document.getElementById("google-input-container");
+            container.innerHTML = ""; 
             container.appendChild(autocomplete);
-            
-            // Add Clear Button
-            const clearBtn = document.createElement('i');
-            clearBtn.className = 'material-icons clear-icon';
-            clearBtn.innerText = 'close';
-            clearBtn.onclick = clearSearch;
-            container.appendChild(clearBtn);
 
-            // LISTEN FOR SELECTION (The Fix)
-            // We use 'addEventListener' directly on the new element
+            // Listen for user selection
             autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
-                // 1. Force the input to close/blur
-                document.activeElement.blur();
-                
-                // 2. Get details
                 await place.fetchFields({ fields: ["displayName", "location"] });
-                
                 const lat = place.location.lat();
                 const lng = place.location.lng();
                 const name = place.displayName;
 
-                // 3. Move Map
+                // Update Map
                 map.setCenter({ lat, lng });
                 map.setZoom(14);
                 
-                // 4. Search Backend
+                // Search Backend
                 performSearch(name, lat, lng);
             });
         }
 
-        // 2. Search Logic
+        // 2. Search Backend Logic
         function applyFilters() {
             if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
                 performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
@@ -151,7 +132,6 @@
             const listContainer = document.getElementById('list-view');
             const countLabel = document.getElementById('results-count');
             
-            // Get Dropdown Values
             const nusach = document.getElementById('filter-nusach').value;
             const tefillah = document.getElementById('filter-tefillah').value;
 
@@ -162,10 +142,8 @@
                 if (lat && lng) url += `&lat=${lat}&lng=${lng}`;
                 if (nusach) url += `&nusach=${nusach}`;
                 if (tefillah) url += `&tefillah=${tefillah}`;
-                
+
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('API Error');
-                
                 const data = await response.json();
                 const results = data.SearchResults || data.results || data; 
                 
@@ -173,7 +151,7 @@
                 clearMarkers();
 
                 if (!results || results.length === 0) {
-                    countLabel.innerText = `0 Results`;
+                    countLabel.innerText = "0 Results";
                     listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.</div>';
                     return;
                 }
@@ -196,12 +174,13 @@
                             <div class="time-display">${shul.nextTime || '--:--'}</div>
                         </div>
                     `;
-                    
                     card.onclick = () => {
-                        if(shul.lat && shul.lng) {
+                         if(shul.lat && shul.lng) {
                             toggleView('map');
                             map.setCenter({ lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) });
                             map.setZoom(16);
+                            const marker = markers.find(m => m.getTitle() === (shul.name || shul.title));
+                            if(marker) google.maps.event.trigger(marker, "click");
                         }
                     };
                     listContainer.appendChild(card);
@@ -209,7 +188,7 @@
                 });
 
             } catch (error) {
-                console.error("Error:", error);
+                console.error(error);
                 listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading results.</div>';
             }
         }
@@ -217,11 +196,10 @@
         async function addMapMarker(shul) {
             if (!shul.lat || !shul.lng) return;
             const { Marker } = await google.maps.importLibrary("marker");
-            
             const marker = new Marker({
                 position: { lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) },
                 map: map,
-                title: shul.name
+                title: shul.name || shul.title
             });
             marker.addListener("click", () => {
                 infoWindow.setContent(`<strong>${shul.name || shul.title}</strong><br>${shul.nextTime || ''}`);
@@ -239,9 +217,7 @@
             const list = document.getElementById('list-view');
             const mapDiv = document.getElementById('map-view');
             const icon = document.getElementById('toggle-icon');
-            
-            const isListVisible = list.style.display !== 'none';
-            const targetIsMap = forceView === 'map' || (forceView === undefined && isListVisible);
+            const targetIsMap = forceView === 'map' || (forceView === undefined && list.style.display !== 'none');
 
             if (targetIsMap) {
                 list.style.display = 'none';
@@ -262,11 +238,6 @@
                         const userLng = position.coords.longitude;
                         map.setCenter({ lat: userLat, lng: userLng });
                         map.setZoom(14);
-                        
-                        // Manually set text since we replaced the input
-                        const input = document.querySelector('gmp-place-autocomplete');
-                        if(input) input.value = "Current Location";
-                        
                         performSearch("Current Location", userLat, userLng); 
                     },
                     () => { alert("Could not get location."); }
@@ -275,15 +246,12 @@
         }
         
         function clearSearch() {
-            const input = document.querySelector('gmp-place-autocomplete');
-            if(input) input.value = '';
+            // We clear the input by replacing the component logic or just reloading
+            // For simplicity with the web component:
+            const container = document.getElementById("google-input-container");
+            const existing = document.getElementById("gmp-input");
+            existing.value = "";
         }
     </script>
-
-
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&callback=initApp"></script>
-
 </body>
 </html>
-
-
