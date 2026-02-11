@@ -8,72 +8,41 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
-        /* --- SEARCH ROW LAYOUT --- */
-        .search-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 5px;
+        /* --- GOOGLE DROPDOWN FIX --- */
+        /* This forces the dropdown to appear ON TOP of everything */
+        .pac-container {
+            z-index: 10000 !important;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-family: inherit;
         }
 
-        /* 1. The Search Pill (Holds the Input) */
+        /* --- SEARCH ROW --- */
+        .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; }
+
+        /* The Pill Container */
         .search-pill {
             flex-grow: 1;
-            display: flex !important;
-            align-items: center !important;
-            height: 50px !important;
-            position: relative;
-            z-index: 1001;
-            background: #F0F2F5;
-            border-radius: 12px;
-            padding: 0 5px 0 10px;
-            border: 1px solid #ddd;
-        }
-        
-        /* 2. Google Input Styling */
-        gmp-place-autocomplete {
-            display: inline-block !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: transparent;
-        }
-        
-        gmp-place-autocomplete::part(input) {
-            height: 100% !important;
-            font-size: 16px !important;
-            background: transparent !important;
-            border: none !important;
-            outline: none !important;
-            color: #000 !important;
-            padding: 0 5px !important;
-        }
-
-        /* 3. The New "GO" Button */
-        .go-btn {
-            height: 50px;
-            width: 50px;
-            background-color: #0D2B4F; /* Navy Blue */
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background: #F0F2F5;
+            border-radius: 12px;
+            padding: 0 12px;
+            height: 50px;
+            border: 1px solid #ddd;
+            /* CRITICAL: We removed 'overflow:hidden' so the dropdown can show! */
         }
-        .go-btn:active { transform: scale(0.95); }
 
-        /* 4. Status Bar (To see what is happening) */
-        #status-bar {
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-            margin-bottom: 10px;
-            font-style: italic;
-            height: 15px;
+        /* The Input Field (Standard HTML Input) */
+        #location-input {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            flex-grow: 1;
+            margin-left: 8px;
+            outline: none;
+            height: 100%;
+            color: #111;
         }
     </style>
 
@@ -87,17 +56,16 @@
             <div class="search-row">
                 <div class="search-pill">
                     <i class="material-icons search-icon" style="color:#888;">search</i>
-                    <div id="google-input-container" style="flex-grow:1; height:100%;"></div>
+                    <input type="text" id="location-input" placeholder="Search city (e.g. Lakewood)" autocomplete="off">
+                    <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
                 </div>
-                
-                <button class="go-btn" onclick="manualSearch()">GO</button>
                 
                 <button class="toggle-btn" onclick="toggleView()">
                     <i class="material-icons" id="toggle-icon">map</i>
                 </button>
             </div>
 
-            <div id="status-bar">Ready to search...</div>
+            <div id="status-bar" style="text-align:center; font-size:12px; color:#666; margin-bottom:10px; height:15px;">Ready.</div>
 
             <div class="filter-row">
                 <div class="select-wrapper">
@@ -135,7 +103,7 @@
         <div class="results-container" id="list-view">
             <div style="text-align:center; padding:40px; color:#888;">
                 <i class="material-icons" style="font-size:48px; opacity:0.3;">search</i><br>
-                Type a city (e.g. "Lakewood")<br>and select it from the list.
+                Type a city to begin.
             </div>
         </div>
 
@@ -151,62 +119,61 @@
         let markers = [];
         let infoWindow;
         let lastSearch = { query: "", lat: null, lng: null };
-        let googleInput = null;
+        let autocomplete;
 
         // 1. Initialize App
         async function initApp() {
-            updateStatus("Loading Google Maps...");
+            updateStatus("Loading Maps...");
+            
+            // Init Map
             const { Map } = await google.maps.importLibrary("maps");
-            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-            const { Marker } = await google.maps.importLibrary("marker");
-
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 13,
                 disableDefaultUI: true,
-                mapId: "DEMO_MAP_ID"
             });
             infoWindow = new google.maps.InfoWindow();
 
-            // Setup Google Input
-            const autocomplete = new PlaceAutocompleteElement();
-            autocomplete.id = "gmp-input";
-            googleInput = autocomplete; // Save for later
+            // Init Autocomplete (Standard Method)
+            const input = document.getElementById('location-input');
+            const options = { types: ['geocode'] }; // Only show cities/addresses
             
-            const container = document.getElementById("google-input-container");
-            container.innerHTML = ""; 
-            container.appendChild(autocomplete);
+            // This creates the dropdown automatically attached to the input
+            autocomplete = new google.maps.places.Autocomplete(input, options);
+            
+            // Listen for selection
+            autocomplete.addListener('place_changed', onPlaceSelected);
 
-            // Listener: When user selects from dropdown
-            autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
-                updateStatus("Getting location details...");
-                await place.fetchFields({ fields: ["displayName", "location"] });
-                const lat = place.location.lat();
-                const lng = place.location.lng();
-                const name = place.displayName;
-
-                map.setCenter({ lat, lng });
-                map.setZoom(14);
-                
-                performSearch(name, lat, lng);
+            // Listen for "Enter" key (Manual search)
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    input.blur(); // Close keyboard
+                    const val = input.value;
+                    // If they typed "Lakewood" but didn't click dropdown, we just search the text
+                    performSearch(val, null, null); 
+                }
             });
             
             updateStatus("Ready.");
         }
 
-        // 2. Manual Search (The GO Button)
-        function manualSearch() {
-            // Because the Google Input is special, we can't easily read text from it 
-            // if the user didn't select a suggestion.
-            // We default to "Current Location" if they just click GO without typing,
-            // or we alert them.
+        // 2. Handle Dropdown Selection
+        function onPlaceSelected() {
+            const place = autocomplete.getPlace();
             
-            if (lastSearch.lat && lastSearch.lng) {
-                // Re-run last known search
-                performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
-            } else {
-                alert("Please select a location from the dropdown list, or click the 'My Location' target button.");
+            if (!place.geometry) {
+                // User entered name but didn't pick from list
+                performSearch(place.name, null, null);
+                return;
             }
+
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            
+            map.setCenter(place.geometry.location);
+            map.setZoom(14);
+            
+            performSearch(place.name, lat, lng);
         }
 
         function updateStatus(msg) {
@@ -214,13 +181,13 @@
             if(el) el.innerText = msg;
         }
 
+        // 3. Search Logic
         function applyFilters() {
             if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
                 performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
             }
         }
 
-        // 3. Perform Search (Connects to Netlify)
         async function performSearch(query, lat, lng) {
             lastSearch = { query, lat, lng };
             const listContainer = document.getElementById('list-view');
@@ -229,7 +196,7 @@
             const nusach = document.getElementById('filter-nusach').value;
             const tefillah = document.getElementById('filter-tefillah').value;
 
-            updateStatus(`Searching GoDaven for ${query}...`);
+            updateStatus(`Searching GoDaven...`);
             listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching...</div>';
             
             try {
@@ -242,9 +209,8 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    updateStatus("Error from Server");
-                    listContainer.innerHTML = `<div style="padding:20px; color:red; text-align:center;"><strong>API Error:</strong><br>${data.message}</div>`;
-                    countLabel.innerText = "Error";
+                    updateStatus("Server Error");
+                    listContainer.innerHTML = `<div style="padding:20px; color:red; text-align:center;">API Error: ${data.message}</div>`;
                     return;
                 }
 
@@ -254,24 +220,13 @@
                 clearMarkers();
 
                 if (results.length === 0) {
-                    updateStatus("Finished: 0 Results");
+                    updateStatus("0 Results Found");
                     countLabel.innerText = "0 Results";
-                    
-                    if (data.debug_info) {
-                         listContainer.innerHTML = `<div style="padding:20px; text-align:center;">
-                            <h3>No Results Found</h3>
-                            <p style="font-size:12px; color:red; word-break:break-all;">
-                                <strong>Debug - URL Tried:</strong><br>
-                                ${data.debug_info.url_used}
-                            </p>
-                         </div>`;
-                    } else {
-                        listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.<br>Try a different location.</div>';
-                    }
+                    listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.<br>Try a different location.</div>';
                     return;
                 }
 
-                updateStatus(`Found ${results.length} minyanim!`);
+                updateStatus(`Found ${results.length} minyanim`);
                 countLabel.innerText = `${results.length} Results`;
 
                 results.forEach((shul) => {
@@ -349,18 +304,25 @@
 
         function useMyLocation() {
             if (navigator.geolocation) {
-                 updateStatus("Locating you...");
+                 updateStatus("Locating...");
                  navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const userLat = position.coords.latitude;
                         const userLng = position.coords.longitude;
                         map.setCenter({ lat: userLat, lng: userLng });
                         map.setZoom(14);
+                        
+                        document.getElementById('location-input').value = "Current Location";
                         performSearch("Current Location", userLat, userLng); 
                     },
                     () => { alert("Could not get location."); updateStatus("Location failed"); }
                 );
             }
+        }
+        
+        function clearSearch() {
+            document.getElementById('location-input').value = '';
+            document.getElementById('location-input').focus();
         }
     </script>
 </body>
