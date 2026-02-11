@@ -10,21 +10,18 @@
 <body>
 
     <div id="app-interface">
-
         <div class="app-header">
             <div class="search-row">
-                <div class="search-pill">
+                <div class="search-pill" id="autocomplete-container">
                     <i class="material-icons search-icon">search</i>
-                    <input type="text" id="location-input" placeholder="Search location..." autocomplete="off">
-                    <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
-                </div>
+                    </div>
+                
                 <button class="toggle-btn" onclick="toggleView()">
                     <i class="material-icons" id="toggle-icon">map</i>
                 </button>
             </div>
 
             <div class="filter-row">
-                
                 <div class="select-wrapper">
                     <select id="filter-sort" onchange="applyFilters()">
                         <option value="time">Sort: Time</option>
@@ -32,19 +29,14 @@
                     </select>
                     <i class="material-icons">expand_more</i>
                 </div>
-
                 <div class="select-wrapper">
                     <select id="filter-time" onchange="applyFilters()">
                         <option value="">Time: All</option>
                         <option value="now">Now</option>
                         <option value="upcoming">Upcoming</option>
-                        <option value="06:00">6:00a - 9:00a</option>
-                        <option value="13:00">1:00p - 4:00p</option>
-                        <option value="19:00">7:00p - 10:00p</option>
                     </select>
                     <i class="material-icons">expand_more</i>
                 </div>
-
                 <div class="select-wrapper">
                     <select id="filter-tefillah" onchange="applyFilters()">
                         <option value="">Tefillah: All</option>
@@ -54,7 +46,6 @@
                     </select>
                     <i class="material-icons">expand_more</i>
                 </div>
-                
                 <div class="select-wrapper">
                     <select id="filter-nusach" onchange="applyFilters()">
                         <option value="">Nusach: All</option>
@@ -79,7 +70,6 @@
         </div>
 
         <div id="map-view"></div>
-
     </div>
 
     <button class="fab-location" onclick="useMyLocation()">
@@ -90,56 +80,50 @@
         let map;
         let markers = [];
         let infoWindow;
-        let autocomplete;
         let lastSearch = { query: "", lat: null, lng: null };
 
-        // 1. Initialize App (Called by Google Maps)
-        function initApp() {
+        // 1. Initialize App
+        async function initApp() {
+            // Import the new Google libraries
+            const { Map } = await google.maps.importLibrary("maps");
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+            const { Marker } = await google.maps.importLibrary("marker");
+
             // Init Map
-            map = new google.maps.Map(document.getElementById("map-view"), {
+            map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 13,
                 disableDefaultUI: true,
+                mapId: "DEMO_MAP_ID" // Required for new markers
             });
             
             infoWindow = new google.maps.InfoWindow();
 
-            // Init Autocomplete
-            const input = document.getElementById('location-input');
-            const options = { types: ['geocode'] }; // Only show cities/addresses
-            autocomplete = new google.maps.places.Autocomplete(input, options);
+            // Init NEW Autocomplete Component
+            const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.id = "google-search-input";
+            autocomplete.placeholder = "Search location...";
             
-            // Listen for selection
-            autocomplete.addListener('place_changed', onPlaceSelected);
+            // Inject it into our container
+            const container = document.getElementById('autocomplete-container');
+            container.appendChild(autocomplete);
 
-            // Listen for Enter key
-            input.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    input.blur(); // Close keyboard
-                    const val = e.target.value;
-                    performSearch(val, null, null); 
-                }
+            // Listen for selection (The new 'gmp-places-select' event)
+            autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
+                await place.fetchFields({ fields: ["name", "location"] });
+                
+                const lat = place.location.lat();
+                const lng = place.location.lng();
+                const name = place.displayName || place.name;
+
+                map.setCenter({ lat, lng });
+                map.setZoom(14);
+                
+                performSearch(name, lat, lng);
             });
         }
 
-        function onPlaceSelected() {
-            const place = autocomplete.getPlace();
-            
-            if (!place.geometry) {
-                performSearch(place.name, null, null);
-                return;
-            }
-
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            
-            map.setCenter(place.geometry.location);
-            map.setZoom(14);
-            
-            performSearch(place.name, lat, lng);
-        }
-
-        // Called when dropdowns change
+        // 2. Search Logic (Same as before)
         function applyFilters() {
             if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
                 performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
@@ -154,7 +138,6 @@
             // Get Dropdown Values
             const nusach = document.getElementById('filter-nusach').value;
             const tefillah = document.getElementById('filter-tefillah').value;
-            const time = document.getElementById('filter-time').value; // (Backend logic needed for time range)
 
             listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching...</div>';
             
@@ -203,9 +186,6 @@
                             toggleView('map');
                             map.setCenter({ lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) });
                             map.setZoom(16);
-                            // Auto-open marker info
-                            const marker = markers.find(m => m.getTitle() === (shul.name || shul.title));
-                            if(marker) google.maps.event.trigger(marker, 'click');
                         }
                     };
                     listContainer.appendChild(card);
@@ -218,12 +198,14 @@
             }
         }
 
-        function addMapMarker(shul) {
+        async function addMapMarker(shul) {
             if (!shul.lat || !shul.lng) return;
-            const marker = new google.maps.Marker({
+            const { Marker } = await google.maps.importLibrary("marker");
+            
+            const marker = new Marker({
                 position: { lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) },
                 map: map,
-                title: shul.name || shul.title
+                title: shul.name
             });
             marker.addListener("click", () => {
                 infoWindow.setContent(`<strong>${shul.name || shul.title}</strong><br>${shul.nextTime || ''}`);
@@ -242,14 +224,13 @@
             const mapDiv = document.getElementById('map-view');
             const icon = document.getElementById('toggle-icon');
             
-            // If current view is list (display:block), switch to map
-            const targetIsMap = forceView === 'map' || (forceView === undefined && list.style.display !== 'none');
+            const isListVisible = list.style.display !== 'none';
+            const targetIsMap = forceView === 'map' || (forceView === undefined && isListVisible);
 
             if (targetIsMap) {
                 list.style.display = 'none';
                 mapDiv.style.display = 'block';
                 icon.innerText = 'list';
-                google.maps.event.trigger(map, "resize"); 
             } else {
                 list.style.display = 'block';
                 mapDiv.style.display = 'none';
@@ -259,35 +240,27 @@
 
         function useMyLocation() {
             if (navigator.geolocation) {
-                 // Show visual feedback
-                 document.getElementById('location-input').placeholder = "Locating...";
-                 
                  navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const userLat = position.coords.latitude;
                         const userLng = position.coords.longitude;
                         map.setCenter({ lat: userLat, lng: userLng });
                         map.setZoom(14);
-                        document.getElementById('location-input').value = "Current Location";
                         performSearch("Current Location", userLat, userLng); 
                     },
                     () => { alert("Could not get location."); }
                 );
-            } else {
-                alert("Geolocation not supported.");
             }
         }
         
         function clearSearch() {
-            document.getElementById('location-input').value = '';
-            document.getElementById('location-input').focus();
+            // Because the new input is a Google component, we clear it via DOM
+            const input = document.querySelector('gmp-place-autocomplete');
+            if(input) input.value = '';
         }
     </script>
 
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&libraries=places&loading=async&callback=initApp"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&callback=initApp"></script>
 
 </body>
 </html>
-
-
-
