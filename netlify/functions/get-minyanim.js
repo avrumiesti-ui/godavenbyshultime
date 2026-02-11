@@ -1,28 +1,47 @@
-// This runs on the SERVER, so nobody can see this code in the browser.
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
-  // 1. Get the query from your website (e.g. ?q=New York)
-  const query = event.queryStringParameters.q || "";
-
-  // 2. Get your Secret Key from the Environment (Safe Place)
-  const API_KEY = process.env.GODAVEN_PRIVATE_KEY; 
+  // 1. Get the parameters sent from your website
+  const params = event.queryStringParameters;
+  const q = params.q || "";
+  const lat = params.lat;
+  const lng = params.lng;
   
-  // 3. The Real GoDaven Endpoint (Replace with the actual URL you have)
-  const API_URL = `https://api.godaven.com/v1/search?location=${query}`; 
+  // 2. Get Current Date & Time (Required by GoDaven to show accurate zmanim)
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0]; // e.g. "2026-02-11"
+  const timeStr = now.toTimeString().split(' ')[0].substring(0, 5); // e.g. "15:17"
+  const dayOfWeek = now.getDay() + 1; // 1=Sun, 7=Shabbos
+
+  let API_URL = "";
+
+  // 3. DECIDE: GPS Search vs. Name Search
+  if (lat && lng) {
+    // Scenario A: We have GPS coordinates -> Use "Radius Search"
+    // distance=10 means 10 miles radius
+    API_URL = `https://www.godaven.com/api/V2/shuls/radius-search?lat=${lat}&lng=${lng}&distance=10&pagenumber=1&nusach=&tefillah=&day=&current_time=${timeStr}&todays_day=${dayOfWeek}&users_date=${dateStr}`;
+  } else {
+    // Scenario B: We only have text -> Use "Search All"
+    API_URL = `https://www.godaven.com/api/V2/shuls/search-all?query=${encodeURIComponent(q)}&pagenumber=1&users_date=${dateStr}&nusach=&tefillah=&day=&current_time=${timeStr}&todays_day=${dayOfWeek}`;
+  }
+
+  // 4. Get your Private Key from Netlify settings
+  const API_KEY = process.env.GODAVEN_PRIVATE_KEY; 
 
   try {
-    // 4. Call GoDaven WITH the key
     const response = await fetch(API_URL, {
       headers: {
-        'Authorization': `Bearer ${API_KEY}`, // Or however their API requires the key
         'Content-Type': 'application/json'
+        // 'Authorization': `Bearer ${API_KEY}` // Uncomment this line if you confirmed they use a Bearer token
       }
     });
 
+    if (!response.ok) {
+       return { statusCode: response.status, body: `GoDaven API Error: ${response.statusText}` };
+    }
+
     const data = await response.json();
 
-    // 5. Send the data back to your website
     return {
       statusCode: 200,
       body: JSON.stringify(data)
@@ -31,7 +50,7 @@ exports.handler = async function(event, context) {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch data" })
+      body: JSON.stringify({ error: "Server Error", details: error.message })
     };
   }
 };
