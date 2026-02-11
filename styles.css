@@ -157,3 +157,25 @@ gmp-place-autocomplete::part(input) {
     outline: none;
     height: 100%;
 }
+/* FORCE GOOGLE INPUT STYLES */
+gmp-place-autocomplete {
+    flex-grow: 1;
+    margin: 0 10px;
+    --gmp-px-input-padding-top: 0;
+    --gmp-px-input-padding-bottom: 0;
+    --gmp-px-input-padding-right: 0;
+    --gmp-px-input-padding-left: 0;
+}
+
+/* Hide the inner Google border/background so it matches your pill */
+gmp-place-autocomplete::part(input) {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0;
+    outline: none;
+    height: 100%;
+    box-shadow: none;
+}
