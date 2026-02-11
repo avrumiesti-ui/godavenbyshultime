@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
-        /* Force the Search Pill to hold its shape */
         .search-pill {
             display: flex !important;
             align-items: center !important;
@@ -16,9 +15,12 @@
             position: relative;
             z-index: 1001;
             overflow: hidden;
+            background: #F0F2F5;
+            border-radius: 12px;
+            padding: 0 10px;
         }
         
-        /* Force Google Input to fill the space and be clickable */
+        /* Force Google Input to fill the space */
         gmp-place-autocomplete {
             display: inline-block !important;
             width: 100% !important;
@@ -29,7 +31,7 @@
             right: 40px; /* Space for clear icon */
         }
         
-        /* Style the internal text of the Google Input */
+        /* Style the text inside Google Input */
         gmp-place-autocomplete::part(input) {
             height: 100% !important;
             font-size: 16px !important;
@@ -147,14 +149,14 @@
             });
         }
 
-        // 2. Search Backend Logic
+        // 2. Search Logic
         function applyFilters() {
             if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
                 performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
             }
         }
 
-        // --- THIS IS THE UPDATED SECTION YOU ASKED ABOUT ---
+        // 3. PERFORM SEARCH (With Debug Mode)
         async function performSearch(query, lat, lng) {
             lastSearch = { query, lat, lng };
             const listContainer = document.getElementById('list-view');
@@ -174,26 +176,39 @@
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                // ERROR CHECK: Did the backend fail?
+                // ERROR CHECK
                 if (data.error) {
                     listContainer.innerHTML = `<div style="padding:20px; color:red; text-align:center;">
-                        <strong>Error from GoDaven:</strong><br>${data.message}
+                        <strong>API Error:</strong><br>${data.message}
                     </div>`;
                     countLabel.innerText = "Error";
                     return;
                 }
 
-                const results = data.SearchResults || data.results || data; 
+                const results = data.SearchResults || data.results || (Array.isArray(data) ? data : []); 
                 
                 listContainer.innerHTML = '';
                 clearMarkers();
 
-                if (!results || results.length === 0) {
+                // NO RESULTS (Debug Mode)
+                if (results.length === 0) {
                     countLabel.innerText = "0 Results";
-                    listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.<br>Try a different location.</div>';
+                    
+                    if (data.debug_info) {
+                         listContainer.innerHTML = `<div style="padding:20px; text-align:center;">
+                            <h3>No Results Found</h3>
+                            <p style="font-size:12px; color:red; word-break:break-all;">
+                                <strong>Debug - URL Tried:</strong><br>
+                                ${data.debug_info.url_used}
+                            </p>
+                         </div>`;
+                    } else {
+                        listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.<br>Try a different location.</div>';
+                    }
                     return;
                 }
 
+                // SHOW RESULTS
                 countLabel.innerText = `${results.length} Results`;
 
                 results.forEach((shul) => {
@@ -227,7 +242,7 @@
 
             } catch (error) {
                 console.error(error);
-                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">System Error: ${error.message}</div>`;
+                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">Client Error: ${error.message}</div>`;
             }
         }
 
@@ -284,8 +299,6 @@
         }
         
         function clearSearch() {
-            const container = document.getElementById("google-input-container");
-            // Just force a reload of the input if clearing is hard
             const input = document.querySelector("gmp-place-autocomplete");
             if(input) input.value = "";
         }
