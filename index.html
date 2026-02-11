@@ -3,131 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShulTime Simple</title>
+    <title>ShulTime Redesign</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <div class="app-header">
-        
-        <div class="search-row">
-            <div class="search-pill">
-                <i class="material-icons search-icon">search</i>
-                <input type="text" placeholder="Search location..." value="New York, NY">
-                <i class="material-icons clear-icon">close</i>
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-area">
+                <i class="material-icons" style="font-size: 64px; color: white;">synagogue</i>
+                <h1 style="color: white; margin: 10px 0;">GoDaven</h1>
             </div>
             
-            <button class="toggle-btn" onclick="toggleView()">
-                <i class="material-icons" id="toggle-icon">map</i>
-            </button>
-        </div>
-
-        <div class="filter-row">
-            <div class="filter-chip active">
-                <i class="material-icons">access_time</i> Time
+            <div class="splash-actions">
+                <button class="btn-primary" onclick="useMyLocation()">
+                    <i class="material-icons">my_location</i> Use My Location
+                </button>
+                <button class="btn-secondary" onclick="showSearch()">
+                    <i class="material-icons">search</i> Search Location
+                </button>
             </div>
-            
-            <div class="filter-chip">Shacharis</div>
-            <div class="filter-chip">Mincha</div>
-            <div class="filter-chip">Maariv</div>
-            
-            <div class="filter-chip">
-                <span>Nusach</span>
-                <i class="material-icons dropdown-arrow">arrow_drop_down</i>
-            </div>
-        </div>
-        
-        <div class="results-count" id="results-count">
-            <i class="material-icons">list</i> 52 Results
         </div>
     </div>
 
-    <div class="results-container" id="list-view">
-        
-        <div class="minyan-card">
-            <div class="card-left">
-                <h3>Beit Midrash Beth Gavriel</h3>
-                <p>20 W 47th St, New York, NY</p>
-                <div class="next-minyan">
-                    <span class="time-badge">01:00 PM</span>
-                    <span class="label">Mincha</span>
+    <div id="app-interface" style="display:none;">
+
+        <div class="app-header">
+            <div class="search-row">
+                <div class="search-pill">
+                    <i class="material-icons search-icon">search</i>
+                    <input type="text" id="location-input" placeholder="Search location..." value="New York, NY">
+                    <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
+                </div>
+                <button class="toggle-btn" onclick="toggleView()">
+                    <i class="material-icons" id="toggle-icon">map</i>
+                </button>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-chip active">
+                    <span>Sort: Time</span>
+                    <i class="material-icons">expand_more</i>
+                </div>
+                
+                <div class="filter-chip">
+                    <span>6:05a - 7:05a</span>
+                    <i class="material-icons">expand_more</i>
+                </div>
+
+                <div class="filter-chip">
+                    <span>Shacharis</span>
+                    <i class="material-icons">expand_more</i>
+                </div>
+                
+                <div class="filter-chip">
+                    <span>Sefard</span>
+                    <i class="material-icons">expand_more</i>
                 </div>
             </div>
-            <div class="card-right">
-                <i class="material-icons chevron">chevron_right</i>
+            
+            <div class="results-count" id="results-count">
+                52 Results found
             </div>
         </div>
 
-        <div class="minyan-card">
-            <div class="card-left">
-                <h3>Millinery Center Synagogue</h3>
-                <p>1025 6th Ave, New York, NY</p>
-                <div class="tags-row">
-                    <span class="nusach-tag ashkenaz">ASHKENAZ</span>
+        <div class="results-container" id="list-view">
+            
+            <div class="minyan-card">
+                <div class="card-left">
+                    <h3>Beit Midrash Beth Gavriel</h3>
+                    <p class="address">20 W 47th St, New York, NY</p>
+                    <div class="nusach-row">
+                        <span class="nusach-tag ashkenaz">ASHKENAZ</span>
+                    </div>
                 </div>
-                <div class="next-minyan">
-                    <span class="time-badge">01:35 PM</span>
-                    <span class="label">Mincha</span>
+                
+                <div class="card-right">
+                    <div class="tefillah-label">Mincha</div>
+                    <div class="time-display">01:00 PM</div>
                 </div>
             </div>
-            <div class="card-right">
-                <i class="material-icons chevron">chevron_right</i>
+
+            <div class="minyan-card">
+                <div class="card-left">
+                    <h3>Millinery Center Synagogue</h3>
+                    <p class="address">1025 6th Ave, New York, NY</p>
+                    <div class="nusach-row">
+                        <span class="nusach-tag ashkenaz">ASHKENAZ</span>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="tefillah-label">Mincha</div>
+                    <div class="time-display">01:35 PM</div>
+                </div>
             </div>
+
+            <div class="minyan-card">
+                <div class="card-left">
+                    <h3>444 Madison Minyan</h3>
+                    <p class="address">444 Madison Ave, New York, NY</p>
+                    <div class="nusach-row">
+                        <span class="nusach-tag sefard">SEFARD</span>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="tefillah-label">Mincha</div>
+                    <div class="time-display">01:40 PM</div>
+                </div>
+            </div>
+            
+            <div style="height: 100px;"></div>
         </div>
 
-        <div class="minyan-card">
-            <div class="card-left">
-                <h3>444 Madison Mincha</h3>
-                <p>444 Madison Ave, New York, NY</p>
-                <div class="tags-row">
-                    <span class="nusach-tag ashkenaz">ASHKENAZ</span>
-                </div>
-                <div class="next-minyan">
-                    <span class="time-badge">01:40 PM</span>
-                    <span class="label">Mincha</span>
-                </div>
-            </div>
-            <div class="card-right">
-                <i class="material-icons chevron">chevron_right</i>
-            </div>
+        <div id="map-view">
+            <div class="map-placeholder">User Location Map Loading...</div>
         </div>
 
-        <div style="height: 100px;"></div>
-    </div>
+    </div> <script>
+        function useMyLocation() {
+            // Here you would hook into the GoDaven "getCurrentPosition" logic
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('app-interface').style.display = 'block';
+            // Trigger actual map load here
+        }
 
-    <div id="map-view">
-        <div class="map-placeholder">
-            <p>Google Map Will Load Here</p>
-            <p style="font-size: 14px; opacity: 0.7;">(Using User Location)</p>
-        </div>
-    </div>
+        function showSearch() {
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('app-interface').style.display = 'block';
+            document.getElementById('location-input').focus();
+        }
 
-    <button class="fab-location">
-        <i class="material-icons">my_location</i>
-    </button>
-
-    <script>
-        // Simple script to toggle between Map and List
         function toggleView() {
-            const listView = document.getElementById('list-view');
-            const mapView = document.getElementById('map-view');
+            const list = document.getElementById('list-view');
+            const map = document.getElementById('map-view');
             const icon = document.getElementById('toggle-icon');
-            const count = document.getElementById('results-count');
-
-            if (listView.style.display === 'none') {
-                // Switch to LIST
-                listView.style.display = 'block';
-                mapView.style.display = 'none';
-                icon.innerText = 'map'; // Button icon becomes 'map'
-                count.style.display = 'block';
+            
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                map.style.display = 'none';
+                icon.innerText = 'map';
             } else {
-                // Switch to MAP
-                listView.style.display = 'none';
-                mapView.style.display = 'flex';
-                icon.innerText = 'list'; // Button icon becomes 'list'
-                count.style.display = 'none';
+                list.style.display = 'none';
+                map.style.display = 'flex';
+                icon.innerText = 'list';
             }
+        }
+        
+        function clearSearch() {
+            document.getElementById('location-input').value = '';
         }
     </script>
 </body>
