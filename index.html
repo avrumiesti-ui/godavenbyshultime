@@ -304,10 +304,54 @@
         }
     }
     
-    // (Include your showSearch(), useMyLocation(), clearSearch() functions here if they were removed)
+    function showSearch() {
+        document.getElementById('splash-screen').style.display = 'none';
+        document.getElementById('app-interface').style.display = 'block';
+        
+        // Focus the cursor so the user can type immediately
+        setTimeout(() => {
+            document.getElementById('location-input').focus();
+        }, 100);
+        
+        // Optional: Run a default search so the list isn't empty
+        performSearch("Lakewood, NJ", null, null); 
+    }
+
+    function useMyLocation() {
+        document.getElementById('splash-screen').style.display = 'none';
+        document.getElementById('app-interface').style.display = 'block';
+        
+        if (navigator.geolocation) {
+             navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    
+                    // Center map on user
+                    map.setCenter({ lat: userLat, lng: userLng });
+                    map.setZoom(14);
+                    
+                    // Search GoDaven with GPS
+                    performSearch("Current Location", userLat, userLng); 
+                },
+                () => { 
+                    alert("Could not get location. Please search manually.");
+                    document.getElementById('location-input').focus();
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+    
+    function clearSearch() {
+        document.getElementById('location-input').value = '';
+        document.getElementById('location-input').focus();
+    }
 </script>
 </body>
 </html>
+
 
 
 
