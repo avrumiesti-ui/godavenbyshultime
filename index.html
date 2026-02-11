@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShulTime Simple</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-header">
+        
+        <div class="search-row">
+            <div class="search-pill">
+                <i class="material-icons search-icon">search</i>
+                <input type="text" placeholder="Search location..." value="New York, NY">
+                <i class="material-icons clear-icon">close</i>
+            </div>
+            
+            <button class="toggle-btn" onclick="toggleView()">
+                <i class="material-icons" id="toggle-icon">map</i>
+            </button>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-chip active">
+                <i class="material-icons">access_time</i> Time
+            </div>
+            
+            <div class="filter-chip">Shacharis</div>
+            <div class="filter-chip">Mincha</div>
+            <div class="filter-chip">Maariv</div>
+            
+            <div class="filter-chip">
+                <span>Nusach</span>
+                <i class="material-icons dropdown-arrow">arrow_drop_down</i>
+            </div>
+        </div>
+        
+        <div class="results-count" id="results-count">
+            <i class="material-icons">list</i> 52 Results
+        </div>
+    </div>
+
+    <div class="results-container" id="list-view">
+        
+        <div class="minyan-card">
+            <div class="card-left">
+                <h3>Beit Midrash Beth Gavriel</h3>
+                <p>20 W 47th St, New York, NY</p>
+                <div class="next-minyan">
+                    <span class="time-badge">01:00 PM</span>
+                    <span class="label">Mincha</span>
+                </div>
+            </div>
+            <div class="card-right">
+                <i class="material-icons chevron">chevron_right</i>
+            </div>
+        </div>
+
+        <div class="minyan-card">
+            <div class="card-left">
+                <h3>Millinery Center Synagogue</h3>
+                <p>1025 6th Ave, New York, NY</p>
+                <div class="tags-row">
+                    <span class="nusach-tag ashkenaz">ASHKENAZ</span>
+                </div>
+                <div class="next-minyan">
+                    <span class="time-badge">01:35 PM</span>
+                    <span class="label">Mincha</span>
+                </div>
+            </div>
+            <div class="card-right">
+                <i class="material-icons chevron">chevron_right</i>
+            </div>
+        </div>
+
+        <div class="minyan-card">
+            <div class="card-left">
+                <h3>444 Madison Mincha</h3>
+                <p>444 Madison Ave, New York, NY</p>
+                <div class="tags-row">
+                    <span class="nusach-tag ashkenaz">ASHKENAZ</span>
+                </div>
+                <div class="next-minyan">
+                    <span class="time-badge">01:40 PM</span>
+                    <span class="label">Mincha</span>
+                </div>
+            </div>
+            <div class="card-right">
+                <i class="material-icons chevron">chevron_right</i>
+            </div>
+        </div>
+
+        <div style="height: 100px;"></div>
+    </div>
+
+    <div id="map-view">
+        <div class="map-placeholder">
+            <p>Google Map Will Load Here</p>
+            <p style="font-size: 14px; opacity: 0.7;">(Using User Location)</p>
+        </div>
+    </div>
+
+    <button class="fab-location">
+        <i class="material-icons">my_location</i>
+    </button>
+
+    <script>
+        // Simple script to toggle between Map and List
+        function toggleView() {
+            const listView = document.getElementById('list-view');
+            const mapView = document.getElementById('map-view');
+            const icon = document.getElementById('toggle-icon');
+            const count = document.getElementById('results-count');
+
+            if (listView.style.display === 'none') {
+                // Switch to LIST
+                listView.style.display = 'block';
+                mapView.style.display = 'none';
+                icon.innerText = 'map'; // Button icon becomes 'map'
+                count.style.display = 'block';
+            } else {
+                // Switch to MAP
+                listView.style.display = 'none';
+                mapView.style.display = 'flex';
+                icon.innerText = 'list'; // Button icon becomes 'list'
+                count.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

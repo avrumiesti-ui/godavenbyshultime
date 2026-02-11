@@ -1,0 +1,209 @@
+:root {
+    --primary-navy: #0D2B4F; /* ShulTime Navy */
+    --bg-color: #F8F9FA;
+    --card-bg: #FFFFFF;
+    --text-dark: #1A1A1A;
+    --text-grey: #666666;
+    --accent-blue: #E3F2FD;
+    --tag-ashkenaz: #E8F5E9;
+    --tag-ashkenaz-text: #2E7D32;
+    --shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* --- HEADER SECTION --- */
+.app-header {
+    background: var(--card-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 12px 16px 0 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.search-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-pill {
+    flex-grow: 1;
+    background: #F0F2F5;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+}
+
+.search-pill input {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    margin-left: 10px;
+    flex-grow: 1;
+    outline: none;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.search-icon { color: #888; }
+.clear-icon { color: #bbb; font-size: 18px; }
+
+.toggle-btn {
+    background: var(--primary-navy);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(13, 43, 79, 0.2);
+}
+
+/* --- FILTER PILLS --- */
+.filter-row {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 12px 0;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.filter-row::-webkit-scrollbar { display: none; /* Hide scrollbar Chrome/Safari */ }
+
+.filter-chip {
+    background: var(--card-bg);
+    border: 1px solid #E0E0E0;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.filter-chip.active {
+    background: var(--primary-navy);
+    color: white;
+    border-color: var(--primary-navy);
+}
+
+.filter-chip i { font-size: 18px; }
+
+.results-count {
+    padding: 8px 0 12px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-grey);
+    border-top: 1px solid #eee;
+    margin-top: 4px;
+}
+
+/* --- LIST RESULTS --- */
+.results-container {
+    padding: 16px;
+}
+
+.minyan-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-left h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: var(--primary-navy);
+}
+
+.card-left p {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: var(--text-grey);
+}
+
+.tags-row { margin-bottom: 8px; }
+
+.nusach-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.nusach-tag.ashkenaz { background: var(--tag-ashkenaz); color: var(--tag-ashkenaz-text); }
+
+.next-minyan {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-badge {
+    background: var(--accent-blue);
+    color: var(--primary-navy);
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.label {
+    font-size: 12px;
+    color: var(--text-grey);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.chevron { color: #ccc; }
+
+/* --- MAP VIEW --- */
+#map-view {
+    display: none; /* Hidden by default */
+    height: calc(100vh - 130px); /* Full height minus header */
+    background: #e0e0e0;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-placeholder {
+    text-align: center;
+    color: #888;
+}
+
+/* --- FLOATING ACTION BUTTON --- */
+.fab-location {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: white;
+    border: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-navy);
+    cursor: pointer;
+    z-index: 200;
+}
