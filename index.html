@@ -77,6 +77,7 @@
     </button>
 
     <script>
+     <script>
         let map;
         let markers = [];
         let infoWindow;
@@ -84,7 +85,7 @@
 
         // 1. Initialize App
         async function initApp() {
-            // Import the new Google libraries
+            // Import libraries
             const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
             const { Marker } = await google.maps.importLibrary("marker");
@@ -94,36 +95,51 @@
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 13,
                 disableDefaultUI: true,
-                mapId: "DEMO_MAP_ID" // Required for new markers
+                mapId: "DEMO_MAP_ID"
             });
             
             infoWindow = new google.maps.InfoWindow();
 
-            // Init NEW Autocomplete Component
+            // Init Autocomplete
             const autocomplete = new PlaceAutocompleteElement();
-            autocomplete.id = "google-search-input";
+            autocomplete.id = "location-input";
             autocomplete.placeholder = "Search location...";
             
-            // Inject it into our container
-            const container = document.getElementById('autocomplete-container');
+            // Clear old container and add new element
+            const container = document.querySelector('.search-pill');
+            container.innerHTML = '<i class="material-icons search-icon">search</i>'; // Keep icon
             container.appendChild(autocomplete);
+            
+            // Add Clear Button
+            const clearBtn = document.createElement('i');
+            clearBtn.className = 'material-icons clear-icon';
+            clearBtn.innerText = 'close';
+            clearBtn.onclick = clearSearch;
+            container.appendChild(clearBtn);
 
-            // Listen for selection (The new 'gmp-places-select' event)
+            // LISTEN FOR SELECTION (The Fix)
+            // We use 'addEventListener' directly on the new element
             autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
-                await place.fetchFields({ fields: ["name", "location"] });
+                // 1. Force the input to close/blur
+                document.activeElement.blur();
+                
+                // 2. Get details
+                await place.fetchFields({ fields: ["displayName", "location"] });
                 
                 const lat = place.location.lat();
                 const lng = place.location.lng();
-                const name = place.displayName || place.name;
+                const name = place.displayName;
 
+                // 3. Move Map
                 map.setCenter({ lat, lng });
                 map.setZoom(14);
                 
+                // 4. Search Backend
                 performSearch(name, lat, lng);
             });
         }
 
-        // 2. Search Logic (Same as before)
+        // 2. Search Logic
         function applyFilters() {
             if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
                 performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
@@ -246,6 +262,11 @@
                         const userLng = position.coords.longitude;
                         map.setCenter({ lat: userLat, lng: userLng });
                         map.setZoom(14);
+                        
+                        // Manually set text since we replaced the input
+                        const input = document.querySelector('gmp-place-autocomplete');
+                        if(input) input.value = "Current Location";
+                        
                         performSearch("Current Location", userLat, userLng); 
                     },
                     () => { alert("Could not get location."); }
@@ -254,13 +275,40 @@
         }
         
         function clearSearch() {
-            // Because the new input is a Google component, we clear it via DOM
             const input = document.querySelector('gmp-place-autocomplete');
             if(input) input.value = '';
         }
+    </script>
+2. Update styles.css
+You need to specifically style the new Google element because it has a "Shadow DOM" that blocks normal CSS. Add this to the very bottom of your styles.css file:
+
+CSS
+/* FORCE GOOGLE INPUT STYLES */
+gmp-place-autocomplete {
+    flex-grow: 1;
+    margin: 0 10px;
+    --gmp-px-input-padding-top: 0;
+    --gmp-px-input-padding-bottom: 0;
+    --gmp-px-input-padding-right: 0;
+    --gmp-px-input-padding-left: 0;
+}
+
+/* Hide the inner Google border/background so it matches your pill */
+gmp-place-autocomplete::part(input) {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0;
+    outline: none;
+    height: 100%;
+    box-shadow: none;
+}
     </script>
 
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&callback=initApp"></script>
 
 </body>
 </html>
+
