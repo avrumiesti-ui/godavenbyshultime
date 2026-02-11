@@ -7,6 +7,41 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     
+    <style>
+        /* Force the Search Pill to hold its shape */
+        .search-pill {
+            display: flex !important;
+            align-items: center !important;
+            height: 50px !important;
+            position: relative;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        /* Force Google Input to fill the space and be clickable */
+        gmp-place-autocomplete {
+            display: inline-block !important;
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 0;
+            left: 40px; /* Space for search icon */
+            right: 40px; /* Space for clear icon */
+        }
+        
+        /* Style the internal text of the Google Input */
+        gmp-place-autocomplete::part(input) {
+            height: 100% !important;
+            font-size: 16px !important;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            color: #000 !important;
+            padding-top: 14px !important;
+            cursor: text !important;
+        }
+    </style>
+
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </head>
 <body>
@@ -80,42 +115,34 @@
 
         // 1. Initialize App
         async function initApp() {
-            // Import Libraries
             const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
             const { Marker } = await google.maps.importLibrary("marker");
 
-            // Init Map
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 13,
                 disableDefaultUI: true,
-                mapId: "DEMO_MAP_ID" // Required
+                mapId: "DEMO_MAP_ID"
             });
             infoWindow = new google.maps.InfoWindow();
 
-            // Init Google Autocomplete Input
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.id = "gmp-input";
-            // We remove the placeholder here to avoid double text, handled by CSS/Container
             
-            // Inject into the page
             const container = document.getElementById("google-input-container");
             container.innerHTML = ""; 
             container.appendChild(autocomplete);
 
-            // Listen for user selection
             autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
                 await place.fetchFields({ fields: ["displayName", "location"] });
                 const lat = place.location.lat();
                 const lng = place.location.lng();
                 const name = place.displayName;
 
-                // Update Map
                 map.setCenter({ lat, lng });
                 map.setZoom(14);
                 
-                // Search Backend
                 performSearch(name, lat, lng);
             });
         }
@@ -127,6 +154,7 @@
             }
         }
 
+        // --- THIS IS THE UPDATED SECTION YOU ASKED ABOUT ---
         async function performSearch(query, lat, lng) {
             lastSearch = { query, lat, lng };
             const listContainer = document.getElementById('list-view');
@@ -145,6 +173,16 @@
 
                 const response = await fetch(url);
                 const data = await response.json();
+                
+                // ERROR CHECK: Did the backend fail?
+                if (data.error) {
+                    listContainer.innerHTML = `<div style="padding:20px; color:red; text-align:center;">
+                        <strong>Error from GoDaven:</strong><br>${data.message}
+                    </div>`;
+                    countLabel.innerText = "Error";
+                    return;
+                }
+
                 const results = data.SearchResults || data.results || data; 
                 
                 listContainer.innerHTML = '';
@@ -152,7 +190,7 @@
 
                 if (!results || results.length === 0) {
                     countLabel.innerText = "0 Results";
-                    listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.</div>';
+                    listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.<br>Try a different location.</div>';
                     return;
                 }
 
@@ -189,7 +227,7 @@
 
             } catch (error) {
                 console.error(error);
-                listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading results.</div>';
+                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">System Error: ${error.message}</div>`;
             }
         }
 
@@ -246,11 +284,10 @@
         }
         
         function clearSearch() {
-            // We clear the input by replacing the component logic or just reloading
-            // For simplicity with the web component:
             const container = document.getElementById("google-input-container");
-            const existing = document.getElementById("gmp-input");
-            existing.value = "";
+            // Just force a reload of the input if clearing is hard
+            const input = document.querySelector("gmp-place-autocomplete");
+            if(input) input.value = "";
         }
     </script>
 </body>
