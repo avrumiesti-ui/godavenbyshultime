@@ -9,25 +9,7 @@
 </head>
 <body>
 
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="logo-area">
-                <i class="material-icons" style="font-size: 64px; color: white;">synagogue</i>
-                <h1 style="color: white; margin: 10px 0;">GoDaven</h1>
-            </div>
-            
-            <div class="splash-actions">
-                <button class="btn-primary" onclick="useMyLocation()">
-                    <i class="material-icons">my_location</i> Use My Location
-                </button>
-                <button class="btn-secondary" onclick="showSearch()">
-                    <i class="material-icons">search</i> Search Location
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-interface" style="display:none;">
+    <div id="app-interface">
 
         <div class="app-header">
             <div class="search-row">
@@ -42,13 +24,46 @@
             </div>
 
             <div class="filter-row">
-                <div class="filter-chip" onclick="toggleFilter(this, 'tefillah', 'Shacharis')">Shacharis</div>
-                <div class="filter-chip" onclick="toggleFilter(this, 'tefillah', 'Mincha')">Mincha</div>
-                <div class="filter-chip" onclick="toggleFilter(this, 'tefillah', 'Maariv')">Maariv</div>
                 
-                <div class="filter-chip" onclick="toggleFilter(this, 'nusach', 'Ashkenaz')">Ashkenaz</div>
-                <div class="filter-chip" onclick="toggleFilter(this, 'nusach', 'Sefard')">Sefard</div>
-                <div class="filter-chip" onclick="toggleFilter(this, 'nusach', 'Ari')">Ari</div>
+                <div class="select-wrapper">
+                    <select id="filter-sort" onchange="applyFilters()">
+                        <option value="time">Sort: Time</option>
+                        <option value="distance">Sort: Distance</option>
+                    </select>
+                    <i class="material-icons">expand_more</i>
+                </div>
+
+                <div class="select-wrapper">
+                    <select id="filter-time" onchange="applyFilters()">
+                        <option value="">Time: All</option>
+                        <option value="now">Now</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="06:00">6:00a - 9:00a</option>
+                        <option value="13:00">1:00p - 4:00p</option>
+                        <option value="19:00">7:00p - 10:00p</option>
+                    </select>
+                    <i class="material-icons">expand_more</i>
+                </div>
+
+                <div class="select-wrapper">
+                    <select id="filter-tefillah" onchange="applyFilters()">
+                        <option value="">Tefillah: All</option>
+                        <option value="Shacharis">Shacharis</option>
+                        <option value="Mincha">Mincha</option>
+                        <option value="Maariv">Maariv</option>
+                    </select>
+                    <i class="material-icons">expand_more</i>
+                </div>
+                
+                <div class="select-wrapper">
+                    <select id="filter-nusach" onchange="applyFilters()">
+                        <option value="">Nusach: All</option>
+                        <option value="Ashkenaz">Ashkenaz</option>
+                        <option value="Sefard">Sefard</option>
+                        <option value="Ari">Ari</option>
+                    </select>
+                    <i class="material-icons">expand_more</i>
+                </div>
             </div>
             
             <div class="results-count" id="results-count">
@@ -59,7 +74,7 @@
         <div class="results-container" id="list-view">
             <div style="text-align:center; padding:40px; color:#888;">
                 <i class="material-icons" style="font-size:48px; opacity:0.3;">search</i><br>
-                Search for a minyan to begin.
+                Search or use "My Location"
             </div>
         </div>
 
@@ -67,24 +82,20 @@
 
     </div>
 
+    <button class="fab-location" onclick="useMyLocation()">
+        <i class="material-icons">my_location</i>
+    </button>
+
     <script>
         let map;
         let markers = [];
         let infoWindow;
         let autocomplete;
-
-        // Global variables to store current filter state
-        let activeFilters = {
-            nusach: "",
-            tefillah: ""
-        };
-        
-        // Save the last search so we can re-run it when filters change
         let lastSearch = { query: "", lat: null, lng: null };
 
         // 1. Initialize App (Called by Google Maps)
         function initApp() {
-            // Init Map centered on New York
+            // Init Map
             map = new google.maps.Map(document.getElementById("map-view"), {
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 13,
@@ -95,22 +106,22 @@
 
             // Init Autocomplete
             const input = document.getElementById('location-input');
-            const options = { types: ['geocode'] };
+            const options = { types: ['geocode'] }; // Only show cities/addresses
             autocomplete = new google.maps.places.Autocomplete(input, options);
             
+            // Listen for selection
             autocomplete.addListener('place_changed', onPlaceSelected);
 
+            // Listen for Enter key
             input.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
+                    input.blur(); // Close keyboard
                     const val = e.target.value;
                     performSearch(val, null, null); 
-                    // Hide keyboard on mobile
-                    input.blur();
                 }
             });
         }
 
-        // 2. Handle Autocomplete Selection
         function onPlaceSelected() {
             const place = autocomplete.getPlace();
             
@@ -128,58 +139,57 @@
             performSearch(place.name, lat, lng);
         }
 
-        // 3. Send Search to Netlify
-        async function performSearch(query, lat, lng) {
-            // Update "Last Search" memory
-            lastSearch = { query, lat, lng };
+        // Called when dropdowns change
+        function applyFilters() {
+            if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
+                performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
+            }
+        }
 
+        async function performSearch(query, lat, lng) {
+            lastSearch = { query, lat, lng };
             const listContainer = document.getElementById('list-view');
             const countLabel = document.getElementById('results-count');
             
-            listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching GoDaven...</div>';
+            // Get Dropdown Values
+            const nusach = document.getElementById('filter-nusach').value;
+            const tefillah = document.getElementById('filter-tefillah').value;
+            const time = document.getElementById('filter-time').value; // (Backend logic needed for time range)
+
+            listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching...</div>';
             
             try {
-                // Build URL
                 let url = `/.netlify/functions/get-minyanim?q=${encodeURIComponent(query)}`;
-                
                 if (lat && lng) url += `&lat=${lat}&lng=${lng}`;
+                if (nusach) url += `&nusach=${nusach}`;
+                if (tefillah) url += `&tefillah=${tefillah}`;
                 
-                // Add Filters
-                if (activeFilters.nusach) url += `&nusach=${activeFilters.nusach}`;
-                if (activeFilters.tefillah) url += `&tefillah=${activeFilters.tefillah}`;
-
                 const response = await fetch(url);
-                
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('API Error');
                 
                 const data = await response.json();
-                
-                // Handle different API data structures
                 const results = data.SearchResults || data.results || data; 
                 
-                // Clear old stuff
                 listContainer.innerHTML = '';
                 clearMarkers();
 
-                // Check for results
                 if (!results || results.length === 0) {
-                    countLabel.innerText = `0 Results found`;
-                    listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found matching your criteria.</div>';
+                    countLabel.innerText = `0 Results`;
+                    listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.</div>';
                     return;
                 }
 
-                countLabel.innerText = `${results.length} Results found`;
+                countLabel.innerText = `${results.length} Results`;
 
-                // Render Cards
                 results.forEach((shul) => {
                     const card = document.createElement('div');
                     card.className = 'minyan-card';
                     card.innerHTML = `
                         <div class="card-left">
-                            <h3>${shul.name || shul.title || 'Unknown Shul'}</h3>
+                            <h3>${shul.name || shul.title}</h3>
                             <p class="address">${shul.address || ''}</p>
                             <div class="nusach-row">
-                                <span class="nusach-tag ashkenaz">${shul.nusach || 'N/A'}</span>
+                                <span class="nusach-tag ${shul.nusach ? shul.nusach.toLowerCase() : ''}">${shul.nusach || 'N/A'}</span>
                             </div>
                         </div>
                         <div class="card-right">
@@ -188,50 +198,42 @@
                         </div>
                     `;
                     
-                    // Click card to map
                     card.onclick = () => {
                         if(shul.lat && shul.lng) {
                             toggleView('map');
                             map.setCenter({ lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) });
                             map.setZoom(16);
-                            // Find and click the marker
-                            const marker = markers.find(m => m.getTitle() === shul.name);
+                            // Auto-open marker info
+                            const marker = markers.find(m => m.getTitle() === (shul.name || shul.title));
                             if(marker) google.maps.event.trigger(marker, 'click');
                         }
                     };
-                    
                     listContainer.appendChild(card);
                     addMapMarker(shul);
                 });
 
             } catch (error) {
                 console.error("Error:", error);
-                listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading results. Check your connection.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading results.</div>';
             }
         }
 
-        // 4. Helper Functions
         function addMapMarker(shul) {
             if (!shul.lat || !shul.lng) return;
-
             const marker = new google.maps.Marker({
                 position: { lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) },
                 map: map,
-                title: shul.name
+                title: shul.name || shul.title
             });
-
             marker.addListener("click", () => {
-                infoWindow.setContent(`<strong>${shul.name}</strong><br>${shul.nextTime || ''}`);
+                infoWindow.setContent(`<strong>${shul.name || shul.title}</strong><br>${shul.nextTime || ''}`);
                 infoWindow.open(map, marker);
             });
-
             markers.push(marker);
         }
 
         function clearMarkers() {
-            for (let i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
-            }
+            markers.forEach(m => m.setMap(null));
             markers = [];
         }
 
@@ -240,8 +242,8 @@
             const mapDiv = document.getElementById('map-view');
             const icon = document.getElementById('toggle-icon');
             
-            const isListVisible = list.style.display !== 'none';
-            const targetIsMap = forceView === 'map' || (forceView === undefined && isListVisible);
+            // If current view is list (display:block), switch to map
+            const targetIsMap = forceView === 'map' || (forceView === undefined && list.style.display !== 'none');
 
             if (targetIsMap) {
                 list.style.display = 'none';
@@ -255,60 +257,24 @@
             }
         }
 
-        function toggleFilter(element, type, value) {
-            const isActive = element.classList.contains('active');
-            
-            // Clear siblings
-            const siblings = element.parentElement.children;
-            for (let chip of siblings) {
-                if (chip.onclick && chip.onclick.toString().includes(type)) {
-                    chip.classList.remove('active');
-                }
-            }
-
-            if (isActive && activeFilters[type] === value) {
-                element.classList.remove('active');
-                activeFilters[type] = ""; 
-            } else {
-                element.classList.add('active');
-                activeFilters[type] = value; 
-            }
-
-            // Re-run search if we have a query
-            if (lastSearch.query) {
-                performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
-            }
-        }
-
-        function showSearch() {
-            document.getElementById('splash-screen').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('location-input').focus();
-            }, 100);
-        }
-
         function useMyLocation() {
-            document.getElementById('splash-screen').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'block';
-            
             if (navigator.geolocation) {
+                 // Show visual feedback
+                 document.getElementById('location-input').placeholder = "Locating...";
+                 
                  navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const userLat = position.coords.latitude;
                         const userLng = position.coords.longitude;
                         map.setCenter({ lat: userLat, lng: userLng });
                         map.setZoom(14);
+                        document.getElementById('location-input').value = "Current Location";
                         performSearch("Current Location", userLat, userLng); 
                     },
-                    () => { 
-                        alert("Could not get location. Please search manually.");
-                        showSearch();
-                    }
+                    () => { alert("Could not get location."); }
                 );
             } else {
                 alert("Geolocation not supported.");
-                showSearch();
             }
         }
         
@@ -322,8 +288,6 @@
 
 </body>
 </html>
-
-
 
 
 
