@@ -179,3 +179,45 @@ gmp-place-autocomplete::part(input) {
     height: 100%;
     box-shadow: none;
 }
+/* CONTAINER ADJUSTMENT */
+.search-pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #F0F2F5; /* Matches pill color */
+    border-radius: 12px;
+    padding: 0 10px; /* Give room for icons */
+    height: 46px; /* Explicit height */
+    flex-grow: 1;
+}
+
+#google-input-container {
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* FORCE GOOGLE COMPONENT TO FILL SPACE */
+gmp-place-autocomplete {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* STRIP GOOGLE STYLING TO MATCH YOUR APP */
+gmp-place-autocomplete::part(input) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 10px;
+    font-size: 16px;
+    color: #333;
+    font-family: inherit;
+    height: 100%;
+    width: 100%;
+}
+
+gmp-place-autocomplete::part(clear-button) {
+    display: none; /* We have our own clear button */
+}
