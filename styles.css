@@ -141,3 +141,19 @@ body {
     z-index: 200;
 }
 .fab-location:active { transform: scale(0.95); }
+/* Style the new Google Web Component */
+gmp-place-autocomplete {
+    width: 100%;
+    margin-left: 10px;
+}
+
+gmp-place-autocomplete::part(input) {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0;
+    outline: none;
+    height: 100%;
+}
