@@ -8,19 +8,17 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
-        /* --- GOOGLE DROPDOWN FIX --- */
-        /* This forces the dropdown to appear ON TOP of everything */
+        /* Force dropdown to be visible */
         .pac-container {
             z-index: 10000 !important;
             border-radius: 0 0 12px 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-family: inherit;
+            font-family: sans-serif;
         }
 
-        /* --- SEARCH ROW --- */
+        /* Search Row */
         .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; }
 
-        /* The Pill Container */
         .search-pill {
             flex-grow: 1;
             display: flex;
@@ -30,10 +28,8 @@
             padding: 0 12px;
             height: 50px;
             border: 1px solid #ddd;
-            /* CRITICAL: We removed 'overflow:hidden' so the dropdown can show! */
         }
 
-        /* The Input Field (Standard HTML Input) */
         #location-input {
             border: none;
             background: transparent;
@@ -45,8 +41,6 @@
             color: #111;
         }
     </style>
-
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </head>
 <body>
 
@@ -56,7 +50,7 @@
             <div class="search-row">
                 <div class="search-pill">
                     <i class="material-icons search-icon" style="color:#888;">search</i>
-                    <input type="text" id="location-input" placeholder="Search city (e.g. Lakewood)" autocomplete="off">
+                    <input type="text" id="location-input" placeholder="Search city..." autocomplete="off">
                     <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
                 </div>
                 
@@ -65,7 +59,7 @@
                 </button>
             </div>
 
-            <div id="status-bar" style="text-align:center; font-size:12px; color:#666; margin-bottom:10px; height:15px;">Ready.</div>
+            <div id="status-bar" style="text-align:center; font-size:12px; color:#666; margin-bottom:10px; height:15px;">Initializing...</div>
 
             <div class="filter-row">
                 <div class="select-wrapper">
@@ -95,9 +89,7 @@
                 </div>
             </div>
             
-            <div class="results-count" id="results-count">
-                Enter a location
-            </div>
+            <div class="results-count" id="results-count">Enter a location</div>
         </div>
 
         <div class="results-container" id="list-view">
@@ -121,58 +113,53 @@
         let lastSearch = { query: "", lat: null, lng: null };
         let autocomplete;
 
-        // 1. Initialize App
-        async function initApp() {
-            updateStatus("Loading Maps...");
+        // 1. GLOBAL INIT FUNCTION (Must be defined before Google loads)
+        window.initApp = function() {
+            updateStatus("Google Maps Connected.");
             
             // Init Map
-            const { Map } = await google.maps.importLibrary("maps");
-            map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.7128, lng: -74.0060 },
-                zoom: 13,
-                disableDefaultUI: true,
-            });
-            infoWindow = new google.maps.InfoWindow();
+            try {
+                map = new google.maps.Map(document.getElementById("map-view"), {
+                    center: { lat: 40.7128, lng: -74.0060 },
+                    zoom: 13,
+                    disableDefaultUI: true,
+                });
+                infoWindow = new google.maps.InfoWindow();
+            } catch (e) {
+                console.error("Map Error:", e);
+                updateStatus("Map Failed to Load");
+            }
 
-            // Init Autocomplete (Standard Method)
-            const input = document.getElementById('location-input');
-            const options = { types: ['geocode'] }; // Only show cities/addresses
-            
-            // This creates the dropdown automatically attached to the input
-            autocomplete = new google.maps.places.Autocomplete(input, options);
-            
-            // Listen for selection
-            autocomplete.addListener('place_changed', onPlaceSelected);
+            // Init Search
+            try {
+                const input = document.getElementById('location-input');
+                const options = { types: ['geocode'] };
+                autocomplete = new google.maps.places.Autocomplete(input, options);
+                autocomplete.addListener('place_changed', onPlaceSelected);
+                
+                // Allow "Enter" key
+                input.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                        performSearch(input.value, null, null); 
+                    }
+                });
+            } catch (e) {
+                console.error("Search Error:", e);
+                updateStatus("Search Failed to Load");
+            }
+        };
 
-            // Listen for "Enter" key (Manual search)
-            input.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    input.blur(); // Close keyboard
-                    const val = input.value;
-                    // If they typed "Lakewood" but didn't click dropdown, we just search the text
-                    performSearch(val, null, null); 
-                }
-            });
-            
-            updateStatus("Ready.");
-        }
-
-        // 2. Handle Dropdown Selection
         function onPlaceSelected() {
             const place = autocomplete.getPlace();
-            
             if (!place.geometry) {
-                // User entered name but didn't pick from list
                 performSearch(place.name, null, null);
                 return;
             }
-
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
-            
             map.setCenter(place.geometry.location);
             map.setZoom(14);
-            
             performSearch(place.name, lat, lng);
         }
 
@@ -181,7 +168,6 @@
             if(el) el.innerText = msg;
         }
 
-        // 3. Search Logic
         function applyFilters() {
             if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
                 performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
@@ -267,8 +253,7 @@
 
         async function addMapMarker(shul) {
             if (!shul.lat || !shul.lng) return;
-            const { Marker } = await google.maps.importLibrary("marker");
-            const marker = new Marker({
+            const marker = new google.maps.Marker({
                 position: { lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) },
                 map: map,
                 title: shul.name || shul.title
@@ -311,7 +296,6 @@
                         const userLng = position.coords.longitude;
                         map.setCenter({ lat: userLat, lng: userLng });
                         map.setZoom(14);
-                        
                         document.getElementById('location-input').value = "Current Location";
                         performSearch("Current Location", userLat, userLng); 
                     },
@@ -325,5 +309,7 @@
             document.getElementById('location-input').focus();
         }
     </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&libraries=places&callback=initApp"></script>
 </body>
 </html>
