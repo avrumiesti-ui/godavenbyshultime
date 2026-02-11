@@ -123,71 +123,109 @@
     </div> <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&libraries=places&callback=initApp"></script>
 
 <script>
-    let map;
+   let map;
     let markers = [];
     let infoWindow;
+    let autocomplete;
 
-    // 1. Initialize App (Called by Google Maps URL above)
+    // 1. Initialize App
     function initApp() {
-        // Initialize the map centered on New York (default)
+        // Init Map centered on New York
         map = new google.maps.Map(document.getElementById("map-view"), {
             center: { lat: 40.7128, lng: -74.0060 },
             zoom: 13,
-            disableDefaultUI: true, // Makes it look like an app
-            styles: [ /* Optional: Add dark mode styles here if you want */ ]
+            disableDefaultUI: true,
         });
         
         infoWindow = new google.maps.InfoWindow();
 
-        // Listen for Search "Enter" key
-        document.getElementById('location-input').addEventListener('keypress', function (e) {
+        // Init Autocomplete (The dropdown menu from Google)
+        const input = document.getElementById('location-input');
+        
+        // This limits suggestions to "Geocodes" (cities/addresses) to avoid business spam
+        const options = { types: ['geocode'] };
+        autocomplete = new google.maps.places.Autocomplete(input, options);
+        
+        // Listen: When user clicks a suggestion from the dropdown
+        autocomplete.addListener('place_changed', onPlaceSelected);
+
+        // Listen: When user presses "Enter" without picking from dropdown
+        input.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
-                performSearch(e.target.value);
+                const val = e.target.value;
+                performSearch(val, null, null); 
             }
         });
     }
 
-    // 2. The Search Logic (Connects to Netlify)
-    async function performSearch(query) {
+    // 2. Handle Autocomplete Selection
+    function onPlaceSelected() {
+        const place = autocomplete.getPlace();
+        
+        if (!place.geometry) {
+            // User entered name but didn't pick from list
+            performSearch(place.name, null, null);
+            return;
+        }
+
+        // We have coordinates! 
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        
+        // Move map to the selected spot
+        map.setCenter(place.geometry.location);
+        map.setZoom(14);
+        
+        // Send Name + GPS to our backend
+        performSearch(place.name, lat, lng);
+    }
+
+    // 3. Send Search to Netlify
+    async function performSearch(query, lat, lng) {
         const listContainer = document.getElementById('list-view');
         const countLabel = document.getElementById('results-count');
         
-        // Show loading state
-        listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Searching...</div>';
+        listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching GoDaven...</div>';
         
         try {
-            // CALL YOUR NETLIFY FUNCTION
-            // This is the "magic link" between your frontend and backend
-            const response = await fetch(`/.netlify/functions/get-minyanim?q=${encodeURIComponent(query)}`);
+            // Build the URL for our "Middleman"
+            let url = `/.netlify/functions/get-minyanim?q=${encodeURIComponent(query)}`;
+            
+            // If we have GPS, add it to the URL
+            if (lat && lng) {
+                url += `&lat=${lat}&lng=${lng}`;
+            }
+
+            const response = await fetch(url);
             
             if (!response.ok) throw new Error('Network response was not ok');
             
             const data = await response.json();
             
-            // Clear loading
+            // IMPORTANT: GoDaven's API structure might vary. 
+            // We check if the data is inside "SearchResults", "results", or is the array itself.
+            const results = data.SearchResults || data.results || data; 
+            
+            // Clear old stuff
             listContainer.innerHTML = '';
             clearMarkers();
 
-            // Update result count
-            // Note: Adjust 'data.results' based on the actual API structure (e.g., data.shuls, data.minyanim)
-            const results = data.results || data; 
-            countLabel.innerText = `${results.length} Results found`;
+            countLabel.innerText = `${results.length || 0} Results found`;
 
-            // If no results
-            if (results.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found here.</div>';
+            if (!results || results.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.</div>';
                 return;
             }
 
-            // 3. Loop through data and build UI
-            results.forEach((shul, index) => {
-                // A. Add Card to List
+            // Render the cards
+            results.forEach((shul) => {
+                // Create Card HTML
                 const card = document.createElement('div');
                 card.className = 'minyan-card';
                 card.innerHTML = `
                     <div class="card-left">
-                        <h3>${shul.name || shul.title}</h3>
-                        <p class="address">${shul.address}</p>
+                        <h3>${shul.name || shul.title || 'Unknown Shul'}</h3>
+                        <p class="address">${shul.address || ''}</p>
                         <div class="nusach-row">
                             <span class="nusach-tag ashkenaz">${shul.nusach || 'N/A'}</span>
                         </div>
@@ -200,31 +238,27 @@
                 
                 // Clicking card zooms map to that shul
                 card.onclick = () => {
-                    toggleView('map');
-                    map.setCenter({ lat: shul.lat, lng: shul.lng });
-                    map.setZoom(16);
+                    // Only try to zoom if shul has coordinates
+                    if(shul.lat && shul.lng) {
+                        toggleView('map');
+                        map.setCenter({ lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) });
+                        map.setZoom(16);
+                    }
                 };
                 
                 listContainer.appendChild(card);
 
-                // B. Add Marker to Map
+                // Add Map Marker
                 addMapMarker(shul);
             });
 
-            // Re-center map to fit all new markers
-            if (markers.length > 0) {
-                const bounds = new google.maps.LatLngBounds();
-                markers.forEach(marker => bounds.extend(marker.getPosition()));
-                map.fitBounds(bounds);
-            }
-
         } catch (error) {
-            console.error("Search Error:", error);
+            console.error("Error:", error);
             listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading results.</div>';
         }
     }
 
-    // 3. Map Helpers
+    // 4. Map Helpers
     function addMapMarker(shul) {
         if (!shul.lat || !shul.lng) return;
 
@@ -248,22 +282,20 @@
         }
         markers = [];
     }
-
-    // 4. View Toggles (Same as before)
+    
+    // 5. View Toggles (Keep your existing functions here)
     function toggleView(forceView) {
         const list = document.getElementById('list-view');
         const mapDiv = document.getElementById('map-view');
         const icon = document.getElementById('toggle-icon');
         
-        // Use 'forceView' to switch specifically to map or list, or toggle if undefined
         const isListVisible = list.style.display !== 'none';
         const targetIsMap = forceView === 'map' || (forceView === undefined && isListVisible);
 
         if (targetIsMap) {
             list.style.display = 'none';
-            mapDiv.style.display = 'block'; // Changed to block for Google Maps compatibility
+            mapDiv.style.display = 'block';
             icon.innerText = 'list';
-            // Trigger map resize so it doesn't look gray/broken
             google.maps.event.trigger(map, "resize"); 
         } else {
             list.style.display = 'block';
@@ -271,37 +303,11 @@
             icon.innerText = 'map';
         }
     }
-
-    function showSearch() {
-        document.getElementById('splash-screen').style.display = 'none';
-        document.getElementById('app-interface').style.display = 'block';
-        // Trigger a default search so the page isn't empty
-        performSearch("New York"); 
-    }
     
-    function useMyLocation() {
-        document.getElementById('splash-screen').style.display = 'none';
-        document.getElementById('app-interface').style.display = 'block';
-        
-        if (navigator.geolocation) {
-             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userLat = position.coords.latitude;
-                    const userLng = position.coords.longitude;
-                    map.setCenter({ lat: userLat, lng: userLng });
-                    // Optionally call performSearch with lat/lng if the API supports it
-                    performSearch(`${userLat},${userLng}`); 
-                },
-                () => { alert("Could not get location."); }
-            );
-        }
-    }
-    
-    function clearSearch() {
-        document.getElementById('location-input').value = '';
-    }
+    // (Include your showSearch(), useMyLocation(), clearSearch() functions here if they were removed)
 </script>
 </body>
 </html>
+
 
 
