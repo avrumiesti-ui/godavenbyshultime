@@ -10,20 +10,22 @@
         :root { --primary: #0D2B4F; --accent: #E3F2FD; --bg: #F2F4F8; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; padding-bottom: 200px; }
         
-        /* FLOATING HEADER (Layout Fix) */
+        /* VERSION TAG */
+        .version-tag {
+            position: fixed; top: 2px; right: 5px; font-size: 9px; color: #aaa; z-index: 1100;
+        }
+
+        /* FLOATING HEADER */
         .floating-header {
             position: fixed; top: 15px; left: 15px; right: 15px; z-index: 1000;
             display: flex; gap: 10px; align-items: center; pointer-events: none;
         }
 
-        /* SEARCH CONTAINER (Flexible Width) */
+        /* SEARCH BAR */
         .search-container {
-            flex: 1; /* Takes remaining space */
-            min-width: 0; /* Allows shrinking on small screens */
-            background: white; height: 50px; border-radius: 25px;
+            flex: 1; min-width: 0; background: white; height: 50px; border-radius: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center;
-            padding-left: 10px; padding-right: 5px; pointer-events: auto;
-            overflow: hidden;
+            padding-left: 10px; padding-right: 5px; pointer-events: auto; overflow: hidden;
         }
 
         /* GOOGLE INPUT OVERRIDE */
@@ -32,10 +34,9 @@
             border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
         }
 
-        /* CIRCLE BUTTONS (Fixed Size) */
+        /* CIRCLE BUTTONS */
         .circle-btn {
-            width: 50px; height: 50px; flex-shrink: 0; /* Don't shrink */
-            border-radius: 50%; background: white; border: none;
+            width: 50px; height: 50px; flex-shrink: 0; border-radius: 50%; background: white; border: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
             cursor: pointer; color: var(--primary); pointer-events: auto; transition: transform 0.1s;
         }
@@ -63,10 +64,10 @@
         /* MAIN LIST VIEW */
         #list-view { position: relative; z-index: 2; padding: 15px; padding-top: 90px; pointer-events: auto; }
         
-        /* MAP VIEW (Always underneath, toggled by opacity/z-index) */
+        /* MAP VIEW */
         #map-view { 
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            z-index: 0; /* Behind list initially */
+            z-index: 0; 
         }
 
         /* CARDS */
@@ -86,12 +87,13 @@
         .time-display { font-size: 20px; font-weight: 800; color: var(--primary); }
         .ampm-label { font-size: 12px; font-weight: 600; color: #555; margin-left: 2px; }
 
-        /* STATUS PILL */
+        /* STATUS PILL (Location + Count) */
         #status-pill {
             position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
             background: rgba(13, 43, 79, 0.9); color: white; padding: 6px 16px;
             border-radius: 20px; font-size: 12px; font-weight: 600; 
             backdrop-filter: blur(4px); z-index: 800; display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); white-space: nowrap;
         }
 
         /* FAB */
@@ -113,6 +115,8 @@
     </style>
 </head>
 <body>
+
+    <div class="version-tag">v1.5</div>
 
     <div class="floating-header">
         <div class="search-container">
@@ -193,7 +197,7 @@
         let map, allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20.0;
-        let filters = { sort: 'time_asc', tefillah: '', nusach: '' }; // Default Sort: Earliest
+        let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
         let mapMarkers = [];
 
         // 1. INIT
@@ -229,10 +233,6 @@
         function applyFilters() {
             if(!searchCenter) return;
 
-            const pill = document.getElementById('status-pill');
-            pill.style.display = 'block';
-            pill.innerText = `Near: ${searchCenter.name}`;
-
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM;
@@ -252,6 +252,11 @@
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else if(filters.sort === 'time_asc') results.sort((a,b) => a.timeValue - b.timeValue);
             else if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
+
+            // UPDATE STATUS PILL
+            const pill = document.getElementById('status-pill');
+            pill.style.display = 'block';
+            pill.innerHTML = `Near: ${searchCenter.name} • <strong>${results.length} Results</strong>`;
 
             renderList(results);
             updateMap(results);
@@ -331,13 +336,11 @@
             document.getElementById('status-pill').style.display = 'block';
             document.getElementById('status-pill').innerText = "Locating...";
             navigator.geolocation.getCurrentPosition(pos => {
-                // Clear Search Bar
                 const el = document.querySelector('gmp-place-autocomplete');
                 if(el) el.value = null;
                 
                 searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
                 
-                // Reset Map View to Center
                 if(map) {
                     map.setCenter(searchCenter);
                     map.setZoom(13);
@@ -355,8 +358,6 @@
             document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;">
             <i class="material-icons" style="font-size:48px; opacity:0.3; margin-bottom:10px;">location_on</i><br>
             <strong>Welcome</strong><br>Please search a city above or<br>click the location button below.</div>`;
-            
-            // Clear map markers
             if(map) {
                 mapMarkers.forEach(m => m.map = null);
                 mapMarkers = [];
@@ -407,7 +408,6 @@
             const list = document.getElementById('list-view');
             const icon = document.getElementById('toggle-icon');
             
-            // We only hide/show the list (z-index 2). Map (z-index 0) stays underneath.
             if(forceMap || list.style.display !== 'none') {
                 list.style.display='none'; 
                 icon.innerText='list';
@@ -422,25 +422,23 @@
             const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
 
-            // Setup Search
             const container = document.getElementById('place-autocomplete-container');
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.id = "place-input";
             autocomplete.placeholder = "Search City...";
             container.appendChild(autocomplete);
 
-            // Setup Map
+            // MAP INIT
             map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 }, // Default to Lakewood
+                center: { lat: 40.091, lng: -74.218 },
                 zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
             });
 
-            // LISTEN FOR SEARCH
+            // SEARCH LISTENER
             autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
                 await place.fetchFields({ fields: ['displayName', 'location'] });
                 searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
                 
-                // Center Map
                 map.setCenter(searchCenter);
                 map.setZoom(13);
                 
