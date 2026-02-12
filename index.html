@@ -25,17 +25,38 @@
         #location-input { border: none; background: transparent; font-size: 16px; flex-grow: 1; margin-left: 8px; outline: none; height: 100%; color: #111; }
 
         /* GOOGLE DROPDOWN FIX */
-        .pac-container { z-index: 10000 !important; border-radius: 0 0 12px 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-family: sans-serif; margin-top: 2px; }
+        .pac-container { 
+            z-index: 99999 !important; 
+            border-radius: 0 0 12px 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            font-family: sans-serif; 
+            margin-top: 5px;
+            display: block !important; /* Force visibility */
+        }
+
+        /* FILTERS */
+        .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; padding-top: 5px; }
+        .select-wrapper {
+            position: relative; background: white; border: 1px solid #ddd;
+            border-radius: 20px; padding: 0 10px;
+            font-size: 13px; font-weight: 600; display: flex; align-items: center; 
+            min-width: max-content; height: 32px;
+        }
+        .select-wrapper select { appearance: none; border: none; background: transparent; padding-right: 20px; font-size: 13px; outline: none; }
+        .select-wrapper i { position: absolute; right: 8px; font-size: 16px; pointer-events: none; }
 
         /* CARDS */
         .minyan-card {
             background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.04); cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04); cursor: pointer;
         }
-        .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: #0D2B4F; }
-        .address { margin: 0 0 8px 0; font-size: 13px; color: #777; }
-        .nusach-tag { font-size: 11px; background: #e3f2fd; color: #1565c0; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
-        .time-display { font-size: 18px; font-weight: 700; color: #0D2B4F; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .card-header h3 { margin: 0; font-size: 16px; color: #0D2B4F; }
+        .nusach-tag { font-size: 11px; background: #e3f2fd; color: #1565c0; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
+        .address { font-size: 13px; color: #777; margin-bottom: 10px; display: block; }
+        
+        .times-grid { display: flex; gap: 15px; font-size: 13px; color: #444; border-top: 1px solid #eee; padding-top: 8px; }
+        .time-col strong { display: block; font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 2px; }
 
         /* MAP */
         #map-view { display: none; height: calc(100vh - 120px); background: #e0e0e0; }
@@ -56,7 +77,20 @@
                     <i class="material-icons" id="toggle-icon">map</i>
                 </button>
             </div>
-            <div id="status-bar" style="text-align:center; font-size:12px; color:#666; margin-bottom:10px;">Initializing...</div>
+
+            <div class="filter-row">
+                <div class="select-wrapper">
+                    <select id="filter-nusach" onchange="runFilter()">
+                        <option value="">Nusach: All</option>
+                        <option value="Ashkenaz">Ashkenaz</option>
+                        <option value="Sefard">Sefard</option>
+                        <option value="Ari">Ari</option>
+                    </select>
+                    <i class="material-icons">expand_more</i>
+                </div>
+            </div>
+
+            <div id="status-bar" style="text-align:center; font-size:12px; color:#666; margin-bottom:5px;">Initializing...</div>
         </div>
 
         <div class="results-container" id="list-view" style="padding:12px;">
@@ -73,101 +107,110 @@
         let map;
         let markers = [];
         let infoWindow;
-        let allShuls = []; // Stores the downloaded database
+        let allShuls = []; 
+        let currentFilteredShuls = [];
 
         window.initApp = function() {
             updateStatus("Loading Database...");
             
-            // 1. Download the Database File immediately
+            // 1. Download Database
             fetch('database.json')
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
                     allShuls = data;
-                    updateStatus("Ready. Database Loaded.");
+                    updateStatus("Ready.");
                     initMapFeatures();
                 })
                 .catch(err => {
-                    console.error("DB Error:", err);
-                    updateStatus("Error loading database file.");
+                    console.error(err);
+                    updateStatus("Error loading database.");
                 });
         };
 
         function initMapFeatures() {
             try {
+                // Init Map
                 map = new google.maps.Map(document.getElementById("map-view"), {
-                    center: { lat: 40.7128, lng: -74.0060 },
+                    center: { lat: 40.091, lng: -74.218 }, // Default to Lakewood
                     zoom: 13, disableDefaultUI: true,
                 });
                 infoWindow = new google.maps.InfoWindow();
 
+                // Init Search
                 const input = document.getElementById('location-input');
                 const autocomplete = new google.maps.places.Autocomplete(input, { types: ['geocode'] });
+                
+                // FORCE DROPDOWN VISIBILITY FIX
+                setTimeout(() => {
+                    const pacContainer = document.querySelector('.pac-container');
+                    if(pacContainer) document.body.appendChild(pacContainer);
+                }, 2000);
+
                 autocomplete.addListener('place_changed', () => {
                     const place = autocomplete.getPlace();
                     if (place.geometry) {
-                        filterResults(place.geometry.location.lat(), place.geometry.location.lng());
+                        filterByLocation(place.geometry.location.lat(), place.geometry.location.lng());
                     }
-                });
-                
-                // Also allow typing partial names
-                input.addEventListener('input', (e) => {
-                    const val = e.target.value.toLowerCase();
-                    if(val.length > 2) filterByName(val);
                 });
 
             } catch (e) { console.error(e); }
         }
 
-        function filterResults(lat, lng) {
-            // Move Map
+        // --- FILTERING LOGIC ---
+        function filterByLocation(lat, lng) {
             map.setCenter({ lat, lng });
             map.setZoom(14);
             
-            // Simple "Distance" Filter (roughly)
-            // Show shuls within ~0.1 degrees (~7 miles) of search
-            const nearby = allShuls.filter(shul => {
-                return Math.abs(shul.lat - lat) < 0.1 && Math.abs(shul.lng - lng) < 0.1;
+            // Filter: Find shuls within ~10 miles (0.15 degrees approx)
+            currentFilteredShuls = allShuls.filter(shul => {
+                return Math.abs(shul.lat - lat) < 0.15 && Math.abs(shul.lng - lng) < 0.15;
             });
             
-            displayResults(nearby);
-        }
-        
-        function filterByName(text) {
-            const matches = allShuls.filter(shul => 
-                shul.name.toLowerCase().includes(text) || 
-                shul.address.toLowerCase().includes(text)
-            );
-            displayResults(matches);
+            runFilter(); // Apply Nusach filters
         }
 
-        function displayResults(results) {
+        function runFilter() {
+            const nusach = document.getElementById('filter-nusach').value;
             const list = document.getElementById('list-view');
             const status = document.getElementById('status-bar');
-            
+
+            let results = currentFilteredShuls;
+
+            if (nusach) {
+                results = results.filter(s => s.nusach === nusach);
+            }
+
+            // Clear Old Results
             list.innerHTML = '';
             markers.forEach(m => m.setMap(null)); markers = [];
 
             if (results.length === 0) {
-                status.innerText = "0 Results Found";
-                list.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim in database for this area.</div>';
+                if (currentFilteredShuls.length === 0) {
+                    status.innerText = "No shuls found in this area.";
+                    list.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">No shuls in database for this location.<br>(Try Lakewood or Brooklyn)</div>';
+                } else {
+                    status.innerText = "No results match your filter.";
+                    list.innerHTML = '<div style="text-align:center; padding:40px;">No match for this Nusach.</div>';
+                }
                 return;
             }
 
             status.innerText = `Found ${results.length} minyanim`;
 
+            // Render Cards
             results.forEach(shul => {
-                // Add Card
                 const card = document.createElement('div');
                 card.className = 'minyan-card';
                 card.innerHTML = `
-                    <div class="card-left">
+                    <div class="card-header">
                         <h3>${shul.name}</h3>
-                        <p class="address">${shul.address}</p>
                         <span class="nusach-tag">${shul.nusach}</span>
                     </div>
-                    <div class="card-right">
-                        <div class="time-display">${shul.nextTime}</div>
-                        <div style="font-size:12px; color:#666; text-align:right;">${shul.nextTefillah}</div>
+                    <span class="address">${shul.address}</span>
+                    <div class="times-grid">
+                        <div class="time-col"><strong>Shacharis</strong>${shul.shacharis || '--'}</div>
+                        <div class="time-col"><strong>Mincha</strong>${shul.mincha || '--'}</div>
+                        <div class="time-col"><strong>Maariv</strong>${shul.maariv || '--'}</div>
                     </div>
                 `;
                 card.onclick = () => {
@@ -177,13 +220,13 @@
                 };
                 list.appendChild(card);
 
-                // Add Marker
+                // Add Map Marker
                 const marker = new google.maps.Marker({
                     position: { lat: shul.lat, lng: shul.lng },
                     map: map, title: shul.name
                 });
                 marker.addListener("click", () => {
-                    infoWindow.setContent(`<strong>${shul.name}</strong><br>${shul.nextTime}`);
+                    infoWindow.setContent(`<strong>${shul.name}</strong><br>Mincha: ${shul.mincha}`);
                     infoWindow.open(map, marker);
                 });
                 markers.push(marker);
@@ -205,7 +248,6 @@
         
         function updateStatus(msg) { document.getElementById("status-bar").innerText = msg; }
         function clearSearch() { document.getElementById('location-input').value = ''; }
-
     </script>
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&libraries=places&callback=initApp"></script>
