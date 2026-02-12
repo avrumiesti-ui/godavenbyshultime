@@ -5,24 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ShulTime Direct</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     
     <style>
-        :root {
-            --primary-navy: #0D2B4F;
-            --bg-gray: #F2F4F8;
-            --text-main: #111111;
-        }
-
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg-gray); color: var(--text-main); }
-
-        /* --- SEARCH BOX FIXES --- */
+        /* Force dropdown to be visible */
         .pac-container {
-            z-index: 10000 !important; /* Forces dropdown on top */
+            z-index: 10000 !important;
             border-radius: 0 0 12px 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             font-family: sans-serif;
             margin-top: 2px;
         }
+
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: #F2F4F8; color: #111; }
 
         .app-header {
             position: sticky; top: 0; z-index: 100;
@@ -55,49 +50,15 @@
             color: #111;
         }
 
-        .toggle-btn {
-            width: 50px; height: 50px; border-radius: 12px; border: none;
-            background: var(--primary-navy); color: white;
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer;
-        }
-
-        /* --- FILTERS --- */
-        .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-        .filter-row::-webkit-scrollbar { display: none; }
-        
-        .select-wrapper {
-            position: relative; background: white; border: 1px solid #ddd;
-            border-radius: 20px; padding: 0 10px;
-            font-size: 13px; font-weight: 600; display: flex; align-items: center; 
-            min-width: max-content; height: 32px;
-        }
-        .select-wrapper select {
-            appearance: none; border: none; background: transparent;
-            padding-right: 20px; font-size: 13px; outline: none;
-        }
-        .select-wrapper i { position: absolute; right: 8px; font-size: 16px; pointer-events: none; }
-
-        /* --- RESULTS --- */
-        .results-container { padding: 12px; padding-bottom: 80px; }
         .minyan-card {
             background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px;
             display: flex; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.04);
         }
-        .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: var(--primary-navy); }
+        .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: #0D2B4F; }
         .address { margin: 0 0 8px 0; font-size: 13px; color: #777; }
-        .nusach-tag { font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; background: #E3F2FD; color: #1565C0; }
-        .time-display { font-size: 18px; font-weight: 700; color: var(--primary-navy); }
+        .time-display { font-size: 18px; font-weight: 700; color: #0D2B4F; }
 
-        /* --- MAP & FAB --- */
         #map-view { display: none; height: calc(100vh - 120px); background: #e0e0e0; }
-        .fab-location {
-            position: fixed; bottom: 24px; right: 24px;
-            background: white; border: none; width: 56px; height: 56px;
-            border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--primary-navy); z-index: 200; cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -110,45 +71,16 @@
                     <input type="text" id="location-input" placeholder="Search city (e.g. Lakewood)" autocomplete="off">
                     <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
                 </div>
-                <button class="toggle-btn" onclick="toggleView()">
+                <button class="toggle-btn" onclick="toggleView()" style="width:50px; height:50px; border:none; background:#0D2B4F; color:white; border-radius:12px;">
                     <i class="material-icons" id="toggle-icon">map</i>
                 </button>
             </div>
 
             <div id="status-bar" style="text-align:center; font-size:12px; color:#666; margin-bottom:10px; height:15px;">Initializing...</div>
-
-            <div class="filter-row">
-                <div class="select-wrapper">
-                    <select id="filter-sort" onchange="applyFilters()">
-                        <option value="time">Sort: Time</option>
-                        <option value="distance">Sort: Distance</option>
-                    </select>
-                    <i class="material-icons">expand_more</i>
-                </div>
-                <div class="select-wrapper">
-                    <select id="filter-tefillah" onchange="applyFilters()">
-                        <option value="">Tefillah: All</option>
-                        <option value="Shacharis">Shacharis</option>
-                        <option value="Mincha">Mincha</option>
-                        <option value="Maariv">Maariv</option>
-                    </select>
-                    <i class="material-icons">expand_more</i>
-                </div>
-                <div class="select-wrapper">
-                    <select id="filter-nusach" onchange="applyFilters()">
-                        <option value="">Nusach: All</option>
-                        <option value="Ashkenaz">Ashkenaz</option>
-                        <option value="Sefard">Sefard</option>
-                        <option value="Ari">Ari</option>
-                    </select>
-                    <i class="material-icons">expand_more</i>
-                </div>
-            </div>
-            
             <div class="results-count" id="results-count">Enter a location</div>
         </div>
 
-        <div class="results-container" id="list-view">
+        <div class="results-container" id="list-view" style="padding:12px;">
             <div style="text-align:center; padding:40px; color:#888;">
                 <i class="material-icons" style="font-size:48px; opacity:0.3;">search</i><br>
                 Type a city to begin.
@@ -158,17 +90,13 @@
         <div id="map-view"></div>
     </div>
 
-    <button class="fab-location" onclick="useMyLocation()">
-        <i class="material-icons">my_location</i>
-    </button>
-
     <script>
         let map;
         let markers = [];
         let infoWindow;
-        let lastSearch = { query: "", lat: null, lng: null };
         let autocomplete;
 
+        // 1. INIT
         window.initApp = function() {
             updateStatus("Google Maps Connected.");
             
@@ -180,8 +108,7 @@
                 infoWindow = new google.maps.InfoWindow();
 
                 const input = document.getElementById('location-input');
-                const options = { types: ['geocode'] };
-                autocomplete = new google.maps.places.Autocomplete(input, options);
+                autocomplete = new google.maps.places.Autocomplete(input, { types: ['geocode'] });
                 autocomplete.addListener('place_changed', onPlaceSelected);
                 
                 input.addEventListener('keypress', function (e) {
@@ -214,19 +141,10 @@
             if(el) el.innerText = msg;
         }
 
-        function applyFilters() {
-            if (lastSearch.query || (lastSearch.lat && lastSearch.lng)) {
-                performSearch(lastSearch.query, lastSearch.lat, lastSearch.lng);
-            }
-        }
-
+        // 2. SEARCH (NO API KEY VERSION)
         async function performSearch(query, lat, lng) {
-            lastSearch = { query, lat, lng };
             const listContainer = document.getElementById('list-view');
             const countLabel = document.getElementById('results-count');
-            
-            const nusach = document.getElementById('filter-nusach').value;
-            const tefillah = document.getElementById('filter-tefillah').value;
 
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
@@ -237,43 +155,34 @@
             listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching...</div>';
             
             try {
-                // --- BUILD URL ---
+                // Build URL
                 let apiUrl = "";
                 let params = `pagenumber=1&users_date=${dateStr}&current_time=${timeStr}&todays_day=${dayOfWeek}`;
                 
-                if (nusach) params += `&nusach=${encodeURIComponent(nusach)}`;
-                if (tefillah) params += `&tefillah=${encodeURIComponent(tefillah)}`;
-
                 if (lat && lng) {
                     apiUrl = "https://www.godaven.com/api/V2/shuls/radius-search";
-                    params += `&lat=${lat}&lng=${lng}&distance=20`;
+                    params += `&lat=${lat}&lng=${lng}&distance=10`;
                 } else {
                     apiUrl = "https://www.godaven.com/api/V2/shuls/search-all";
                     params += `&query=${encodeURIComponent(query)}`;
                 }
 
-                const fullUrl = `${apiUrl}?${params}`;
-                // Use Proxy to bypass CORS issues
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`;
+                const targetUrl = `${apiUrl}?${params}`;
 
-                const response = await fetch(proxyUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        // --- IMPORTANT: PASTE YOUR KEY BELOW ---
-                        'Authorization': 'Bearer 576272bc-88ad-4923-b829-73bf84fd328b' 
-                    }
-                });
+                // USE ALLORIGINS PROXY (Handles JSON better than corsproxy)
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
-                if (!response.ok) throw new Error(`Server returned ${response.status}`);
-
-                const data = await response.json();
-                const results = data.SearchResults || data.results || (Array.isArray(data) ? data : []); 
+                const response = await fetch(proxyUrl);
+                const wrapper = await response.json();
+                
+                // Parse the inner content
+                const data = JSON.parse(wrapper.contents);
+                const results = data.SearchResults || data.results || []; 
                 
                 listContainer.innerHTML = '';
                 markers.forEach(m => m.setMap(null)); markers = [];
 
-                if (results.length === 0) {
+                if (!results || results.length === 0) {
                     updateStatus("0 Results Found");
                     countLabel.innerText = "0 Results";
                     listContainer.innerHTML = '<div style="text-align:center; padding:20px;">No minyanim found.<br>Try a different location.</div>';
@@ -290,7 +199,7 @@
                         <div class="card-left">
                             <h3>${shul.name || shul.title}</h3>
                             <p class="address">${shul.address || ''}</p>
-                            <div class="nusach-row"><span class="nusach-tag">${shul.nusach || 'N/A'}</span></div>
+                            <span style="font-size:10px; background:#eee; padding:2px 5px; border-radius:4px;">${shul.nusach || 'N/A'}</span>
                         </div>
                         <div class="card-right">
                             <div class="time-display">${shul.nextTime || '--:--'}</div>
@@ -310,10 +219,6 @@
                             position: { lat: parseFloat(shul.lat), lng: parseFloat(shul.lng) },
                             map: map, title: shul.name
                         });
-                        marker.addListener("click", () => {
-                            infoWindow.setContent(`<strong>${shul.name}</strong><br>${shul.nextTime || ''}`);
-                            infoWindow.open(map, marker);
-                        });
                         markers.push(marker);
                     }
                 });
@@ -321,7 +226,9 @@
             } catch (error) {
                 console.error(error);
                 updateStatus("Connection Failed");
-                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">System Error: ${error.message}</div>`;
+                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">
+                    <strong>Connection Error:</strong><br>${error.message}
+                </div>`;
             }
         }
 
@@ -337,27 +244,9 @@
                 list.style.display = 'block'; mapDiv.style.display = 'none'; icon.innerText = 'map';
             }
         }
-
-        function useMyLocation() {
-            if (navigator.geolocation) {
-                 updateStatus("Locating...");
-                 navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const userLat = position.coords.latitude;
-                        const userLng = position.coords.longitude;
-                        map.setCenter({ lat: userLat, lng: userLng });
-                        map.setZoom(14);
-                        document.getElementById('location-input').value = "Current Location";
-                        performSearch("Current Location", userLat, userLng); 
-                    },
-                    () => { alert("Could not get location."); updateStatus("Location failed"); }
-                );
-            }
-        }
         
         function clearSearch() {
             document.getElementById('location-input').value = '';
-            document.getElementById('location-input').focus();
         }
     </script>
 
