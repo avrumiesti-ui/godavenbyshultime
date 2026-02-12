@@ -24,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* GOOGLE INPUT OVERRIDE */
+        /* NEW GOOGLE INPUT OVERRIDE */
         gmp-place-autocomplete { width: 100%; display: inline-block; }
         gmp-place-autocomplete::part(input) {
             border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%; font-weight: 500;
@@ -59,16 +59,10 @@
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* MAIN LIST VIEW */
-        #list-view { 
-            position: relative; z-index: 2; padding: 15px; padding-top: 90px; 
-            pointer-events: auto; /* Allow clicks */
-        }
+        #list-view { padding: 15px; padding-top: 90px; pointer-events: auto; position: relative; z-index: 2; background: transparent; }
         
         /* MAP VIEW */
-        #map-view { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            z-index: 0; /* Behind list initially */
-        }
+        #map-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
 
         /* CARDS */
         .minyan-card {
@@ -93,9 +87,6 @@
             border-radius: 20px; font-size: 12px; font-weight: 600; 
             backdrop-filter: blur(4px); z-index: 800; display: none;
         }
-
-        /* COORDINATE CONTAINER (Hidden Debugger) */
-        #coordinate-container { display: none; }
 
         /* FAB */
         .fab-location {
@@ -134,11 +125,6 @@
     </div>
 
     <div id="status-pill"></div>
-
-    <div id="coordinate-container">
-        <input type="hidden" id="lat-field">
-        <input type="hidden" id="lng-field">
-    </div>
 
     <div id="filter-drawer">
         <div class="filter-section">
@@ -233,27 +219,20 @@
             });
         }
 
-        // 2. APPLY SEARCH DATA (The Logic you asked for)
+        // 2. APPLY SEARCH DATA (The Logic)
         function setSearchLocation(lat, lng, name) {
-            // 1. Store Data in Container (Per your snippet)
-            document.getElementById("lat-field").value = lat;
-            document.getElementById("lng-field").value = lng;
-            
-            // 2. Update App State
+            console.log("Setting Search Location:", name, lat, lng);
             searchCenter = { lat, lng, name };
             
-            // 3. Update UI
             const pill = document.getElementById('status-pill');
             pill.style.display = 'block';
             pill.innerText = `Near: ${name}`;
 
-            // 4. Center Map
             if(map) {
                 map.setCenter({ lat, lng });
                 map.setZoom(13);
             }
 
-            // 5. Run Filter
             applyFilters();
         }
 
@@ -422,14 +401,17 @@
         function toggleView(forceMap) {
             const list = document.getElementById('list-view');
             const icon = document.getElementById('toggle-icon');
+            
             if(forceMap || list.style.display !== 'none') {
-                list.style.display='none'; icon.innerText='list';
+                list.style.display='none'; 
+                icon.innerText='list';
             } else {
-                list.style.display='block'; icon.innerText='map';
+                list.style.display='block'; 
+                icon.innerText='map';
             }
         }
 
-        // GOOGLE INIT (New API)
+        // GOOGLE INIT
         async function initApp() {
             const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
@@ -443,11 +425,11 @@
 
             // Setup Map
             map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 },
+                center: { lat: 40.091, lng: -74.218 }, // Default to Lakewood
                 zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
             });
 
-            // LISTEN FOR SEARCH (The Fix)
+            // CORRECT LISTENER
             autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
                 await place.fetchFields({ fields: ['displayName', 'location'] });
                 const lat = place.location.lat();
