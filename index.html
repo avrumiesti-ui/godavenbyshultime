@@ -3,27 +3,27 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ShulTime List</title>
+<title>ShulTime</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
     :root { --primary: #0D2B4F; --bg: #F2F4F8; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 100px; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 120px; }
     
     /* MAIN LIST VIEW */
     #list-view { 
-        padding: 90px 15px 20px; /* Top padding for header */
+        padding: 90px 15px 20px; 
         max-width: 600px; margin: 0 auto; 
     }
 
     /* FLOATING HEADER */
     .floating-header {
         position: fixed; top: 15px; left: 15px; right: 15px;
-        z-index: 1000; display: flex; justify-content: center;
+        z-index: 1000; display: flex; justify-content: center; gap: 10px;
     }
 
     .search-container {
-        width: 100%; max-width: 600px;
+        flex: 1; max-width: 500px;
         display: flex; align-items: center;
         background: #fff; height: 50px; border-radius: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
@@ -36,7 +36,34 @@
         border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%;
     }
 
-    /* RADIUS SLIDER (Bottom Fixed) */
+    /* CIRCLE BUTTONS */
+    .circle-btn {
+        width: 50px; height: 50px; flex-shrink: 0;
+        border-radius: 50%; background: #fff; border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: var(--primary);
+    }
+
+    /* FILTER DRAWER */
+    #filter-drawer {
+        display: none; position: fixed; top: 80px; left: 15px; right: 15px;
+        background: #fff; border-radius: 16px; padding: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 999;
+        max-height: 70vh; overflow-y: auto; max-width: 600px; margin: 0 auto;
+    }
+
+    .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
+    .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    
+    .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+        padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
+        font-size: 13px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s;
+    }
+    .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* RADIUS SLIDER */
     .radius-control {
         position: fixed; bottom: 20px; left: 50%;
         transform: translateX(-50%);
@@ -75,11 +102,13 @@
         display: none; z-index: 800;
     }
 
-    /* LOADING SPINNER */
-    #loading {
-        text-align: center; padding: 20px; color: #888; font-size: 14px; display: none;
-    }
-    
+    /* TIME INPUTS */
+    .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
+    .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-family: inherit; }
+    .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .primary-action { background: var(--primary); color: white; }
+
+    #loading { text-align: center; padding: 20px; color: #888; font-size: 14px; display: none; }
     .empty-state { text-align: center; color: #aaa; margin-top: 50px; }
 </style>
 </head>
@@ -91,9 +120,58 @@
             <div id="autocomplete-container" style="flex:1;"></div>
             <i class="material-icons" style="cursor:pointer; color:#bbb; margin-left:10px;" onclick="clearSearch()">close</i>
         </div>
+        
+        <button class="circle-btn" onclick="toggleFilters()">
+            <i class="material-icons">tune</i>
+        </button>
     </div>
 
     <div id="status-pill"></div>
+
+    <div id="filter-drawer">
+        <div class="filter-section">
+            <label class="filter-label">Sort By</label>
+            <div class="chip-group">
+                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
+                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
+                <div class="chip" onclick="setFilter('sort', 'time_desc', this)">Latest</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label">Tefillah</label>
+            <div class="chip-group">
+                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label">Nusach</label>
+            <div class="chip-group">
+                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
+                <div class="chip" onclick="setFilter('nusach', 'Ashkenaz', this)">Ashkenaz</div>
+                <div class="chip" onclick="setFilter('nusach', 'Sefard', this)">Sefard</div>
+                <div class="chip" onclick="setFilter('nusach', 'Ari', this)">Ari</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label">Time Range</label>
+            <div class="time-inputs-row">
+                <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
+                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="action-btn" onclick="setAllDay()">Show All Day</button>
+                <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
+            </div>
+        </div>
+
+        <button class="action-btn primary-action" onclick="toggleFilters()">Done</button>
+    </div>
 
     <div id="list-view">
         <div class="empty-state">
@@ -113,9 +191,18 @@
         let allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20;
+        
+        // Filter State
+        let filters = {
+            sort: 'time_asc',
+            tefillah: '',
+            nusach: ''
+        };
 
         // 1. INIT
         document.addEventListener("DOMContentLoaded", async () => {
+            document.getElementById('time-start').value = "00:00";
+            document.getElementById('time-end').value = "23:59";
             await loadDatabase();
         });
 
@@ -146,6 +233,7 @@
                             address: shul.address,
                             lat: shul.lat,
                             lng: shul.lng,
+                            nusach: shul.nusach,
                             tefillah: type,
                             timeDisplay: `${h}:${String(m).padStart(2,"0")}`,
                             ampm: isPM ? "PM" : "AM",
@@ -159,42 +247,67 @@
         // 2. SEARCH HANDLER
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
-            
             const pill = document.getElementById("status-pill");
             pill.style.display = "block";
             pill.innerText = `Near: ${name}`;
-            
             applyFilters();
         }
 
-        // 3. FILTER LOGIC
+        // 3. MAIN FILTER LOGIC
         function applyFilters(){
             if(!searchCenter || !allMinyanim.length) return;
             
             document.getElementById("loading").style.display = "block";
-            document.getElementById("list-view").innerHTML = ""; // Clear list while calculating
+            document.getElementById("list-view").innerHTML = "";
 
-            // Small timeout to allow UI to show "Loading..."
+            // Get Time Range
+            const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
+            const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
+            const startVal = (sH*60)+sM;
+            const endVal = (eH*60)+eM;
+
             setTimeout(() => {
                 let results = allMinyanim.map(m => {
                     m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                     return m;
-                }).filter(m => m.distance <= currentRadius);
+                });
 
-                results.sort((a,b) => a.distance - b.distance);
+                // A. Radius Filter
+                results = results.filter(m => m.distance <= currentRadius);
+
+                // B. Tefillah Filter
+                if(filters.tefillah) {
+                    results = results.filter(m => m.tefillah === filters.tefillah);
+                }
+
+                // C. Nusach Filter
+                if(filters.nusach) {
+                    results = results.filter(m => m.nusach === filters.nusach);
+                }
+
+                // D. Time Filter
+                results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
+
+                // E. Sorting
+                if(filters.sort === 'distance') {
+                    results.sort((a,b) => a.distance - b.distance);
+                } else if(filters.sort === 'time_asc') {
+                    results.sort((a,b) => a.timeValue - b.timeValue);
+                } else if(filters.sort === 'time_desc') {
+                    results.sort((a,b) => b.timeValue - a.timeValue);
+                }
 
                 renderList(results);
                 document.getElementById("loading").style.display = "none";
             }, 50);
         }
 
-        // 4. RENDER LIST
         function renderList(results){
             const list = document.getElementById("list-view");
             list.innerHTML = "";
             
             if(results.length === 0) {
-                list.innerHTML = `<div class="empty-state">No minyanim found within ${currentRadius} miles.</div>`;
+                list.innerHTML = `<div class="empty-state">No minyanim match your filters within ${currentRadius} miles.</div>`;
                 return;
             }
 
@@ -205,35 +318,72 @@
                     <div>
                         <div style="font-weight:700; font-size:16px; color:#0D2B4F;">${m.name} <span class="distance-tag">${m.distance.toFixed(1)} mi</span></div>
                         <div style="font-size:13px; color:#777; margin-top:4px;">${m.address}</div>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}" target="_blank" style="font-size:11px; color:#0D2B4F; text-decoration:none; display:inline-block; margin-top:6px;">
-                            Navigate <i class="material-icons" style="font-size:10px;">open_in_new</i>
-                        </a>
+                        <div style="font-size:11px; background:#f0f0f0; display:inline-block; padding:2px 6px; border-radius:4px; margin-top:4px; color:#555;">${m.nusach}</div>
                     </div>
                     <div style="text-align:right;">
                         <div style="font-weight:800; font-size:18px; color:#0D2B4F;">${m.timeDisplay}<span style="font-size:12px;">${m.ampm}</span></div>
                         <div style="font-size:11px; font-weight:bold; color:#999; text-transform:uppercase;">${m.tefillah}</div>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}" target="_blank" style="font-size:18px; color:#0D2B4F; text-decoration:none; display:inline-block; margin-top:8px;">
+                            <i class="material-icons">directions</i>
+                        </a>
                     </div>`;
                 list.appendChild(div);
             });
         }
 
-        // 5. GOOGLE MAPS INIT (For Search Component Only)
+        // 4. UI HANDLERS
+        function toggleFilters() {
+            const d = document.getElementById('filter-drawer');
+            d.style.display = (d.style.display==='block') ? 'none' : 'block';
+        }
+
+        function setFilter(type, val, btn) {
+            filters[type] = val;
+            // Update Chip UI
+            btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function setAllDay() {
+            document.getElementById('time-start').value = "00:00";
+            document.getElementById('time-end').value = "23:59";
+            applyFilters();
+        }
+
+        function setNextHour() {
+            const now = new Date();
+            const pad = n => String(n).padStart(2,'0');
+            document.getElementById('time-start').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            now.setHours(now.getHours()+1);
+            document.getElementById('time-end').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            applyFilters();
+        }
+
+        function onStartTimeChange() {
+            const [h,m] = document.getElementById('time-start').value.split(':').map(Number);
+            // Default end time to 1 hour later
+            let endH = h + 1;
+            if(endH > 23) endH = 23;
+            const pad = n => String(n).padStart(2,'0');
+            document.getElementById('time-end').value = `${pad(endH)}:${pad(m)}`;
+            applyFilters();
+        }
+
+        // 5. GOOGLE MAPS INIT
         async function initApp(){
-            // We only import 'places' because we deleted the map
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
 
             const container = document.getElementById("autocomplete-container");
             const autocomplete = new PlaceAutocompleteElement();
-            autocomplete.setAttribute("types", "(cities)"); // Limit to cities
+            autocomplete.setAttribute("types", "(cities)");
             autocomplete.placeholder = "Search City...";
             container.appendChild(autocomplete);
 
-            // THE CRITICAL FIX: 'gmp-select'
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
-                    
                     setSearchLocation(
                         place.location.lat(),
                         place.location.lng(),
@@ -249,7 +399,7 @@
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
         }
 
         function clearSearch(){
@@ -260,10 +410,8 @@
                     <i class="material-icons" style="font-size:48px; margin-bottom:10px;">location_on</i><br>
                     Search for a city to begin.
                 </div>`;
-            // Reset Radius
-            currentRadius = 20;
-            document.getElementById("radius-slider").value = 20;
-            document.getElementById("radius-label").innerText = "20 mi";
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
         }
 
         // Radius Slider Listener
