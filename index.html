@@ -2,137 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>ShulTime</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
     :root { --primary: #0D2B4F; --bg: #F2F4F8; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 120px; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); height: 100vh; overflow: hidden; }
     
-    /* MAIN LIST VIEW */
+    /* --- VIEW CONTAINERS --- */
+    /* Map is fixed in background */
+    #map-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
+    
+    /* List sits on top, scrollable */
     #list-view { 
-        padding: 90px 15px 20px; 
-        max-width: 600px; margin: 0 auto; 
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+        z-index: 2; /* Initially on top */
+        background: var(--bg);
+        padding: 80px 15px 80px; 
+        overflow-y: auto;
+        display: block; /* Toggled via JS */
     }
 
     /* FLOATING HEADER */
     .floating-header {
         position: fixed; top: 15px; left: 15px; right: 15px;
-        z-index: 1000; display: flex; justify-content: center; gap: 10px;
+        z-index: 1000; display: flex; gap: 10px; pointer-events: none;
     }
 
     .search-container {
-        flex: 1; max-width: 500px;
+        flex: 1; pointer-events: auto;
         display: flex; align-items: center;
         background: #fff; height: 50px; border-radius: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         padding: 0 15px;
     }
 
-    /* GOOGLE INPUT STYLING */
+    /* GOOGLE INPUT */
     gmp-place-autocomplete { width: 100%; }
     gmp-place-autocomplete::part(input) {
         border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%;
     }
 
-    /* CIRCLE BUTTONS */
+    /* BUTTONS */
     .circle-btn {
-        width: 50px; height: 50px; flex-shrink: 0;
+        width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
         border-radius: 50%; background: #fff; border: none;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--primary);
+        cursor: pointer; color: var(--primary); transition: transform 0.1s;
     }
+    .circle-btn:active { transform: scale(0.95); }
+    .map-btn { background: var(--primary); color: white; }
+
+    /* STATUS PILL */
+    #status-pill {
+        position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
+        background: rgba(13, 43, 79, 0.95); color: #fff; padding: 6px 16px;
+        border-radius: 20px; font-size: 12px; display: none; z-index: 800;
+    }
+
+    /* CARDS */
+    .minyan-card {
+        background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #ccc;
+        cursor: pointer; position: relative;
+    }
+    .type-Shacharis { border-left-color: #4CAF50; }
+    .type-Mincha { border-left-color: #FF9800; }
+    .type-Maariv { border-left-color: #3F51B5; }
+
+    .distance-tag { font-size: 11px; background: #eee; color: #555; padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: bold; }
+    .nusach-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; font-weight: 600; }
+    .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
+    .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
+    .nusach-Ari { background: #F3E5F5; color: #7B1FA2; }
 
     /* FILTER DRAWER */
     #filter-drawer {
         display: none; position: fixed; top: 80px; left: 15px; right: 15px;
         background: #fff; border-radius: 20px; padding: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 999;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000;
         max-height: 70vh; overflow-y: auto; max-width: 600px; margin: 0 auto;
     }
-
     .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
     .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
     
-    /* CHIP GROUPS */
     .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    
-    /* TEFILLAH SPECIFIC: SINGLE LINE SCROLL */
     #tefillah-group { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-    #tefillah-group::-webkit-scrollbar { display: none; }
-
-    .chip {
-        padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
-        font-size: 13px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s; white-space: nowrap;
-    }
+    
+    .chip { padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; font-weight: 600; color: #444; white-space: nowrap; cursor: pointer; }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    /* TIME INPUTS & BUTTONS (PILLS) */
+    /* RADIUS SLIDER (Moved inside drawer) */
+    .radius-row { display: flex; align-items: center; gap: 15px; }
+    .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
+    .radius-val { font-weight: bold; width: 60px; text-align: right; }
+
+    /* TIME PILLS */
     .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
-    
-    .time-input { 
-        flex: 1; padding: 10px; border: 1px solid #ddd; 
-        border-radius: 25px; /* Pill Shape */
-        text-align: center; font-family: inherit; font-weight: 600;
-    }
-    
-    .action-btn { 
-        width: 100%; background: #eee; color: #333; border: none; 
-        padding: 12px; border-radius: 25px; /* Pill Shape */
-        font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; 
-    }
+    .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 25px; text-align: center; font-family: inherit; font-weight: 600; }
+    .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 25px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
     .primary-action { background: var(--primary); color: white; }
 
-    /* RADIUS SLIDER */
-    .radius-control {
-        position: fixed; bottom: 20px; left: 50%;
-        transform: translateX(-50%);
-        background: #fff; padding: 10px 20px;
-        border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        display: flex; align-items: center; gap: 15px; z-index: 900;
-        font-weight: 600; font-size: 14px; color: var(--primary);
-    }
-    .radius-control input[type=range] { width: 150px; accent-color: var(--primary); }
-
-    /* CARDS */
-    .minyan-card {
-        background: #fff; border-radius: 12px;
-        padding: 16px; margin-bottom: 12px;
-        display: flex; justify-content: space-between; align-items: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        border-left: 5px solid #ccc;
+    /* FAB LOCATION */
+    .fab-location {
+        position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px;
+        background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        border: none; color: #333; display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; z-index: 900;
     }
 
-    .type-Shacharis { border-left-color: #4CAF50; }
-    .type-Mincha { border-left-color: #FF9800; }
-    .type-Maariv { border-left-color: #3F51B5; }
-
-    .distance-tag {
-        font-size: 11px; background: #eee; color: #555;
-        padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: bold;
-    }
-
-    /* NUSACH COLORS */
-    .nusach-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; font-weight: 600; }
-    .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; } /* Blue */
-    .nusach-Sefard { background: #E8F5E9; color: #2E7D32; } /* Green */
-    .nusach-Ari { background: #F3E5F5; color: #7B1FA2; } /* Purple */
-    .nusach-Other { background: #F5F5F5; color: #616161; } /* Grey */
-
-    /* STATUS PILL */
-    #status-pill {
-        position: fixed; top: 75px; left: 50%;
-        transform: translateX(-50%);
-        background: rgba(13, 43, 79, 0.95);
-        color: #fff; padding: 6px 16px;
-        border-radius: 20px; font-size: 12px;
-        display: none; z-index: 800;
-    }
-
-    #loading { text-align: center; padding: 20px; color: #888; font-size: 14px; display: none; }
     .empty-state { text-align: center; color: #aaa; margin-top: 50px; }
+    #loading { text-align: center; padding: 20px; color: #888; font-size: 14px; display: none; }
 </style>
 </head>
 <body>
@@ -147,11 +130,23 @@
         <button class="circle-btn" onclick="toggleFilters()">
             <i class="material-icons">tune</i>
         </button>
+
+        <button class="circle-btn map-btn" onclick="toggleView()">
+            <i class="material-icons" id="toggle-icon">map</i>
+        </button>
     </div>
 
     <div id="status-pill"></div>
 
     <div id="filter-drawer">
+        <div class="filter-section">
+            <label class="filter-label">Radius</label>
+            <div class="radius-row">
+                <input type="range" min="1" max="100" value="20" id="radius-slider" oninput="updateRadius(this.value)">
+                <div class="radius-val"><span id="radius-label">20</span> mi</div>
+            </div>
+        </div>
+
         <div class="filter-section">
             <label class="filter-label">Sort By</label>
             <div class="chip-group">
@@ -203,18 +198,20 @@
         </div>
     </div>
     
+    <div id="map-view"></div>
     <div id="loading">Searching...</div>
 
-    <div class="radius-control">
-        <span id="radius-label">20 mi</span>
-        <input type="range" min="1" max="50" value="20" id="radius-slider"/>
-    </div>
+    <button class="fab-location" onclick="useMyLocation()">
+        <i class="material-icons">my_location</i>
+    </button>
 
     <script>
-        let allMinyanim = [];
+        let map, allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
+        let markers = [];
+        let infoWindow;
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -227,7 +224,6 @@
                 const res = await fetch("database.json");
                 const data = await res.json();
                 processMinyanim(data);
-                console.log("Database Loaded:", allMinyanim.length);
             } catch(e) { console.error("DB Error:", e); }
         }
 
@@ -258,6 +254,11 @@
             const pill = document.getElementById("status-pill");
             pill.style.display = "block";
             pill.innerText = `Near: ${name}`;
+            
+            if(map) {
+                map.setCenter({ lat, lng });
+                map.setZoom(13);
+            }
             applyFilters();
         }
 
@@ -288,6 +289,7 @@
                 else if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
 
                 renderList(results);
+                updateMapMarkers(results);
                 document.getElementById("loading").style.display = "none";
             }, 50);
         }
@@ -302,14 +304,10 @@
             }
 
             results.forEach(m => {
-                // Determine Nusach Color
                 let nusachClass = "nusach-Other";
                 if(m.nusach === "Ashkenaz") nusachClass = "nusach-Ashkenaz";
                 if(m.nusach === "Sefard") nusachClass = "nusach-Sefard";
                 if(m.nusach === "Ari") nusachClass = "nusach-Ari";
-
-                // Generate Google Maps Navigation Link (Address Based)
-                const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.address)}`;
 
                 const div = document.createElement("div");
                 div.className = `minyan-card type-${m.tefillah}`;
@@ -322,17 +320,95 @@
                     <div style="text-align:right;">
                         <div style="font-weight:800; font-size:18px; color:#0D2B4F;">${m.timeDisplay}<span style="font-size:12px;">${m.ampm}</span></div>
                         <div style="font-size:11px; font-weight:bold; color:#999; text-transform:uppercase;">${m.tefillah}</div>
-                        <a href="${navUrl}" target="_blank" style="font-size:20px; color:#0D2B4F; text-decoration:none; display:inline-block; margin-top:10px;">
-                            <i class="material-icons">directions</i>
-                        </a>
+                        <i class="material-icons" style="font-size:20px; color:#0D2B4F; margin-top:10px;">map</i>
                     </div>`;
+                
+                // CLICK: Switch to Map & Focus
+                div.onclick = () => focusOnMap(m);
                 list.appendChild(div);
             });
+        }
+
+        async function updateMapMarkers(results){
+            if(!map) return;
+            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+            
+            // Clear Old
+            markers.forEach(m => m.map = null);
+            markers = [];
+
+            // De-Dupe
+            const uniqueLocs = {};
+            results.forEach(m => {
+                const k = `${m.lat},${m.lng}`;
+                if(!uniqueLocs[k]) uniqueLocs[k] = m;
+            });
+
+            // Create New
+            Object.values(uniqueLocs).forEach(m => {
+                const marker = new AdvancedMarkerElement({
+                    map: map, position: { lat: m.lat, lng: m.lng }, title: m.name
+                });
+                
+                // CLICK MARKER: Show InfoWindow
+                marker.addListener("click", () => {
+                    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.address)}`;
+                    const content = `
+                        <div style="padding:10px;">
+                            <strong>${m.name}</strong><br>
+                            <span style="font-size:12px; color:#666">${m.address}</span><br><br>
+                            <a href="${navUrl}" target="_blank" style="background:#0D2B4F; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px;">Get Directions</a>
+                        </div>`;
+                    infoWindow.setContent(content);
+                    infoWindow.open(map, marker);
+                });
+                markers.push(marker);
+            });
+        }
+
+        function focusOnMap(m){
+            // 1. Switch to Map View
+            const list = document.getElementById("list-view");
+            const icon = document.getElementById("toggle-icon");
+            list.style.display = "none";
+            icon.innerText = "list";
+
+            // 2. Pan & Zoom
+            if(map) {
+                map.setCenter({ lat: m.lat, lng: m.lng });
+                map.setZoom(16);
+                
+                // 3. Open Info Window (Find the matching marker roughly)
+                const marker = markers.find(mk => 
+                    Math.abs(mk.position.lat - m.lat) < 0.0001 && 
+                    Math.abs(mk.position.lng - m.lng) < 0.0001
+                );
+                if(marker) google.maps.event.trigger(marker, 'click');
+            }
+        }
+
+        function toggleView(){
+            const list = document.getElementById("list-view");
+            const icon = document.getElementById("toggle-icon");
+            
+            if(list.style.display === "none") {
+                list.style.display = "block";
+                icon.innerText = "map";
+            } else {
+                list.style.display = "none";
+                icon.innerText = "list";
+            }
         }
 
         function toggleFilters() {
             const d = document.getElementById('filter-drawer');
             d.style.display = (d.style.display==='block') ? 'none' : 'block';
+        }
+
+        function updateRadius(val) {
+            currentRadius = parseInt(val);
+            document.getElementById("radius-label").innerText = currentRadius;
+            if(searchCenter) applyFilters();
         }
 
         function setFilter(type, val, btn) {
@@ -365,13 +441,57 @@
             applyFilters();
         }
 
+        function useMyLocation() {
+            document.getElementById('status-pill').style.display = 'block';
+            document.getElementById('status-pill').innerText = "Locating...";
+            navigator.geolocation.getCurrentPosition(pos => {
+                const el = document.querySelector('gmp-place-autocomplete');
+                if(el) el.value = null;
+                setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
+            }, e => alert("Location Denied"));
+        }
+
+        function clearSearch(){
+            searchCenter = null;
+            document.getElementById("status-pill").style.display = "none";
+            document.getElementById("list-view").style.display = "block"; // Force list
+            document.getElementById("toggle-icon").innerText = "map";
+            document.getElementById("list-view").innerHTML = `
+                <div class="empty-state">
+                    <i class="material-icons" style="font-size:48px; margin-bottom:10px;">location_on</i><br>
+                    Search for a city to begin.
+                </div>`;
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
+            if(map) {
+                map.setZoom(10);
+                markers.forEach(m => m.map = null);
+            }
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2){
+            const R = 3958.8; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
+        }
+
         async function initApp(){
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+            const { Map } = await google.maps.importLibrary("maps");
+
             const container = document.getElementById("autocomplete-container");
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.setAttribute("types", "(cities)");
             autocomplete.placeholder = "Search City...";
             container.appendChild(autocomplete);
+
+            map = new Map(document.getElementById("map-view"), {
+                center: { lat: 40.091, lng: -74.218 },
+                zoom: 12, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+            });
+            infoWindow = new google.maps.InfoWindow();
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
@@ -381,36 +501,10 @@
                 }
             });
         }
-
-        function getDistance(lat1, lon1, lat2, lon2){
-            const R = 3958.8; 
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-        }
-
-        function clearSearch(){
-            searchCenter = null;
-            document.getElementById("status-pill").style.display = "none";
-            document.getElementById("list-view").innerHTML = `
-                <div class="empty-state">
-                    <i class="material-icons" style="font-size:48px; margin-bottom:10px;">location_on</i><br>
-                    Search for a city to begin.
-                </div>`;
-            const el = document.querySelector('gmp-place-autocomplete');
-            if(el) el.value = null;
-        }
-
-        document.getElementById("radius-slider").addEventListener("input", e => {
-            currentRadius = parseInt(e.target.value);
-            document.getElementById("radius-label").innerText = currentRadius + " mi";
-            if(searchCenter) applyFilters();
-        });
     </script>
 
     <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places&callback=initApp">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp">
     </script>
 
 </body>
