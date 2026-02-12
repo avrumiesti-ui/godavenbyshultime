@@ -20,3 +20,4 @@
   { "name": "Chaim Berlin", "address": "1605 Coney Island Ave, Brooklyn, NY 11230", "lat": 40.6150, "lng": -73.9630, "nusach": "Ashkenaz", "shacharis": "7:30", "mincha": "2:30", "maariv": "10:00" },
   { "name": "770 Eastern Parkway", "address": "770 Eastern Pkwy, Brooklyn, NY 11213", "lat": 40.6690, "lng": -73.9429, "nusach": "Ari", "shacharis": "10:00", "mincha": "3:15", "maariv": "9:30" }
 ]
+
