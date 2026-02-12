@@ -48,7 +48,7 @@
     /* FILTER DRAWER */
     #filter-drawer {
         display: none; position: fixed; top: 80px; left: 15px; right: 15px;
-        background: #fff; border-radius: 16px; padding: 20px;
+        background: #fff; border-radius: 20px; padding: 20px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 999;
         max-height: 70vh; overflow-y: auto; max-width: 600px; margin: 0 auto;
     }
@@ -56,12 +56,34 @@
     .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
     .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
     
+    /* CHIP GROUPS */
     .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    
+    /* TEFILLAH SPECIFIC: SINGLE LINE SCROLL */
+    #tefillah-group { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+    #tefillah-group::-webkit-scrollbar { display: none; }
+
     .chip {
         padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
-        font-size: 13px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s;
+        font-size: 13px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s; white-space: nowrap;
     }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* TIME INPUTS & BUTTONS (PILLS) */
+    .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
+    
+    .time-input { 
+        flex: 1; padding: 10px; border: 1px solid #ddd; 
+        border-radius: 25px; /* Pill Shape */
+        text-align: center; font-family: inherit; font-weight: 600;
+    }
+    
+    .action-btn { 
+        width: 100%; background: #eee; color: #333; border: none; 
+        padding: 12px; border-radius: 25px; /* Pill Shape */
+        font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; 
+    }
+    .primary-action { background: var(--primary); color: white; }
 
     /* RADIUS SLIDER */
     .radius-control {
@@ -92,6 +114,13 @@
         padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: bold;
     }
 
+    /* NUSACH COLORS */
+    .nusach-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; font-weight: 600; }
+    .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; } /* Blue */
+    .nusach-Sefard { background: #E8F5E9; color: #2E7D32; } /* Green */
+    .nusach-Ari { background: #F3E5F5; color: #7B1FA2; } /* Purple */
+    .nusach-Other { background: #F5F5F5; color: #616161; } /* Grey */
+
     /* STATUS PILL */
     #status-pill {
         position: fixed; top: 75px; left: 50%;
@@ -101,12 +130,6 @@
         border-radius: 20px; font-size: 12px;
         display: none; z-index: 800;
     }
-
-    /* TIME INPUTS */
-    .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
-    .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-family: inherit; }
-    .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    .primary-action { background: var(--primary); color: white; }
 
     #loading { text-align: center; padding: 20px; color: #888; font-size: 14px; display: none; }
     .empty-state { text-align: center; color: #aaa; margin-top: 50px; }
@@ -140,7 +163,7 @@
 
         <div class="filter-section">
             <label class="filter-label">Tefillah</label>
-            <div class="chip-group">
+            <div class="chip-group" id="tefillah-group">
                 <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
@@ -191,15 +214,8 @@
         let allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20;
-        
-        // Filter State
-        let filters = {
-            sort: 'time_asc',
-            tefillah: '',
-            nusach: ''
-        };
+        let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
 
-        // 1. INIT
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
             document.getElementById('time-end').value = "23:59";
@@ -223,28 +239,20 @@
                     shul[type.toLowerCase()].split(",").forEach(t => {
                         let raw = t.trim().replace(/[^0-9:]/g,"");
                         let [h,m] = raw.split(":").map(Number);
-                        
-                        // Sort Logic
                         let isPM = (type === "Maariv" || (type === "Mincha" && h < 9));
                         let sortH = (isPM && h < 12) ? h + 12 : ((!isPM && h === 12) ? 0 : h);
                         
                         allMinyanim.push({
-                            name: shul.name,
-                            address: shul.address,
-                            lat: shul.lat,
-                            lng: shul.lng,
-                            nusach: shul.nusach,
-                            tefillah: type,
+                            name: shul.name, address: shul.address, lat: shul.lat, lng: shul.lng,
+                            nusach: shul.nusach, tefillah: type,
                             timeDisplay: `${h}:${String(m).padStart(2,"0")}`,
-                            ampm: isPM ? "PM" : "AM",
-                            timeValue: (sortH * 60) + m
+                            ampm: isPM ? "PM" : "AM", timeValue: (sortH * 60) + m
                         });
                     });
                 });
             });
         }
 
-        // 2. SEARCH HANDLER
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
             const pill = document.getElementById("status-pill");
@@ -253,14 +261,12 @@
             applyFilters();
         }
 
-        // 3. MAIN FILTER LOGIC
         function applyFilters(){
             if(!searchCenter || !allMinyanim.length) return;
             
             document.getElementById("loading").style.display = "block";
             document.getElementById("list-view").innerHTML = "";
 
-            // Get Time Range
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM;
@@ -272,30 +278,14 @@
                     return m;
                 });
 
-                // A. Radius Filter
                 results = results.filter(m => m.distance <= currentRadius);
-
-                // B. Tefillah Filter
-                if(filters.tefillah) {
-                    results = results.filter(m => m.tefillah === filters.tefillah);
-                }
-
-                // C. Nusach Filter
-                if(filters.nusach) {
-                    results = results.filter(m => m.nusach === filters.nusach);
-                }
-
-                // D. Time Filter
+                if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
+                if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
                 results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
 
-                // E. Sorting
-                if(filters.sort === 'distance') {
-                    results.sort((a,b) => a.distance - b.distance);
-                } else if(filters.sort === 'time_asc') {
-                    results.sort((a,b) => a.timeValue - b.timeValue);
-                } else if(filters.sort === 'time_desc') {
-                    results.sort((a,b) => b.timeValue - a.timeValue);
-                }
+                if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
+                else if(filters.sort === 'time_asc') results.sort((a,b) => a.timeValue - b.timeValue);
+                else if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
 
                 renderList(results);
                 document.getElementById("loading").style.display = "none";
@@ -312,18 +302,27 @@
             }
 
             results.forEach(m => {
+                // Determine Nusach Color
+                let nusachClass = "nusach-Other";
+                if(m.nusach === "Ashkenaz") nusachClass = "nusach-Ashkenaz";
+                if(m.nusach === "Sefard") nusachClass = "nusach-Sefard";
+                if(m.nusach === "Ari") nusachClass = "nusach-Ari";
+
+                // Generate Google Maps Navigation Link (Address Based)
+                const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.address)}`;
+
                 const div = document.createElement("div");
                 div.className = `minyan-card type-${m.tefillah}`;
                 div.innerHTML = `
                     <div>
                         <div style="font-weight:700; font-size:16px; color:#0D2B4F;">${m.name} <span class="distance-tag">${m.distance.toFixed(1)} mi</span></div>
                         <div style="font-size:13px; color:#777; margin-top:4px;">${m.address}</div>
-                        <div style="font-size:11px; background:#f0f0f0; display:inline-block; padding:2px 6px; border-radius:4px; margin-top:4px; color:#555;">${m.nusach}</div>
+                        <div class="nusach-tag ${nusachClass}">${m.nusach}</div>
                     </div>
                     <div style="text-align:right;">
                         <div style="font-weight:800; font-size:18px; color:#0D2B4F;">${m.timeDisplay}<span style="font-size:12px;">${m.ampm}</span></div>
                         <div style="font-size:11px; font-weight:bold; color:#999; text-transform:uppercase;">${m.tefillah}</div>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}" target="_blank" style="font-size:18px; color:#0D2B4F; text-decoration:none; display:inline-block; margin-top:8px;">
+                        <a href="${navUrl}" target="_blank" style="font-size:20px; color:#0D2B4F; text-decoration:none; display:inline-block; margin-top:10px;">
                             <i class="material-icons">directions</i>
                         </a>
                     </div>`;
@@ -331,7 +330,6 @@
             });
         }
 
-        // 4. UI HANDLERS
         function toggleFilters() {
             const d = document.getElementById('filter-drawer');
             d.style.display = (d.style.display==='block') ? 'none' : 'block';
@@ -339,7 +337,6 @@
 
         function setFilter(type, val, btn) {
             filters[type] = val;
-            // Update Chip UI
             btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             applyFilters();
@@ -362,18 +359,14 @@
 
         function onStartTimeChange() {
             const [h,m] = document.getElementById('time-start').value.split(':').map(Number);
-            // Default end time to 1 hour later
-            let endH = h + 1;
-            if(endH > 23) endH = 23;
+            let endH = h + 1; if(endH > 23) endH = 23;
             const pad = n => String(n).padStart(2,'0');
             document.getElementById('time-end').value = `${pad(endH)}:${pad(m)}`;
             applyFilters();
         }
 
-        // 5. GOOGLE MAPS INIT
         async function initApp(){
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-
             const container = document.getElementById("autocomplete-container");
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.setAttribute("types", "(cities)");
@@ -384,22 +377,17 @@
                 if (event.placePrediction) {
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
-                    setSearchLocation(
-                        place.location.lat(),
-                        place.location.lng(),
-                        place.displayName
-                    );
+                    setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
                 }
             });
         }
 
-        // UTILS
         function getDistance(lat1, lon1, lat2, lon2){
             const R = 3958.8; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
         }
 
         function clearSearch(){
@@ -414,13 +402,11 @@
             if(el) el.value = null;
         }
 
-        // Radius Slider Listener
         document.getElementById("radius-slider").addEventListener("input", e => {
             currentRadius = parseInt(e.target.value);
             document.getElementById("radius-label").innerText = currentRadius + " mi";
             if(searchCenter) applyFilters();
         });
-
     </script>
 
     <script async
