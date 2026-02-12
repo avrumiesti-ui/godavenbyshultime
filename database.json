@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Bais Medrash Govoha",
+    "address": "617 6th St, Lakewood, NJ 08701",
+    "lat": 40.0931,
+    "lng": -74.2155,
+    "nusach": "Ashkenaz",
+    "nextTefillah": "Mincha",
+    "nextTime": "1:30 PM"
+  },
+  {
+    "id": 2,
+    "name": "Satmar Shul",
+    "address": "Forest Ave, Lakewood, NJ",
+    "lat": 40.0885,
+    "lng": -74.2120,
+    "nusach": "Sefard",
+    "nextTefillah": "Mincha",
+    "nextTime": "2:00 PM"
+  },
+  {
+    "id": 3,
+    "name": "Khal Chasidim",
+    "address": "1401 Joe Parker Rd, Lakewood, NJ",
+    "lat": 40.0750,
+    "lng": -74.2000,
+    "nusach": "Ari",
+    "nextTefillah": "Maariv",
+    "nextTime": "8:00 PM"
+  },
+  {
+    "id": 4,
+    "name": "770 Eastern Parkway",
+    "address": "770 Eastern Pkwy, Brooklyn, NY 11213",
+    "lat": 40.6690,
+    "lng": -73.9429,
+    "nusach": "Ari",
+    "nextTefillah": "Mincha",
+    "nextTime": "3:15 PM"
+  }
+]
