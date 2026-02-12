@@ -44,33 +44,38 @@
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 10px;
         display: flex; justify-content: space-between; align-items: stretch;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #ccc;
-        overflow: hidden; min-height: 80px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        overflow: hidden; min-height: 85px;
     }
-    .type-Shacharis { border-left-color: #4CAF50; }
-    .type-Mincha { border-left-color: #FF9800; }
-    .type-Maariv { border-left-color: #3F51B5; }
 
-    .info-zone { flex: 1; padding: 12px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
+    .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
     .map-zone { 
-        width: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         gap: 4px; border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa;
     }
     
-    .time-top-right { font-weight: 800; font-size: 16px; color: var(--primary); margin-bottom: 2px; }
-    .dist-label { font-size: 12px; font-weight: 700; color: #666; }
+    .time-top-right { font-weight: 800; font-size: 17px; color: var(--primary); margin-bottom: 2px; }
+    .dist-label { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 2px; }
     .map-circle {
         width: 32px; height: 32px; border-radius: 50%; background: #fff;
         display: flex; align-items: center; justify-content: center;
         color: var(--primary); border: 1px solid #ddd;
     }
 
-    .nusach-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; font-weight: 700; text-transform: uppercase; }
+    /* NUSCAH PILLS */
+    .nusach-tag { font-size: 10px; padding: 2px 8px; border-radius: 12px; margin-top: 6px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
     .nusach-Ari { background: #F3E5F5; color: #7B1FA2; }
+    .nusach-Other { background: #F5F5F5; color: #616161; }
 
-    /* FILTER DRAWER (STILL CONDENSED) */
+    /* TEFILLAH TEXT COLORS */
+    .tefillah-text { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tef-Shacharis { color: #4CAF50; }
+    .tef-Mincha { color: #FF9800; }
+    .tef-Maariv { color: #3F51B5; }
+
+    /* FILTER DRAWER */
     #filter-drawer {
         display: none; position: fixed; top: 80px; left: 12px; right: 12px;
         background: #fff; border-radius: 20px; padding: 12px 15px;
@@ -89,7 +94,7 @@
     .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 15px; font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 4px; }
     .primary-action { background: var(--primary); color: white; }
 
-    /* DETAILS DRAWER (3/4 Screen Pop-up) */
+    /* DETAILS DRAWER */
     #details-drawer {
         position: fixed; bottom: -100%; left: 0; right: 0; height: 75vh;
         background: #fff; border-radius: 25px 25px 0 0; z-index: 3000;
@@ -97,7 +102,7 @@
         padding: 0; display: flex; flex-direction: column;
     }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
-    .drawer-header { padding: 15px; display: flex; flex-direction: column; align-items: center; cursor: grab; }
+    .drawer-header { padding: 15px; display: flex; flex-direction: column; align-items: center; cursor: grab; width: 100%; box-sizing: border-box; }
     .drawer-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; margin-bottom: 10px; }
     
     .drawer-body { flex: 1; overflow-y: auto; padding: 0 25px 25px; }
@@ -155,7 +160,7 @@
         </div>
         <div class="filter-section">
             <label class="filter-label">Tefillah</label>
-            <div class="chip-group">
+            <div class="chip-group" id="tefillah-group">
                 <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
@@ -262,7 +267,6 @@
             list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found.</div>';
             results.forEach(m => {
                 let nCls = `nusach-${m.nusach || 'Other'}`;
-                // Search link, not navigation link
                 const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.address)}`;
                 
                 const card = document.createElement("div");
@@ -284,28 +288,29 @@
 
         function openDetails(m) {
             const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.address)}`;
+            const nCls = `nusach-${m.nusach || 'Other'}`;
             const content = document.getElementById("drawer-content");
             content.innerHTML = `
-                <h2 style="margin:0; color:var(--primary); font-size:20px;">${m.name}</h2>
-                <p style="color:#666; margin:5px 0 15px; font-size:13px;">${m.address}</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                   <h2 style="margin:0; color:var(--primary); font-size:20px; flex:1;">${m.name}</h2>
+                </div>
+                <p style="color:#666; margin:5px 0 10px; font-size:13px;">${m.address}</p>
+                <div class="nusach-tag ${nCls}">${m.nusach}</div>
                 
                 <div class="drawer-nav-row">
-                    <div>
-                        <div style="font-size:10px; color:#aaa; font-weight:800; text-transform:uppercase;">Nusach</div>
-                        <div style="font-weight:700;">${m.nusach || 'Not listed'}</div>
-                    </div>
+                    <div class="tefillah-text tef-${m.tefillah}">${m.tefillah} • ${m.timeDisplay}${m.ampm}</div>
                     <a href="${searchUrl}" target="_blank" class="drawer-nav-btn">
-                        Find on Map <i class="material-icons">map</i>
+                        ${m.distance.toFixed(1)}mi <i class="material-icons">map</i>
                     </a>
                 </div>
 
                 <div style="margin-top:20px;">
                     <h4 style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; font-size:14px;">Full Schedule</h4>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
-                        <div><strong style="color:#4CAF50">Shacharis</strong><br>${m.shacharis || 'N/A'}</div>
-                        <div><strong style="color:#FF9800">Mincha</strong><br>${m.mincha || 'N/A'}</div>
-                        <div><strong style="color:#3F51B5">Maariv</strong><br>${m.maariv || 'N/A'}</div>
-                        <div><strong style="color:#666">Rabbi</strong><br>${m.rabbi || 'Not listed'}</div>
+                        <div><strong class="tefillah-text tef-Shacharis">Shacharis</strong><br>${m.shacharis || 'N/A'}</div>
+                        <div><strong class="tefillah-text tef-Mincha">Mincha</strong><br>${m.mincha || 'N/A'}</div>
+                        <div><strong class="tefillah-text tef-Maariv">Maariv</strong><br>${m.maariv || 'N/A'}</div>
+                        <div><strong style="color:#666" class="tefillah-text">Rabbi</strong><br>${m.rabbi || 'Not listed'}</div>
                     </div>
                 </div>
             `;
@@ -320,26 +325,25 @@
             document.getElementById("scrim").style.display = "none";
         }
 
-        // PULL TO DISMISS LOGIC
         function initPullToDismiss() {
             const drawer = document.getElementById('details-drawer');
-            const header = document.getElementById('drawer-header');
             let startY = 0;
             let currentY = 0;
 
-            header.addEventListener('touchstart', (e) => {
+            // Allow dragging from anywhere on the drawer
+            drawer.addEventListener('touchstart', (e) => {
                 startY = e.touches[0].clientY;
-            });
+            }, {passive: true});
 
-            header.addEventListener('touchmove', (e) => {
+            drawer.addEventListener('touchmove', (e) => {
                 currentY = e.touches[0].clientY;
                 let delta = currentY - startY;
                 if (delta > 0) {
                     drawer.style.transform = `translateY(${delta}px)`;
                 }
-            });
+            }, {passive: true});
 
-            header.addEventListener('touchend', (e) => {
+            drawer.addEventListener('touchend', (e) => {
                 let delta = currentY - startY;
                 if (delta > 100) {
                     closeDetails();
@@ -347,7 +351,7 @@
                     drawer.style.transform = "translateY(0)";
                 }
                 startY = 0; currentY = 0;
-            });
+            }, {passive: true});
         }
 
         function toggleFilters() {
@@ -387,8 +391,6 @@
 
         function useMyLocation() {
             navigator.geolocation.getCurrentPosition(pos => {
-                const el = document.querySelector('gmp-place-autocomplete');
-                if(el) el.value = null;
                 setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
             }, e => alert("Location Denied"));
         }
