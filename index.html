@@ -10,35 +10,36 @@
         :root { --primary: #0D2B4F; --accent: #E3F2FD; --bg: #F2F4F8; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; padding-bottom: 200px; }
         
-        /* FLOATING HEADER */
+        /* FLOATING HEADER (Layout Fix) */
         .floating-header {
             position: fixed; top: 15px; left: 15px; right: 15px; z-index: 1000;
             display: flex; gap: 10px; align-items: center; pointer-events: none;
         }
 
-        /* SEARCH BAR */
+        /* SEARCH CONTAINER (Flexible Width) */
         .search-container {
-            flex-grow: 1; background: white; height: 50px; border-radius: 25px;
+            flex: 1; /* Takes remaining space */
+            min-width: 0; /* Allows shrinking on small screens */
+            background: white; height: 50px; border-radius: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center;
-            padding-left: 20px; padding-right: 5px; pointer-events: auto;
+            padding-left: 10px; padding-right: 5px; pointer-events: auto;
+            overflow: hidden;
         }
 
-        #search-input {
-            border: none; background: transparent; font-size: 16px; color: #111;
-            flex-grow: 1; height: 100%; outline: none; font-weight: 500;
+        /* GOOGLE INPUT OVERRIDE */
+        gmp-place-autocomplete { width: 100%; display: inline-block; }
+        gmp-place-autocomplete::part(input) {
+            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
         }
 
-        /* CIRCLE BUTTONS */
+        /* CIRCLE BUTTONS (Fixed Size) */
         .circle-btn {
-            width: 50px; height: 50px; border-radius: 50%; background: white; border: none;
+            width: 50px; height: 50px; flex-shrink: 0; /* Don't shrink */
+            border-radius: 50%; background: white; border: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
             cursor: pointer; color: var(--primary); pointer-events: auto; transition: transform 0.1s;
         }
         .circle-btn:active { transform: scale(0.95); }
-        .go-btn {
-            background: var(--primary); color: white; border-radius: 50%; 
-            width: 40px; height: 40px; border: none; display: flex; align-items: center; justify-content: center;
-        }
         .map-btn { background: var(--primary); color: white; }
 
         /* FILTER DRAWER */
@@ -52,7 +53,6 @@
         .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
         .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
         
-        /* CHIP BUTTONS */
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip {
             padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
@@ -60,9 +60,14 @@
         }
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* MAIN CONTENT */
-        #list-view { padding: 15px; padding-top: 90px; }
-        #map-view { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
+        /* MAIN LIST VIEW */
+        #list-view { position: relative; z-index: 2; padding: 15px; padding-top: 90px; pointer-events: auto; }
+        
+        /* MAP VIEW (Always underneath, toggled by opacity/z-index) */
+        #map-view { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            z-index: 0; /* Behind list initially */
+        }
 
         /* CARDS */
         .minyan-card {
@@ -75,7 +80,9 @@
         .type-Maariv { border-left-color: #3F51B5; }    
 
         .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: var(--primary); }
+        .address { font-size: 12px; color: #777; display:block; }
         .distance-tag { font-size: 11px; color: #fff; background: #666; padding: 2px 6px; border-radius: 8px; margin-left: 5px; }
+        
         .time-display { font-size: 20px; font-weight: 800; color: var(--primary); }
         .ampm-label { font-size: 12px; font-weight: 600; color: #555; margin-left: 2px; }
 
@@ -109,10 +116,9 @@
 
     <div class="floating-header">
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search City (e.g. Lakewood)">
-            <button class="go-btn" onclick="manualSearch()">
-                <i class="material-icons" style="font-size:20px;">arrow_forward</i>
-            </button>
+            <i class="material-icons" style="color:#888; margin-right:5px;">search</i>
+            <div id="place-autocomplete-container" style="flex-grow:1;"></div>
+            <i class="material-icons" onclick="clearSearch()" style="color:#ccc; cursor:pointer; padding:5px;">close</i>
         </div>
 
         <button class="circle-btn" onclick="toggleFilters()">
@@ -138,8 +144,8 @@
         <div class="filter-section">
             <label class="filter-label">Sort By</label>
             <div class="chip-group">
-                <div class="chip active" onclick="setFilter('sort', 'distance', this)">Distance</div>
-                <div class="chip" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
+                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
+                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
                 <div class="chip" onclick="setFilter('sort', 'time_desc', this)">Latest</div>
             </div>
         </div>
@@ -176,6 +182,7 @@
             Please search a city above or<br>click the location button below.
         </div>
     </div>
+    
     <div id="map-view"></div>
 
     <button class="fab-location" onclick="useMyLocation()">
@@ -186,16 +193,8 @@
         let map, allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20.0;
-        let filters = { sort: 'distance', tefillah: '', nusach: '' };
-        let mapMarkers = []; // Store markers to clear them later
-
-        // CITY DICTIONARY (Backup)
-        const CITIES = {
-            "lakewood": { lat: 40.091, lng: -74.218, name: "Lakewood, NJ" },
-            "brooklyn": { lat: 40.620, lng: -73.945, name: "Brooklyn, NY" },
-            "monsey": { lat: 41.115, lng: -74.066, name: "Monsey, NY" },
-            "passaic": { lat: 40.856, lng: -74.128, name: "Passaic, NJ" }
-        };
+        let filters = { sort: 'time_asc', tefillah: '', nusach: '' }; // Default Sort: Earliest
+        let mapMarkers = [];
 
         // 1. INIT
         document.getElementById('time-start').value = "00:00";
@@ -226,61 +225,27 @@
             });
         }
 
-        // 2. SEARCH LOGIC (Manual + API)
-        function manualSearch() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            if(!query) return;
-
-            // 1. Dictionary Check (Fast)
-            for(const key in CITIES) {
-                if(query.includes(key)) {
-                    setSearchLocation(CITIES[key].lat, CITIES[key].lng, CITIES[key].name);
-                    return;
-                }
-            }
-
-            // 2. Real API Search
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ 'address': query }, (results, status) => {
-                if (status === 'OK') {
-                    const loc = results[0].geometry.location;
-                    setSearchLocation(loc.lat(), loc.lng(), results[0].formatted_address.split(',')[0]);
-                } else {
-                    alert("Location not found. Try adding state code (e.g. 'Teaneck NJ').");
-                }
-            });
-        }
-
-        function setSearchLocation(lat, lng, name) {
-            searchCenter = { lat, lng, name };
-            const pill = document.getElementById('status-pill');
-            pill.style.display = 'block';
-            pill.innerText = `Near: ${name}`;
-            
-            if(map) {
-                map.setCenter({ lat, lng });
-                map.setZoom(13);
-            }
-            applyFilters();
-        }
-
+        // 2. SEARCH & FILTER
         function applyFilters() {
             if(!searchCenter) return;
+
+            const pill = document.getElementById('status-pill');
+            pill.style.display = 'block';
+            pill.innerText = `Near: ${searchCenter.name}`;
 
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM;
             const endVal = (eH*60)+eM;
 
-            // Calc Distance
+            // Distance
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
             }).filter(m => m.distance <= currentRadius);
 
-            // Filter
+            // Filters
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
-            if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
 
             // Sort
@@ -315,7 +280,7 @@
                     </div>
                 `;
                 card.onclick = () => {
-                    toggleView(true);
+                    toggleView(true); // Switch to map
                     if(map) {
                         map.setCenter({ lat: m.lat, lng: m.lng });
                         map.setZoom(16);
@@ -325,29 +290,28 @@
             });
         }
 
-        // 3. MAP UPDATE (The Fix for Markers)
+        // 3. MAP LOGIC
         async function updateMap(results) {
             if(!map) return;
             const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
             
-            // 1. CLEAR OLD MARKERS
+            // Clear Markers
             mapMarkers.forEach(m => m.map = null);
             mapMarkers = [];
 
-            // 2. DEDUPLICATE LOCATIONS (One pin per shul)
+            // De-Dupe Locations
             const locs = {};
             results.forEach(m => {
                 const k = `${m.lat},${m.lng}`;
                 if(!locs[k]) locs[k] = { ...m, count: 1 }; else locs[k].count++;
             });
 
-            // 3. ADD NEW MARKERS
+            // Add New Markers
             Object.values(locs).forEach(l => {
                 const marker = new AdvancedMarkerElement({
                     map: map, position: { lat: l.lat, lng: l.lng }, title: l.name
                 });
                 mapMarkers.push(marker);
-                
                 marker.addListener("click", () => {
                     new google.maps.InfoWindow({ content: `<strong>${l.name}</strong><br>${l.count} Minyanim` }).open(map, marker);
                 });
@@ -367,17 +331,32 @@
             document.getElementById('status-pill').style.display = 'block';
             document.getElementById('status-pill').innerText = "Locating...";
             navigator.geolocation.getCurrentPosition(pos => {
-                setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
+                // Clear Search Bar
+                const el = document.querySelector('gmp-place-autocomplete');
+                if(el) el.value = null;
+                
+                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
+                
+                // Reset Map View to Center
+                if(map) {
+                    map.setCenter(searchCenter);
+                    map.setZoom(13);
+                }
+                
+                applyFilters();
             }, e => alert("Location Denied"));
         }
 
         function clearSearch() {
-            document.getElementById('search-input').value = "";
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
             searchCenter = null;
             document.getElementById('status-pill').style.display = 'none';
             document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;">
             <i class="material-icons" style="font-size:48px; opacity:0.3; margin-bottom:10px;">location_on</i><br>
             <strong>Welcome</strong><br>Please search a city above or<br>click the location button below.</div>`;
+            
+            // Clear map markers
             if(map) {
                 mapMarkers.forEach(m => m.map = null);
                 mapMarkers = [];
@@ -426,21 +405,46 @@
 
         function toggleView(forceMap) {
             const list = document.getElementById('list-view');
-            const mapV = document.getElementById('map-view');
             const icon = document.getElementById('toggle-icon');
+            
+            // We only hide/show the list (z-index 2). Map (z-index 0) stays underneath.
             if(forceMap || list.style.display !== 'none') {
-                list.style.display='none'; mapV.style.display='block'; icon.innerText='list';
+                list.style.display='none'; 
+                icon.innerText='list';
             } else {
-                list.style.display='block'; mapV.style.display='none'; icon.innerText='map';
+                list.style.display='block'; 
+                icon.innerText='map';
             }
         }
 
         // GOOGLE INIT
         async function initApp() {
             const { Map } = await google.maps.importLibrary("maps");
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+
+            // Setup Search
+            const container = document.getElementById('place-autocomplete-container');
+            const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.id = "place-input";
+            autocomplete.placeholder = "Search City...";
+            container.appendChild(autocomplete);
+
+            // Setup Map
             map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 },
+                center: { lat: 40.091, lng: -74.218 }, // Default to Lakewood
                 zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+            });
+
+            // LISTEN FOR SEARCH
+            autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
+                await place.fetchFields({ fields: ['displayName', 'location'] });
+                searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
+                
+                // Center Map
+                map.setCenter(searchCenter);
+                map.setZoom(13);
+                
+                applyFilters();
             });
         }
     </script>
