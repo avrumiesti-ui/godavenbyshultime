@@ -1,57 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ShulTime</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-:root { --primary:#0D2B4F; --bg:#F2F4F8; }
-body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Roboto",sans-serif; background:var(--bg); padding-bottom:120px;}
-#map-view { position:fixed; inset:0; z-index:0; }
-#list-view { position:relative; z-index:2; padding:90px 15px 20px; }
+:root{--primary:#0D2B4F;--bg:#F2F4F8;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Roboto",sans-serif;background:var(--bg);padding-bottom:120px;}
+#map-view{position:fixed;inset:0;z-index:0;}
+#list-view{position:relative;z-index:2;padding:100px 15px 20px;display:none;}
 
-.floating-header {
-position:fixed; top:15px; left:15px; right:15px; z-index:1000;
-display:flex; gap:10px;
+.floating-header{
+position:fixed;top:15px;left:15px;right:15px;
+display:flex;gap:10px;z-index:1000;
 }
-.search-container {
-flex:1; display:flex; align-items:center;
-background:#fff; height:50px; border-radius:25px;
-box-shadow:0 4px 15px rgba(0,0,0,0.15); padding:0 12px;
+
+.search-container{
+flex:1;display:flex;align-items:center;
+background:#fff;height:50px;border-radius:25px;
+box-shadow:0 4px 15px rgba(0,0,0,0.15);
+padding:0 12px;
 }
-.circle-btn {
-width:50px; height:50px; border-radius:50%;
-border:none; background:#fff; cursor:pointer;
-display:flex; align-items:center; justify-content:center;
+
+.circle-btn{
+width:50px;height:50px;border-radius:50%;
+border:none;background:#fff;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
 box-shadow:0 4px 15px rgba(0,0,0,0.15);
 }
-.map-btn { background:var(--primary); color:#fff; }
 
-.minyan-card {
-background:#fff; border-radius:12px;
-padding:15px; margin-bottom:10px;
-display:flex; justify-content:space-between;
+.map-btn{background:var(--primary);color:#fff;}
+
+.radius-control{
+position:fixed;bottom:20px;left:50%;
+transform:translateX(-50%);
+background:#fff;padding:10px 15px;
+border-radius:30px;box-shadow:0 4px 15px rgba(0,0,0,0.2);
+display:flex;align-items:center;gap:10px;z-index:900;
+}
+
+.radius-control input[type=range]{width:150px;}
+
+.minyan-card{
+background:#fff;border-radius:12px;
+padding:15px;margin-bottom:10px;
+display:flex;justify-content:space-between;
 box-shadow:0 2px 5px rgba(0,0,0,0.05);
 border-left:5px solid #ccc;
 }
-.type-Shacharis { border-left-color:#4CAF50; }
-.type-Mincha { border-left-color:#FF9800; }
-.type-Maariv { border-left-color:#3F51B5; }
 
-.distance-tag {
-font-size:11px; background:#666; color:#fff;
-padding:2px 6px; border-radius:8px; margin-left:6px;
+.type-Shacharis{border-left-color:#4CAF50;}
+.type-Mincha{border-left-color:#FF9800;}
+.type-Maariv{border-left-color:#3F51B5;}
+
+.distance-tag{
+font-size:11px;background:#666;color:#fff;
+padding:2px 6px;border-radius:8px;margin-left:6px;
 }
 
-#status-pill {
-position:fixed; top:75px; left:50%;
+#status-pill{
+position:fixed;top:75px;left:50%;
 transform:translateX(-50%);
 background:rgba(13,43,79,0.95);
-color:#fff; padding:6px 16px;
-border-radius:20px; font-size:12px;
-display:none; z-index:800;
+color:#fff;padding:6px 16px;
+border-radius:20px;font-size:12px;
+display:none;z-index:800;
+}
+
+#loading{
+position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);
+background:#fff;padding:15px 25px;
+border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.2);
+display:none;z-index:2000;
 }
 </style>
 </head>
@@ -70,217 +93,182 @@ display:none; z-index:800;
 </div>
 
 <div id="status-pill"></div>
+<div id="loading">Loading...</div>
+
 <div id="map-view"></div>
 <div id="list-view"></div>
 
+<div class="radius-control">
+<span id="radius-label">20 mi</span>
+<input type="range" min="1" max="50" value="20" id="radius-slider"/>
+</div>
+
 <script>
 let map;
+let clusterer;
 let radiusCircle;
-let mapMarkers = [];
-let allMinyanim = [];
-let searchCenter = null;
-let currentRadius = 20;
+let allMinyanim=[];
+let searchCenter=null;
+let currentRadius=20;
+let markers=[];
 
-const filters = {
-sort:'time_asc',
-tefillah:''
-};
+document.addEventListener("DOMContentLoaded", loadDatabase);
 
-document.addEventListener("DOMContentLoaded", () => {
-loadDatabase();
-});
-
-async function loadDatabase() {
-try {
-const res = await fetch('database.json');
-const data = await res.json();
+async function loadDatabase(){
+try{
+const res=await fetch("database.json");
+const data=await res.json();
 processMinyanim(data);
-console.log("Database loaded:", allMinyanim.length);
-} catch(e) {
-console.error("Database load failed:", e);
-}
+console.log("Loaded:",allMinyanim.length);
+}catch(e){console.error(e);}
 }
 
-function processMinyanim(data) {
-allMinyanim = [];
-
-data.forEach(shul => {
-['Shacharis','Mincha','Maariv'].forEach(type => {
-if(!shul[type.toLowerCase()]) return;
-
-shul[type.toLowerCase()].split(',').forEach(t => {
-let raw = t.trim().replace(/[^0-9:]/g,'');
-let [h,m] = raw.split(':').map(Number);
-
-let isPM = (type==='Maariv' || (type==='Mincha' && h<9));
-let sortH = (isPM && h<12) ? h+12 : ((!isPM && h===12)?0:h);
-
+function processMinyanim(data){
+allMinyanim=[];
+data.forEach(shul=>{
+["Shacharis","Mincha","Maariv"].forEach(type=>{
+if(!shul[type.toLowerCase()])return;
+shul[type.toLowerCase()].split(",").forEach(t=>{
+let raw=t.trim().replace(/[^0-9:]/g,"");
+let [h,m]=raw.split(":").map(Number);
+let isPM=(type==="Maariv"||(type==="Mincha"&&h<9));
+let sortH=(isPM&&h<12)?h+12:((!isPM&&h===12)?0:h);
 allMinyanim.push({
 name:shul.name,
 address:shul.address,
 lat:shul.lat,
 lng:shul.lng,
 tefillah:type,
-timeDisplay:`${h}:${String(m).padStart(2,'0')}`,
+timeDisplay:`${h}:${String(m).padStart(2,"0")}`,
 ampm:isPM?"PM":"AM",
-timeValue:(sortH*60)+m,
-distance:null
+timeValue:(sortH*60)+m
 });
 });
 });
 });
 }
 
-/* =========================
-SEARCH HANDLER
-========================= */
-
-function setSearchLocation(lat,lng,name) {
-
-searchCenter = {lat,lng,name};
-
-document.getElementById("status-pill").style.display='block';
+function setSearchLocation(lat,lng,name){
+searchCenter={lat,lng};
+document.getElementById("status-pill").style.display="block";
 document.getElementById("status-pill").innerText=`Near: ${name}`;
-
 map.setCenter({lat,lng});
 map.setZoom(13);
-
-drawRadiusCircle();
-
+drawRadius();
 applyFilters();
-
-toggleView(true);
 }
 
-function drawRadiusCircle() {
-if(radiusCircle) radiusCircle.setMap(null);
-
-radiusCircle = new google.maps.Circle({
-strokeOpacity:0.5,
-strokeWeight:1,
-fillOpacity:0.05,
+function drawRadius(){
+if(radiusCircle)radiusCircle.setMap(null);
+radiusCircle=new google.maps.Circle({
 map:map,
 center:searchCenter,
-radius:currentRadius * 1609.34
+radius:currentRadius*1609.34,
+strokeOpacity:0.6,
+strokeWeight:1,
+fillOpacity:0.05
 });
 }
 
-function applyFilters() {
-if(!searchCenter || allMinyanim.length===0) return;
+function applyFilters(){
+if(!searchCenter||!allMinyanim.length)return;
+showLoading(true);
 
-let results = allMinyanim.map(m=>{
-m.distance = getDistance(
-searchCenter.lat,
-searchCenter.lng,
-m.lat,
-m.lng
-);
+let results=allMinyanim.map(m=>{
+m.distance=getDistance(searchCenter.lat,searchCenter.lng,m.lat,m.lng);
 return m;
-}).filter(m=>m.distance <= currentRadius);
+}).filter(m=>m.distance<=currentRadius);
 
-if(filters.tefillah)
-results = results.filter(m=>m.tefillah===filters.tefillah);
-
-if(filters.sort==='distance')
 results.sort((a,b)=>a.distance-b.distance);
-else
-results.sort((a,b)=>a.timeValue-b.timeValue);
 
 renderList(results);
 updateMap(results);
+
+showLoading(false);
 }
 
-function renderList(results) {
-const list = document.getElementById("list-view");
+function renderList(results){
+const list=document.getElementById("list-view");
 list.innerHTML="";
-
-if(results.length===0){
-list.innerHTML="<div style='text-align:center;padding:40px;color:#777;'>No results found.</div>";
-return;
-}
-
 results.forEach(m=>{
-const card=document.createElement("div");
-card.className=`minyan-card type-${m.tefillah}`;
-card.innerHTML=`
+const div=document.createElement("div");
+div.className=`minyan-card type-${m.tefillah}`;
+div.innerHTML=`
 <div>
 <strong>${m.name}</strong>
 <span class="distance-tag">${m.distance.toFixed(1)} mi</span><br>
-<span style="font-size:12px;color:#777;">${m.address}</span>
+<span style="font-size:12px;color:#777;">${m.address}</span><br>
+<a href="https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}" target="_blank" style="font-size:11px;">Open in Google Maps</a>
 </div>
 <div>
 <strong>${m.timeDisplay} ${m.ampm}</strong><br>
 <span style="font-size:10px;color:#888;">${m.tefillah}</span>
-</div>
-`;
-list.appendChild(card);
+</div>`;
+list.appendChild(div);
 });
 }
 
-async function updateMap(results){
-if(!map) return;
-
-mapMarkers.forEach(m=>m.setMap(null));
-mapMarkers=[];
-
-const bounds = new google.maps.LatLngBounds();
-
+function updateMap(results){
+if(clusterer)clusterer.clearMarkers();
+markers=[];
 results.forEach(r=>{
-const marker=new google.maps.Marker({
+markers.push(new google.maps.Marker({
 position:{lat:r.lat,lng:r.lng},
-map:map,
 title:r.name
+}));
 });
-mapMarkers.push(marker);
-bounds.extend(marker.position);
-});
+clusterer=new markerClusterer.MarkerClusterer({map,markers});
+}
 
-if(results.length>0)
-map.fitBounds(bounds);
+function toggleView(){
+const list=document.getElementById("list-view");
+const icon=document.getElementById("toggle-icon");
+if(list.style.display==="none"){
+list.style.display="block";
+icon.innerText="map";
+}else{
+list.style.display="none";
+icon.innerText="list";
+}
+}
+
+function clearSearch(){
+searchCenter=null;
+document.getElementById("status-pill").style.display="none";
+document.getElementById("list-view").innerHTML="";
+if(clusterer)clusterer.clearMarkers();
+if(radiusCircle)radiusCircle.setMap(null);
 }
 
 function getDistance(lat1,lon1,lat2,lon2){
 const R=3958.8;
 const dLat=(lat2-lat1)*Math.PI/180;
 const dLon=(lon2-lon1)*Math.PI/180;
-const a=
-Math.sin(dLat/2)**2+
+const a=Math.sin(dLat/2)**2+
 Math.cos(lat1*Math.PI/180)*
 Math.cos(lat2*Math.PI/180)*
 Math.sin(dLon/2)**2;
 return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
 }
 
-function toggleView(forceMap){
-const list=document.getElementById("list-view");
-const icon=document.getElementById("toggle-icon");
-
-if(forceMap || list.style.display!=='none'){
-list.style.display='none';
-icon.innerText='list';
-}else{
-list.style.display='block';
-icon.innerText='map';
-}
+function showLoading(state){
+document.getElementById("loading").style.display=state?"block":"none";
 }
 
-function clearSearch(){
-searchCenter=null;
-document.getElementById("status-pill").style.display='none';
-document.getElementById("list-view").innerHTML="";
-mapMarkers.forEach(m=>m.setMap(null));
-if(radiusCircle) radiusCircle.setMap(null);
+document.getElementById("radius-slider").addEventListener("input",e=>{
+currentRadius=parseInt(e.target.value);
+document.getElementById("radius-label").innerText=currentRadius+" mi";
+if(searchCenter){
+drawRadius();
+applyFilters();
 }
-
-/* =========================
-GOOGLE INIT
-========================= */
+});
 
 async function initApp(){
-const {Map} = await google.maps.importLibrary("maps");
-const {PlaceAutocompleteElement} = await google.maps.importLibrary("places");
+const {Map}=await google.maps.importLibrary("maps");
+const {PlaceAutocompleteElement}=await google.maps.importLibrary("places");
 
-map = new Map(document.getElementById("map-view"),{
+map=new Map(document.getElementById("map-view"),{
 center:{lat:40.091,lng:-74.218},
 zoom:12,
 disableDefaultUI:true
@@ -292,10 +280,9 @@ autocomplete.setAttribute("types","(cities)");
 autocomplete.placeholder="Search City...";
 container.appendChild(autocomplete);
 
-autocomplete.addEventListener("gmp-select", async (event)=>{
-const place = event.placePrediction.toPlace();
-await place.fetchFields({fields:['displayName','location']});
-
+autocomplete.addEventListener("gmp-select",async(event)=>{
+const place=event.placePrediction.toPlace();
+await place.fetchFields({fields:["displayName","location"]});
 setSearchLocation(
 place.location.lat(),
 place.location.lng(),
@@ -305,8 +292,10 @@ place.displayName
 }
 </script>
 
+<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+
 <script async
-src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&loading=async&libraries=places,maps&callback=initApp">
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp">
 </script>
 
 </body>
