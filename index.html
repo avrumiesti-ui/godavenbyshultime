@@ -8,26 +8,12 @@
 
 <style>
     :root { --primary: #0D2B4F; --bg: #F2F4F8; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); height: 100vh; overflow: hidden; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 100px; }
     
-    /* --- VIEW CONTAINERS --- */
-    /* Map is fixed in background */
-    #map-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
-    
-    /* List sits on top, scrollable */
-    #list-view { 
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-        z-index: 2; /* Initially on top */
-        background: var(--bg);
-        padding: 80px 15px 80px; 
-        overflow-y: auto;
-        display: block; /* Toggled via JS */
-    }
-
     /* FLOATING HEADER */
     .floating-header {
         position: fixed; top: 15px; left: 15px; right: 15px;
-        z-index: 1000; display: flex; gap: 10px; pointer-events: none;
+        z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: none;
     }
 
     .search-container {
@@ -44,16 +30,14 @@
         border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%;
     }
 
-    /* BUTTONS */
+    /* CIRCLE BUTTONS */
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
         border-radius: 50%; background: #fff; border: none;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--primary); transition: transform 0.1s;
+        cursor: pointer; color: var(--primary);
     }
-    .circle-btn:active { transform: scale(0.95); }
-    .map-btn { background: var(--primary); color: white; }
 
     /* STATUS PILL */
     #status-pill {
@@ -62,22 +46,33 @@
         border-radius: 20px; font-size: 12px; display: none; z-index: 800;
     }
 
+    /* LIST CONTAINER */
+    #list-view { 
+        padding: 90px 15px 20px; 
+        max-width: 600px; margin: 0 auto; 
+    }
+
     /* CARDS */
     .minyan-card {
         background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px;
         display: flex; justify-content: space-between; align-items: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #ccc;
-        cursor: pointer; position: relative;
+        cursor: pointer; text-decoration: none; color: inherit;
+        transition: transform 0.1s;
     }
+    .minyan-card:active { transform: scale(0.98); }
+
     .type-Shacharis { border-left-color: #4CAF50; }
     .type-Mincha { border-left-color: #FF9800; }
     .type-Maariv { border-left-color: #3F51B5; }
 
     .distance-tag { font-size: 11px; background: #eee; color: #555; padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: bold; }
+    
     .nusach-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; font-weight: 600; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
     .nusach-Ari { background: #F3E5F5; color: #7B1FA2; }
+    .nusach-Other { background: #F5F5F5; color: #616161; }
 
     /* FILTER DRAWER */
     #filter-drawer {
@@ -95,12 +90,9 @@
     .chip { padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; font-weight: 600; color: #444; white-space: nowrap; cursor: pointer; }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    /* RADIUS SLIDER (Moved inside drawer) */
     .radius-row { display: flex; align-items: center; gap: 15px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
-    .radius-val { font-weight: bold; width: 60px; text-align: right; }
-
-    /* TIME PILLS */
+    
     .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
     .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 25px; text-align: center; font-family: inherit; font-weight: 600; }
     .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 25px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
@@ -130,10 +122,6 @@
         <button class="circle-btn" onclick="toggleFilters()">
             <i class="material-icons">tune</i>
         </button>
-
-        <button class="circle-btn map-btn" onclick="toggleView()">
-            <i class="material-icons" id="toggle-icon">map</i>
-        </button>
     </div>
 
     <div id="status-pill"></div>
@@ -143,7 +131,7 @@
             <label class="filter-label">Radius</label>
             <div class="radius-row">
                 <input type="range" min="1" max="100" value="20" id="radius-slider" oninput="updateRadius(this.value)">
-                <div class="radius-val"><span id="radius-label">20</span> mi</div>
+                <div style="font-weight:bold; width:60px; text-align:right;"><span id="radius-label">20</span> mi</div>
             </div>
         </div>
 
@@ -198,7 +186,6 @@
         </div>
     </div>
     
-    <div id="map-view"></div>
     <div id="loading">Searching...</div>
 
     <button class="fab-location" onclick="useMyLocation()">
@@ -206,12 +193,10 @@
     </button>
 
     <script>
-        let map, allMinyanim = [];
+        let allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
-        let markers = [];
-        let infoWindow;
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -254,11 +239,6 @@
             const pill = document.getElementById("status-pill");
             pill.style.display = "block";
             pill.innerText = `Near: ${name}`;
-            
-            if(map) {
-                map.setCenter({ lat, lng });
-                map.setZoom(13);
-            }
             applyFilters();
         }
 
@@ -289,7 +269,6 @@
                 else if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
 
                 renderList(results);
-                updateMapMarkers(results);
                 document.getElementById("loading").style.display = "none";
             }, 50);
         }
@@ -304,14 +283,22 @@
             }
 
             results.forEach(m => {
+                // Determine Nusach Color
                 let nusachClass = "nusach-Other";
                 if(m.nusach === "Ashkenaz") nusachClass = "nusach-Ashkenaz";
                 if(m.nusach === "Sefard") nusachClass = "nusach-Sefard";
                 if(m.nusach === "Ari") nusachClass = "nusach-Ari";
 
-                const div = document.createElement("div");
-                div.className = `minyan-card type-${m.tefillah}`;
-                div.innerHTML = `
+                // Generate Google Maps Search Link (SEARCH Mode, not Navigation Mode)
+                // This puts the pin on the map instead of starting the route immediately
+                const navUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.address)}`;
+
+                // Create Card Link (Entire card is clickable)
+                const a = document.createElement("a");
+                a.className = `minyan-card type-${m.tefillah}`;
+                a.href = navUrl;
+                a.target = "_blank"; // Open in new tab/app
+                a.innerHTML = `
                     <div>
                         <div style="font-weight:700; font-size:16px; color:#0D2B4F;">${m.name} <span class="distance-tag">${m.distance.toFixed(1)} mi</span></div>
                         <div style="font-size:13px; color:#777; margin-top:4px;">${m.address}</div>
@@ -320,84 +307,11 @@
                     <div style="text-align:right;">
                         <div style="font-weight:800; font-size:18px; color:#0D2B4F;">${m.timeDisplay}<span style="font-size:12px;">${m.ampm}</span></div>
                         <div style="font-size:11px; font-weight:bold; color:#999; text-transform:uppercase;">${m.tefillah}</div>
-                        <i class="material-icons" style="font-size:20px; color:#0D2B4F; margin-top:10px;">map</i>
+                        <i class="material-icons" style="font-size:24px; color:#0D2B4F; margin-top:10px;">arrow_forward</i>
                     </div>`;
                 
-                // CLICK: Switch to Map & Focus
-                div.onclick = () => focusOnMap(m);
-                list.appendChild(div);
+                list.appendChild(a);
             });
-        }
-
-        async function updateMapMarkers(results){
-            if(!map) return;
-            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-            
-            // Clear Old
-            markers.forEach(m => m.map = null);
-            markers = [];
-
-            // De-Dupe
-            const uniqueLocs = {};
-            results.forEach(m => {
-                const k = `${m.lat},${m.lng}`;
-                if(!uniqueLocs[k]) uniqueLocs[k] = m;
-            });
-
-            // Create New
-            Object.values(uniqueLocs).forEach(m => {
-                const marker = new AdvancedMarkerElement({
-                    map: map, position: { lat: m.lat, lng: m.lng }, title: m.name
-                });
-                
-                // CLICK MARKER: Show InfoWindow
-                marker.addListener("click", () => {
-                    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.address)}`;
-                    const content = `
-                        <div style="padding:10px;">
-                            <strong>${m.name}</strong><br>
-                            <span style="font-size:12px; color:#666">${m.address}</span><br><br>
-                            <a href="${navUrl}" target="_blank" style="background:#0D2B4F; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px;">Get Directions</a>
-                        </div>`;
-                    infoWindow.setContent(content);
-                    infoWindow.open(map, marker);
-                });
-                markers.push(marker);
-            });
-        }
-
-        function focusOnMap(m){
-            // 1. Switch to Map View
-            const list = document.getElementById("list-view");
-            const icon = document.getElementById("toggle-icon");
-            list.style.display = "none";
-            icon.innerText = "list";
-
-            // 2. Pan & Zoom
-            if(map) {
-                map.setCenter({ lat: m.lat, lng: m.lng });
-                map.setZoom(16);
-                
-                // 3. Open Info Window (Find the matching marker roughly)
-                const marker = markers.find(mk => 
-                    Math.abs(mk.position.lat - m.lat) < 0.0001 && 
-                    Math.abs(mk.position.lng - m.lng) < 0.0001
-                );
-                if(marker) google.maps.event.trigger(marker, 'click');
-            }
-        }
-
-        function toggleView(){
-            const list = document.getElementById("list-view");
-            const icon = document.getElementById("toggle-icon");
-            
-            if(list.style.display === "none") {
-                list.style.display = "block";
-                icon.innerText = "map";
-            } else {
-                list.style.display = "none";
-                icon.innerText = "list";
-            }
         }
 
         function toggleFilters() {
@@ -454,8 +368,6 @@
         function clearSearch(){
             searchCenter = null;
             document.getElementById("status-pill").style.display = "none";
-            document.getElementById("list-view").style.display = "block"; // Force list
-            document.getElementById("toggle-icon").innerText = "map";
             document.getElementById("list-view").innerHTML = `
                 <div class="empty-state">
                     <i class="material-icons" style="font-size:48px; margin-bottom:10px;">location_on</i><br>
@@ -463,10 +375,6 @@
                 </div>`;
             const el = document.querySelector('gmp-place-autocomplete');
             if(el) el.value = null;
-            if(map) {
-                map.setZoom(10);
-                markers.forEach(m => m.map = null);
-            }
         }
 
         function getDistance(lat1, lon1, lat2, lon2){
@@ -474,24 +382,16 @@
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
         }
 
         async function initApp(){
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-            const { Map } = await google.maps.importLibrary("maps");
-
             const container = document.getElementById("autocomplete-container");
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.setAttribute("types", "(cities)");
             autocomplete.placeholder = "Search City...";
             container.appendChild(autocomplete);
-
-            map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 },
-                zoom: 12, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
-            });
-            infoWindow = new google.maps.InfoWindow();
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
@@ -504,7 +404,7 @@
     </script>
 
     <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places&callback=initApp">
     </script>
 
 </body>
