@@ -42,7 +42,7 @@
     /* STATUS PILL */
     #status-pill {
         position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
-        background: rgba(13, 43, 79, 0.95); color: #fff; padding: 6px 16px;
+        background: rgba(13,43,79,0.95); color: #fff; padding: 6px 16px;
         border-radius: 20px; font-size: 12px; display: none; z-index: 800;
     }
 
@@ -59,16 +59,25 @@
     .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
     
     .map-zone { 
-        width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa;
+        padding-right: 15px; display: flex; align-items: center; justify-content: flex-end;
+        gap: 8px; border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; min-width: 110px;
     }
     
     .time-val { font-weight: 800; font-size: 17px; color: var(--primary); }
-    .dist-label { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 4px; }
+    .dist-label { font-size: 13px; font-weight: 800; color: #555; }
+
+    /* GOOGLE LOGO COLORED ICON */
     .map-circle {
-        width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
+        width: 38px; height: 38px; border-radius: 50%; background: #fff;
         display: flex; align-items: center; justify-content: center;
-        color: #fff; box-shadow: 0 2px 6px rgba(13,43,79,0.3);
+        border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .google-maps-icon {
+        background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 24px !important;
+        font-weight: bold;
     }
 
     .nusach-tag { font-size: 10px; padding: 2px 8px; border-radius: 12px; margin-top: 6px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
@@ -79,9 +88,9 @@
 
     /* TEFILLAH TEXT COLORS */
     .tefillah-text { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
-    .tef-Shacharis { color: #4CAF50; }
-    .tef-Mincha { color: #FF9800; }
-    .tef-Maariv { color: #3F51B5; }
+    .tef-Shacharis { color: #34A853; } /* Google Green */
+    .tef-Mincha { color: #FBBC05; }    /* Google Yellow/Orange */
+    .tef-Maariv { color: #4285F4; }    /* Google Blue */
 
     /* FILTER DRAWER */
     #filter-drawer {
@@ -115,7 +124,7 @@
     .close-drawer-btn { position: absolute; right: 20px; top: 15px; width: 30px; height: 30px; border-radius: 50%; background: #f0f0f0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; }
     .drawer-body { flex: 1; overflow-y: auto; padding: 0 25px 25px; }
     .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-    .drawer-nav-btn { display: flex; align-items: center; gap: 8px; background: var(--primary); padding: 10px 20px; border-radius: 25px; text-decoration: none; color: #fff; font-weight: 800; }
+    .drawer-nav-btn { display: flex; align-items: center; gap: 10px; background: var(--primary); padding: 12px 20px; border-radius: 25px; text-decoration: none; color: #fff; font-weight: 800; }
 
     /* SCRIM */
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
@@ -291,15 +300,23 @@
                 card.className = "minyan-card";
                 card.innerHTML = `
                     <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
-                        <div style="font-weight:700; font-size:15px; color:#333; line-height:1.2;">${m.name}</div>
-                        <div style="font-size:11px; color:#888; margin-top:2px;">${m.address}</div>
-                        <div class="nusach-tag ${nCls}">${m.nusach}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                            <div style="flex:1;">
+                                <div style="font-weight:700; font-size:15px; color:#333; line-height:1.2;">${m.name}</div>
+                                <div style="font-size:11px; color:#888; margin-top:2px;">${m.address}</div>
+                                <div class="nusach-tag ${nCls}">${m.nusach}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div class="tefillah-text tef-${m.tefillah}">${m.tefillah}</div>
+                                <div class="time-val">${m.timeDisplay}<small style="font-size:9px; vertical-align:top; margin-left:1px;">${m.ampm}</small></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="map-zone" onclick="window.open('${searchUrl}','_blank')">
-                        <div class="tefillah-text tef-${m.tefillah}">${m.tefillah}</div>
-                        <div class="time-val">${m.timeDisplay}<small style="font-size:9px; vertical-align:top; margin-left:1px;">${m.ampm}</small></div>
-                        <div class="dist-label">${m.distance.toFixed(1)}mi</div>
-                        <div class="map-circle"><i class="material-icons" style="font-size:18px;">map</i></div>
+                        <div class="dist-label">${m.distance.toFixed(1)}<small>mi</small></div>
+                        <div class="map-circle">
+                            <i class="material-icons google-maps-icon">place</i>
+                        </div>
                     </div>`;
                 list.appendChild(card);
             });
@@ -316,10 +333,10 @@
                 
                 <div class="drawer-nav-row">
                     <div class="tefillah-text tef-${m.tefillah}" style="font-size:14px;">${m.tefillah} • ${m.timeDisplay}${m.ampm}</div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="font-size:14px; font-weight:800; color:#444;">${m.distance.toFixed(1)}mi</div>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="font-size:16px; font-weight:800; color:#444;">${m.distance.toFixed(1)}mi</div>
                         <a href="${searchUrl}" target="_blank" class="drawer-nav-btn">
-                            <i class="material-icons" style="font-size:18px;">map</i>
+                            <i class="material-icons" style="font-size:20px;">place</i> Find on Map
                         </a>
                     </div>
                 </div>
