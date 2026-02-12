@@ -9,6 +9,9 @@
   { "name": "Madison Torah Center", "address": "Madison Ave, Lakewood, NJ", "lat": 40.0910, "lng": -74.2100, "nusach": "Ashkenaz", "shacharis": "6:45", "mincha": "7:00", "maariv": "9:00" },
   { "name": "Roberts Shul", "address": "300 Ridge Ave, Lakewood, NJ", "lat": 40.0980, "lng": -74.2050, "nusach": "Ashkenaz", "shacharis": "7:00", "mincha": "1:45", "maariv": "9:15" },
   { "name": "Brookhill Shul", "address": "Brookhill, Lakewood, NJ", "lat": 40.1050, "lng": -74.2250, "nusach": "Ashkenaz", "shacharis": "8:00", "mincha": "7:30", "maariv": "9:30" },
+  { "name": "Toms River Chabad", "address": "2001 Church Rd, Toms River, NJ", "lat": 40.0180, "lng": -74.1800, "nusach": "Ari", "shacharis": "8:00", "mincha": "Sunset", "maariv": "Follows Mincha" },
+  { "name": "Congregation Bnai Israel", "address": "1485 N Ironwood Dr, Toms River, NJ", "lat": 40.0250, "lng": -74.1900, "nusach": "Ashkenaz", "shacharis": "7:00", "mincha": "7:00", "maariv": "9:00" },
+
   { "name": "Landau's Shul (Veretzky)", "address": "Ave L & E 9th, Brooklyn, NY", "lat": 40.6180, "lng": -73.9650, "nusach": "Sefard", "shacharis": "Every 15 min", "mincha": "Every 15 min", "maariv": "Every 15 min" },
   { "name": "Agudath Israel of Ave L", "address": "2913 Ave L, Brooklyn, NY", "lat": 40.6200, "lng": -73.9450, "nusach": "Ashkenaz", "shacharis": "6:30, 7:30", "mincha": "7:45", "maariv": "9:00" },
   { "name": "Mirrer Yeshiva", "address": "1791 Ocean Pkwy, Brooklyn, NY", "lat": 40.6080, "lng": -73.9680, "nusach": "Ashkenaz", "shacharis": "7:00, 8:00", "mincha": "1:45", "maariv": "9:45" },
@@ -17,5 +20,37 @@
   { "name": "Sasregen", "address": "1279 E 24th St, Brooklyn, NY", "lat": 40.6210, "lng": -73.9500, "nusach": "Sefard", "shacharis": "7:30, 8:30", "mincha": "2:00", "maariv": "9:00" },
   { "name": "Bais Yisroel", "address": "1821 Ocean Pkwy, Brooklyn, NY", "lat": 40.6070, "lng": -73.9670, "nusach": "Ashkenaz", "shacharis": "6:45", "mincha": "1:45", "maariv": "9:00" },
   { "name": "Chaim Berlin", "address": "1605 Coney Island Ave, Brooklyn, NY", "lat": 40.6150, "lng": -73.9630, "nusach": "Ashkenaz", "shacharis": "7:30", "mincha": "2:30", "maariv": "10:00" },
-  { "name": "770 Eastern Parkway", "address": "770 Eastern Pkwy, Brooklyn, NY", "lat": 40.6690, "lng": -73.9429, "nusach": "Ari", "shacharis": "10:00", "mincha": "3:15", "maariv": "9:30" }
+  { "name": "770 Eastern Parkway", "address": "770 Eastern Pkwy, Brooklyn, NY", "lat": 40.6690, "lng": -73.9429, "nusach": "Ari", "shacharis": "10:00", "mincha": "3:15", "maariv": "9:30" },
+  { "name": "Shomrei Shabbos", "address": "5202 13th Ave, Brooklyn, NY", "lat": 40.6350, "lng": -73.9980, "nusach": "Sefard", "shacharis": "Every 15 min", "mincha": "Every 15 min", "maariv": "Every 15 min" },
+  { "name": "Eichlers Minyan", "address": "5004 13th Ave, Brooklyn, NY", "lat": 40.6340, "lng": -73.9990, "nusach": "Ashkenaz", "shacharis": "8:00, 9:00", "mincha": "2:00", "maariv": "9:00" },
+  { "name": "Young Israel of Boro Park", "address": "4802 15th Ave, Brooklyn, NY", "lat": 40.6330, "lng": -73.9920, "nusach": "Ashkenaz", "shacharis": "6:30, 7:30", "mincha": "7:00", "maariv": "9:00" },
+
+  { "name": "Congregation Bnai Yeshurun", "address": "641 W Englewood Ave, Teaneck, NJ", "lat": 40.8950, "lng": -74.0150, "nusach": "Ashkenaz", "shacharis": "6:00, 7:00, 8:00", "mincha": "7:30", "maariv": "9:00" },
+  { "name": "Keter Torah", "address": "600 Roemer Ave, Teaneck, NJ", "lat": 40.9000, "lng": -74.0200, "nusach": "Ashkenaz", "shacharis": "6:30, 7:30", "mincha": "7:45", "maariv": "9:15" },
+  { "name": "Rinat Yisrael", "address": "389 W Englewood Ave, Teaneck, NJ", "lat": 40.8930, "lng": -74.0100, "nusach": "Ashkenaz", "shacharis": "7:00", "mincha": "7:30", "maariv": "9:30" },
+  { "name": "Young Israel of Teaneck", "address": "868 Perry Ln, Teaneck, NJ", "lat": 40.8850, "lng": -74.0050, "nusach": "Ashkenaz", "shacharis": "7:00", "mincha": "7:45", "maariv": "9:00" },
+  { "name": "Ohr Torah", "address": "19 Rector Ct, Bergenfield, NJ", "lat": 40.9200, "lng": -74.0000, "nusach": "Ashkenaz", "shacharis": "6:30", "mincha": "7:30", "maariv": "9:00" },
+
+  { "name": "Adas Israel", "address": "565 Broadway, Passaic, NJ", "lat": 40.8560, "lng": -74.1280, "nusach": "Ashkenaz", "shacharis": "6:00, 7:00, 8:00", "mincha": "2:00, 7:00", "maariv": "9:00, 10:00" },
+  { "name": "Khal Tifereth Israel", "address": "180 Passaic Ave, Passaic, NJ", "lat": 40.8600, "lng": -74.1200, "nusach": "Ashkenaz", "shacharis": "6:30", "mincha": "7:30", "maariv": "9:30" },
+  { "name": "Agudath Israel of Passaic", "address": "1122 Van Houten Ave, Clifton, NJ", "lat": 40.8650, "lng": -74.1350, "nusach": "Ashkenaz", "shacharis": "7:00", "mincha": "7:45", "maariv": "9:45" },
+
+  { "name": "Ohr Torah Edison", "address": "48 Edgemount Rd, Edison, NJ", "lat": 40.5050, "lng": -74.4150, "nusach": "Ashkenaz", "shacharis": "6:30, 8:00", "mincha": "7:30", "maariv": "9:30" },
+  { "name": "Congregation Ahavas Achim", "address": "216 S 1st Ave, Highland Park, NJ", "lat": 40.4950, "lng": -74.4250, "nusach": "Ashkenaz", "shacharis": "6:45", "mincha": "7:45", "maariv": "9:00" },
+
+  { "name": "Edmond J Safra Synagogue", "address": "Hatway Ave, Deal, NJ", "lat": 40.2450, "lng": -73.9950, "nusach": "Sefard", "shacharis": "7:00, 8:00", "mincha": "7:00", "maariv": "8:30" },
+  { "name": "Ohel Yaacov", "address": "Ocean Ave, Deal, NJ", "lat": 40.2400, "lng": -73.9900, "nusach": "Sefard", "shacharis": "8:00", "mincha": "7:30", "maariv": "9:30" },
+  { "name": "Brothers of Israel", "address": "250 Park Ave, Elberon, NJ", "lat": 40.2600, "lng": -73.9900, "nusach": "Ashkenaz", "shacharis": "8:30", "mincha": "7:30", "maariv": "8:30" },
+
+  { "name": "Kehillas Bais Yehuda", "address": "202 W Maple Ave, Monsey, NY", "lat": 41.1150, "lng": -74.0660, "nusach": "Ashkenaz", "shacharis": "6:30, 7:30", "mincha": "7:00", "maariv": "9:00" },
+  { "name": "Khal Tzemach Tzedek", "address": "2 Langeries Dr, Monsey, NY", "lat": 41.1200, "lng": -74.0700, "nusach": "Ari", "shacharis": "7:00, 8:00", "mincha": "2:00", "maariv": "9:30" },
+  { "name": "Viznitz Monsey", "address": "Phyllis Terrace, Monsey, NY", "lat": 41.1250, "lng": -74.0750, "nusach": "Sefard", "shacharis": "6:30, 7:30, 8:30", "mincha": "1:30", "maariv": "9:30" },
+
+  { "name": "Young Israel of Woodmere", "address": "859 Peninsula Blvd, Woodmere, NY", "lat": 40.6320, "lng": -73.7050, "nusach": "Ashkenaz", "shacharis": "6:00, 7:00, 8:00", "mincha": "7:30", "maariv": "9:00" },
+  { "name": "White Shul", "address": "728 Empire Ave, Far Rockaway, NY", "lat": 40.6050, "lng": -73.7500, "nusach": "Ashkenaz", "shacharis": "6:30, 7:30", "mincha": "7:45", "maariv": "9:45" },
+  { "name": "Agudath Israel of Long Island", "address": "1121 Sage St, Far Rockaway, NY", "lat": 40.6000, "lng": -73.7550, "nusach": "Ashkenaz", "shacharis": "7:00", "mincha": "7:30", "maariv": "9:00" },
+
+  { "name": "Fifth Ave Synagogue", "address": "5 E 62nd St, New York, NY", "lat": 40.7650, "lng": -73.9700, "nusach": "Ashkenaz", "shacharis": "7:30", "mincha": "6:30", "maariv": "7:00" },
+  { "name": "Lincoln Square Synagogue", "address": "180 Amsterdam Ave, New York, NY", "lat": 40.7750, "lng": -73.9850, "nusach": "Ashkenaz", "shacharis": "7:15", "mincha": "7:00", "maariv": "8:30" },
+  { "name": "Young Israel of Kew Gardens Hills", "address": "150-05 70th Rd, Flushing, NY", "lat": 40.7250, "lng": -73.8150, "nusach": "Ashkenaz", "shacharis": "6:30, 7:30", "mincha": "7:30", "maariv": "9:00" }
 ]
