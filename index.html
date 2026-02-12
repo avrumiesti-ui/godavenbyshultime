@@ -9,7 +9,6 @@
 <style>
     :root { --primary: #0D2B4F; --bg: #F2F4F8; }
     
-    /* CRITICAL FIX: Stops the browser from refreshing when pulling down */
     html, body { 
         margin: 0; 
         padding: 0;
@@ -22,7 +21,6 @@
         background: var(--bg); 
         padding-bottom: 100px; 
         overflow-x: hidden; 
-        touch-action: pan-x pan-y; 
     }
     
     /* FLOATING HEADER */
@@ -60,19 +58,20 @@
         background: #fff; border-radius: 12px; margin-bottom: 10px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        overflow: hidden; min-height: 85px;
+        overflow: hidden; min-height: 90px;
     }
 
     .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
+    
     .map-zone { 
-        width: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        gap: 4px; border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa;
+        display: flex; align-items: center; gap: 10px; padding: 0 15px;
+        border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa;
     }
     
-    .time-top-right { font-weight: 800; font-size: 17px; color: var(--primary); margin-bottom: 2px; }
-    .dist-label { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 2px; }
+    .time-top-right { font-weight: 800; font-size: 17px; color: var(--primary); position: absolute; top: 12px; right: 12px; }
+    .dist-label { font-size: 13px; font-weight: 800; color: #555; }
     .map-circle {
-        width: 32px; height: 32px; border-radius: 50%; background: #fff;
+        width: 36px; height: 36px; border-radius: 50%; background: #fff;
         display: flex; align-items: center; justify-content: center;
         color: var(--primary); border: 1px solid #ddd;
     }
@@ -85,7 +84,7 @@
     .nusach-Other { background: #F5F5F5; color: #616161; }
 
     /* TEFILLAH TEXT COLORS */
-    .tefillah-text { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tefillah-text { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
     .tef-Shacharis { color: #4CAF50; }
     .tef-Mincha { color: #FF9800; }
     .tef-Maariv { color: #3F51B5; }
@@ -115,12 +114,24 @@
         background: #fff; border-radius: 25px 25px 0 0; z-index: 3000;
         box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: transform 0.3s ease-out;
         padding: 0; display: flex; flex-direction: column;
-        overscroll-behavior: contain; /* Prevents background from scrolling/refreshing */
     }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
-    .drawer-header { padding: 15px; display: flex; flex-direction: column; align-items: center; cursor: grab; width: 100%; box-sizing: border-box; }
-    .drawer-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; margin-bottom: 10px; }
     
+    .drawer-header { 
+        padding: 15px; display: flex; justify-content: center; align-items: center; 
+        position: relative; width: 100%; box-sizing: border-box; cursor: grab;
+    }
+    .drawer-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; }
+    
+    /* Circle X Button */
+    .close-drawer-btn {
+        position: absolute; right: 20px; top: 15px;
+        width: 30px; height: 30px; border-radius: 50%;
+        background: #f0f0f0; border: none;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #666;
+    }
+
     .drawer-body { flex: 1; overflow-y: auto; padding: 0 25px 25px; }
     .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     .drawer-nav-btn { display: flex; align-items: center; gap: 8px; background: var(--bg); padding: 10px 20px; border-radius: 25px; text-decoration: none; color: var(--primary); font-weight: 800; border: 1px solid #ddd; }
@@ -154,6 +165,9 @@
     <div id="details-drawer">
         <div class="drawer-header" id="drawer-header">
             <div class="drawer-handle"></div>
+            <button class="close-drawer-btn" onclick="closeDetails()">
+                <i class="material-icons" style="font-size:18px;">close</i>
+            </button>
         </div>
         <div id="drawer-content" class="drawer-body">
             </div>
@@ -228,7 +242,7 @@
                 const res = await fetch("database.json");
                 const data = await res.json();
                 processMinyanim(data);
-            } catch(e) { console.error("Database load error:", e); }
+            } catch(e) { console.error("DB Load Error:", e); }
             initPullToDismiss();
         });
 
@@ -288,15 +302,17 @@
                 const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.address)}`;
                 
                 const card = document.createElement("div");
-                card.className = `minyan-card type-${m.tefillah}`;
+                card.className = "minyan-card";
+                card.style.position = "relative";
                 card.innerHTML = `
                     <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
+                        <div class="tefillah-text tef-${m.tefillah}">${m.tefillah}</div>
                         <div style="font-weight:700; font-size:15px; color:#333; line-height:1.2;">${m.name}</div>
                         <div style="font-size:11px; color:#888; margin-top:2px;">${m.address}</div>
                         <div class="nusach-tag ${nCls}">${m.nusach}</div>
+                        <div class="time-top-right">${m.timeDisplay}<small style="font-size:9px;">${m.ampm}</small></div>
                     </div>
                     <div class="map-zone" onclick="window.open('${searchUrl}','_blank')">
-                        <div class="time-top-right">${m.timeDisplay}<small style="font-size:9px;">${m.ampm}</small></div>
                         <div class="dist-label">${m.distance.toFixed(1)}mi</div>
                         <div class="map-circle"><i class="material-icons" style="font-size:18px;">map</i></div>
                     </div>`;
@@ -310,15 +326,15 @@
             const content = document.getElementById("drawer-content");
             content.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                   <h2 style="margin:0; color:var(--primary); font-size:20px; flex:1;">${m.name}</h2>
+                   <h2 style="margin:0; color:var(--primary); font-size:20px; flex:1; padding-right:40px;">${m.name}</h2>
                 </div>
                 <p style="color:#666; margin:5px 0 10px; font-size:13px;">${m.address}</p>
                 <div class="nusach-tag ${nCls}">${m.nusach}</div>
                 
                 <div class="drawer-nav-row">
-                    <div class="tefillah-text tef-${m.tefillah}">${m.tefillah} • ${m.timeDisplay}${m.ampm}</div>
+                    <div class="tefillah-text tef-${m.tefillah}" style="font-size:14px;">${m.tefillah} • ${m.timeDisplay}${m.ampm}</div>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="font-size:14px; font-weight:700; color:#666;">${m.distance.toFixed(1)}mi</div>
+                        <div style="font-size:14px; font-weight:800; color:#444;">${m.distance.toFixed(1)}mi</div>
                         <a href="${searchUrl}" target="_blank" class="drawer-nav-btn" style="padding: 10px 15px;">
                             <i class="material-icons">map</i>
                         </a>
@@ -414,7 +430,7 @@
         function useMyLocation() {
             navigator.geolocation.getCurrentPosition(pos => {
                 setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
-            }, e => alert("Location services are disabled."));
+            }, e => alert("Location Denied. Please enable GPS."));
         }
 
         function clearSearch(){
