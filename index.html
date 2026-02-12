@@ -259,11 +259,8 @@
             const now = new Date();
             const currentH = now.getHours();
             const currentM = now.getMinutes();
-            
-            // Format Now (HH:MM)
             const startStr = `${String(currentH).padStart(2,'0')}:${String(currentM).padStart(2,'0')}`;
             
-            // Add 1 Hour
             now.setHours(now.getHours() + 1);
             const endH = now.getHours();
             const endM = now.getMinutes();
@@ -274,29 +271,27 @@
             document.getElementById('time-filter-label').innerText = "Time: Next Hour";
             
             applyFilters();
-            toggleTimePanel(); // Close panel after selection
+            toggleTimePanel(); 
         }
 
         function onStartTimeChange() {
-            // Auto-set End Time to Start Time + 1 Hour
             const startVal = document.getElementById('time-start').value;
             if(!startVal) return;
             
             const [h, m] = startVal.split(':').map(Number);
             let endH = h + 1;
-            let endM = m;
+            if(endH > 23) endH = 23; 
+            const endStr = `${String(endH).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             
-            if(endH > 23) endH = 23; // Cap at midnight
-
-            const endStr = `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
             document.getElementById('time-end').value = endStr;
-            
             document.getElementById('time-filter-label').innerText = "Time: Custom";
             applyFilters();
         }
 
-        // 4. APPLY FILTERS & DISTANCE
+        // 4. APPLY FILTERS (With Fallback Logic)
         function applyFilters() {
+            if (!searchCenter) return;
+
             const sortType = document.getElementById('filter-sort').value;
             const tefillahFilter = document.getElementById('filter-tefillah').value;
             const startTime = document.getElementById('time-start').value;
@@ -304,19 +299,53 @@
 
             let results = allMinyanim;
 
-            // A. DISTANCE CALCULATION
-            if (searchCenter) {
-                results = results.map(m => {
-                    m.distance = getDistanceMiles(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
-                    return m;
-                });
-                // STRICT RADIUS FILTER
-                results = results.filter(m => m.distance <= DEFAULT_RADIUS_MILES); 
+            // 1. Calculate Distances
+            results = results.map(m => {
+                m.distance = getDistanceMiles(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                return m;
+            });
+
+            // 2. Strict Radius Check (Are there any results nearby?)
+            let nearbyResults = results.filter(m => m.distance <= DEFAULT_RADIUS_MILES);
+
+            // 3. FALLBACK: IF NO RESULTS NEARBY -> Find Closest Shul Globally
+            if (nearbyResults.length === 0) {
+                // Find nearest shul in entire DB
+                results.sort((a, b) => a.distance - b.distance);
+                const closest = results[0]; // The closest one globally
+                
+                if (closest) {
+                    // AUTO-RELOCATE USER TO CLOSEST SHUL
+                    searchCenter = {
+                        lat: closest.lat,
+                        lng: closest.lng,
+                        name: closest.address.split(',')[1] || closest.name // Try to guess city name
+                    };
+                    
+                    // Alert User
+                    alert(`No minyanim found within ${DEFAULT_RADIUS_MILES} miles.\n\nRelocating to nearest area: ${searchCenter.name}`);
+                    
+                    updateLocationDisplay();
+                    if(map) { map.setCenter(searchCenter); map.setZoom(14); }
+
+                    // Re-calculate distances based on NEW center
+                    results = results.map(m => {
+                        m.distance = getDistanceMiles(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                        return m;
+                    });
+                    
+                    // Now filter again with new center
+                    nearbyResults = results.filter(m => m.distance <= DEFAULT_RADIUS_MILES);
+                }
             }
 
-            // B. Standard Filters
+            // Continue filtering with whatever we found (either original nearby or relocated nearby)
+            results = nearbyResults;
+
+            // B. Filter Type
             if (tefillahFilter) results = results.filter(m => m.tefillah === tefillahFilter);
 
+            // C. Filter Time
             if (startTime && endTime) {
                 const [startH, startM] = startTime.split(':').map(Number);
                 const [endH, endM] = endTime.split(':').map(Number);
@@ -325,8 +354,8 @@
                 results = results.filter(m => m.timeValue >= startMins && m.timeValue <= endMins);
             }
 
-            // C. Sort
-            if (sortType === 'distance' && searchCenter) {
+            // D. Sort
+            if (sortType === 'distance') {
                 results.sort((a, b) => a.distance - b.distance);
             } else if (sortType === 'time_asc') {
                 results.sort((a, b) => a.timeValue - b.timeValue);
@@ -334,9 +363,7 @@
                 results.sort((a, b) => b.timeValue - a.timeValue);
             }
 
-            // Update Status Bar
-            let locName = searchCenter ? (searchCenter.name || "Current Location") : "Unknown Location";
-            document.getElementById('status-bar').innerText = `Found ${results.length} minyanim within ${DEFAULT_RADIUS_MILES} mi of ${locName}`;
+            document.getElementById('status-bar').innerText = `Found ${results.length} minyanim within ${DEFAULT_RADIUS_MILES} mi`;
 
             renderResults(results);
             updateMapMarkers(results);
@@ -347,7 +374,7 @@
             list.innerHTML = '';
             
             if (results.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">No minyanim found in this area/time.</div>';
+                list.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">No minyanim found matching your filters.</div>';
                 return;
             }
 
@@ -391,20 +418,14 @@
 
         async function updateMapMarkers(minyanResults) {
             if (!googleLoaded || !map) return;
-
-            // Clear old
             markers.forEach(m => m.setMap(null));
             markers = [];
 
-            // De-duplicate locations
             const uniqueLocations = {};
             minyanResults.forEach(m => {
                 const key = `${m.lat},${m.lng}`;
-                if (!uniqueLocations[key]) {
-                    uniqueLocations[key] = { lat: m.lat, lng: m.lng, title: m.name, count: 1 };
-                } else {
-                    uniqueLocations[key].count++;
-                }
+                if (!uniqueLocations[key]) uniqueLocations[key] = { lat: m.lat, lng: m.lng, title: m.name, count: 1 };
+                else uniqueLocations[key].count++;
             });
 
             const { Marker } = await google.maps.importLibrary("marker");
@@ -416,20 +437,18 @@
                     map: map,
                     title: loc.title
                 });
-
                 marker.addListener("click", () => {
                     infoWindow.setContent(`<strong>${loc.title}</strong><br>${loc.count} Minyanim Here`);
                     infoWindow.open(map, marker);
                 });
-                
                 markers.push(marker);
                 bounds.extend({ lat: loc.lat, lng: loc.lng });
             });
 
-            // Center map on User Location primarily
             if (searchCenter) {
+                // Always prioritize center
                 map.setCenter(searchCenter);
-                map.setZoom(14); // Force good zoom on center
+                map.setZoom(14); 
             } else if (markers.length > 0) {
                 map.fitBounds(bounds);
             }
@@ -455,14 +474,15 @@
                             name: "Current Location"
                         };
                         updateLocationDisplay();
-                        
-                        // Center map if ready
                         if(map) { map.setCenter(searchCenter); map.setZoom(14); }
-                        
                         applyFilters();
                     },
                     (err) => { 
                         document.getElementById('current-location-text').innerText = "Location Error";
+                        // Fallback
+                        searchCenter = { lat: 40.091, lng: -74.218, name: "Lakewood (Default)" };
+                        updateLocationDisplay();
+                        applyFilters();
                     }
                 );
             }
@@ -494,11 +514,9 @@
         }
         
         function clearSearch() { 
-            // Reset to GPS
-            useMyLocation();
-            // Try to clear google input text (hard to do cleanly without component reload)
             const el = document.querySelector('gmp-place-autocomplete');
             if(el) el.value = null;
+            useMyLocation();
         }
 
         // --- GOOGLE INIT ---
@@ -510,37 +528,33 @@
 
                 googleLoaded = true;
                 
-                // 1. Setup Map
+                // 1. Map
                 map = new Map(document.getElementById("map-view"), {
                     center: { lat: 40.091, lng: -74.218 },
                     zoom: 14, disableDefaultUI: true,
                 });
                 infoWindow = new google.maps.InfoWindow();
 
-                // 2. Setup Autocomplete
+                // 2. Autocomplete
                 const autocomplete = new PlaceAutocompleteElement();
                 autocomplete.id = "place-input";
-                autocomplete.placeholder = "Search City (e.g. Lakewood)";
+                autocomplete.placeholder = "Change Location";
                 document.getElementById("place-autocomplete-container").appendChild(autocomplete);
 
                 // 3. LISTEN FOR SELECTION
                 autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
                     await place.fetchFields({ fields: ['displayName', 'location'] });
                     
-                    // UPDATE CENTER
                     searchCenter = {
                         lat: place.location.lat(),
                         lng: place.location.lng(),
                         name: place.displayName
                     };
-                    
                     updateLocationDisplay();
                     
-                    // Move map
                     map.setCenter(searchCenter);
                     map.setZoom(14);
                     
-                    // Re-run filters
                     applyFilters();
                 });
 
