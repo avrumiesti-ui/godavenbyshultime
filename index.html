@@ -16,13 +16,23 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* SEARCH BAR */
+        /* SEARCH BAR (Container for New Google Component) */
         .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; }
         .search-pill {
             flex-grow: 1; display: flex; align-items: center;
             background: #F0F2F5; border-radius: 12px; padding: 0 12px; height: 50px; border: 1px solid #ddd;
+            overflow: hidden; /* Keeps the google input inside */
         }
-        #location-input { border: none; background: transparent; font-size: 16px; flex-grow: 1; margin-left: 8px; outline: none; height: 100%; color: #111; }
+        
+        /* NEW GOOGLE INPUT STYLING */
+        gmp-place-autocomplete {
+            width: 100%;
+            display: inline-block;
+        }
+        /* Hide the default border of the component to blend in */
+        gmp-place-autocomplete::part(input) {
+            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none;
+        }
 
         /* FILTERS ROW */
         .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; padding-top: 5px; scrollbar-width: none; }
@@ -90,7 +100,7 @@
             <div class="search-row">
                 <div class="search-pill">
                     <i class="material-icons search-icon" style="color:#888;">search</i>
-                    <input type="text" id="location-input" placeholder="Search (e.g. Lakewood)" autocomplete="off" onkeyup="handleTyping(this.value)">
+                    <div id="place-autocomplete-container" style="flex-grow:1;"></div>
                     <i class="material-icons clear-icon" onclick="clearSearch()">close</i>
                 </div>
                 <button class="toggle-btn" onclick="toggleView()">
@@ -158,9 +168,9 @@
         let allShuls = []; 
         let allMinyanim = []; 
         let googleLoaded = false;
+        let lastSearchQuery = "";
 
         // 1. INIT
-        // Set Default Times (12:00 AM to 11:59 PM)
         document.getElementById('time-start').value = "00:00";
         document.getElementById('time-end').value = "23:59";
 
@@ -177,7 +187,7 @@
                 document.getElementById('status-bar').innerText = "Error loading database file.";
             });
 
-        // 2. PROCESS DATA: Convert raw data to Cards with AM/PM
+        // 2. PROCESS DATA
         function processMinyanim(shuls) {
             allMinyanim = [];
             
@@ -187,23 +197,19 @@
                     const times = timeStr.split(',').map(t => t.trim());
                     
                     times.forEach(t => {
-                        // Formatting AM/PM
-                        let rawTime = t.replace(/[^0-9:]/g, ''); // clean string
+                        let rawTime = t.replace(/[^0-9:]/g, ''); 
                         let [h, m] = rawTime.split(':').map(Number);
                         
-                        // Guess AM/PM logic for raw input
                         let isPM = false;
                         if (type === 'Maariv') isPM = true;
-                        if (type === 'Mincha' && h < 9) isPM = true; // 1:00 - 8:00 is usually PM
-                        if (type === 'Shacharis' && h === 12) isPM = false; // Midnight minyan? rare but assume AM
+                        if (type === 'Mincha' && h < 9) isPM = true; 
+                        if (type === 'Shacharis' && h === 12) isPM = false; 
 
-                        // Adjust Hours for 24h calculation
                         let sortHour = h;
                         if (isPM && h < 12) sortHour += 12;
                         if (!isPM && h === 12) sortHour = 0;
 
-                        // Create Pretty Display String
-                        let displayH = h; // keep original unless needed
+                        let displayH = h;
                         let ampm = isPM ? "PM" : "AM";
                         
                         allMinyanim.push({
@@ -234,35 +240,28 @@
             const nusachFilter = document.getElementById('filter-nusach').value;
             const startTime = document.getElementById('time-start').value;
             const endTime = document.getElementById('time-end').value;
-            const searchText = document.getElementById('location-input').value.toLowerCase();
 
             let results = allMinyanim;
 
-            // Search
-            if (searchText.length > 0) {
+            // Search (Filter by cached query)
+            if (lastSearchQuery.length > 0) {
                 results = results.filter(m => 
-                    m.name.toLowerCase().includes(searchText) || 
-                    m.address.toLowerCase().includes(searchText)
+                    m.name.toLowerCase().includes(lastSearchQuery) || 
+                    m.address.toLowerCase().includes(lastSearchQuery)
                 );
             }
 
-            // Type
             if (tefillahFilter) results = results.filter(m => m.tefillah === tefillahFilter);
-            
-            // Nusach
             if (nusachFilter) results = results.filter(m => m.nusach === nusachFilter);
 
-            // Time Range (Convert HH:MM to minutes)
             if (startTime && endTime) {
                 const [startH, startM] = startTime.split(':').map(Number);
                 const [endH, endM] = endTime.split(':').map(Number);
                 const startMins = (startH * 60) + startM;
                 const endMins = (endH * 60) + endM;
-
                 results = results.filter(m => m.timeValue >= startMins && m.timeValue <= endMins);
             }
 
-            // Sort
             if (sortType === 'time_asc') results.sort((a, b) => a.timeValue - b.timeValue);
             if (sortType === 'time_desc') results.sort((a, b) => b.timeValue - a.timeValue);
 
@@ -275,7 +274,6 @@
             const status = document.getElementById('status-bar');
             list.innerHTML = '';
             
-            // Clear map
             if(googleLoaded && map) {
                 markers.forEach(m => m.setMap(null)); 
                 markers = [];
@@ -290,7 +288,6 @@
             status.innerText = `Found ${results.length} minyanim`;
 
             results.forEach(minyan => {
-                // Determine Nusach Color
                 let nusachClass = "nusach-Other";
                 if(minyan.nusach === "Ashkenaz") nusachClass = "nusach-Ashkenaz";
                 if(minyan.nusach === "Sefard") nusachClass = "nusach-Sefard";
@@ -313,7 +310,6 @@
                 `;
                 
                 card.onclick = () => {
-                    // IF GOOGLE WORKS -> Show Embedded Map
                     if (googleLoaded && map) {
                         toggleView('map');
                         map.setCenter({ lat: minyan.lat, lng: minyan.lng });
@@ -326,11 +322,10 @@
                         infoWindow.setContent(`<strong>${minyan.name}</strong><br>${minyan.timeDisplay} ${minyan.ampm}`);
                         infoWindow.open(map, marker);
                     } 
-                    // IF GOOGLE BLOCKED -> Open External Map (Waze/Google Maps)
                     else {
-                        const confirmNav = confirm("Map Preview is currently unavailable (API Limit).\n\nOpen in Google Maps Navigation?");
+                        const confirmNav = confirm("Map Preview is unavailable (Waiting for Google Key).\n\nOpen navigation?");
                         if(confirmNav) {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${minyan.lat},${minyan.lng}`);
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${minyan.address}`);
                         }
                     }
                 };
@@ -343,8 +338,6 @@
             const p = document.getElementById('time-filter-panel');
             p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
         }
-
-        function handleTyping(val) { applyFilters(); }
 
         function toggleView(forceView) {
             const list = document.getElementById('list-view');
@@ -359,39 +352,54 @@
             }
         }
         
-        function clearSearch() { document.getElementById('location-input').value = ''; applyFilters(); }
+        function clearSearch() { 
+            lastSearchQuery = "";
+            applyFilters();
+            // Clear the actual web component text if possible, though strict shadow DOM makes it hard.
+        }
 
-        // Google Init
-        window.initApp = function() {
-            googleLoaded = true;
+        // --- NEW GOOGLE INIT ---
+        async function initApp() {
             try {
-                map = new google.maps.Map(document.getElementById("map-view"), {
-                    center: { lat: 40.091, lng: -74.218 }, zoom: 13, disableDefaultUI: true,
+                // Import the NEW Libraries
+                const { Map } = await google.maps.importLibrary("maps");
+                const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+                const { Marker } = await google.maps.importLibrary("marker");
+
+                googleLoaded = true;
+                
+                // 1. Setup Map
+                map = new Map(document.getElementById("map-view"), {
+                    center: { lat: 40.091, lng: -74.218 },
+                    zoom: 13, disableDefaultUI: true,
                 });
                 infoWindow = new google.maps.InfoWindow();
 
-                const input = document.getElementById('location-input');
-                const autocomplete = new google.maps.places.Autocomplete(input, { types: ['geocode'] });
-                
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if (place.geometry) {
-                        // Just zoom map, user still needs to see list
-                        map.setCenter(place.geometry.location);
-                        map.setZoom(14);
-                    }
+                // 2. Setup New Autocomplete Element
+                const autocomplete = new PlaceAutocompleteElement();
+                autocomplete.id = "place-input";
+                document.getElementById("place-autocomplete-container").appendChild(autocomplete);
+
+                // Listen for user selection
+                autocomplete.addEventListener("gmp-places-select", ({ place }) => {
+                    const placeName = place.displayName || ""; // Get text
+                    lastSearchQuery = placeName.toLowerCase();
+                    applyFilters(); // Filter list
                 });
-            } catch (e) { console.error(e); }
-        };
+
+            } catch (e) { 
+                console.error("Map Init Error:", e);
+                window.gm_authFailure();
+            }
+        }
         
-        // Handle Google Block
         window.gm_authFailure = function() {
             document.getElementById('map-error').style.display = 'block';
-            document.getElementById('map-error').innerHTML = "<strong>Map Unavailable:</strong> Google API Key is still updating.<br>Search and List view are fully functional.";
+            document.getElementById('map-error').innerHTML = "<strong>Map Unavailable:</strong> Google API Key blocked.<br>Add <code>https://avrumiesti-ui.github.io/godavenbyshultime/*</code> to Google Cloud Console.";
             googleLoaded = false;
         };
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&libraries=places&callback=initApp"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
