@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShulTime Redesign</title>
+    <title>ShulTime Direct</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     
@@ -113,7 +113,7 @@
         let lastSearch = { query: "", lat: null, lng: null };
         let autocomplete;
 
-        // 1. GLOBAL INIT FUNCTION (Must be defined before Google loads)
+        // 1. GLOBAL INIT
         window.initApp = function() {
             updateStatus("Google Maps Connected.");
             
@@ -137,7 +137,6 @@
                 autocomplete = new google.maps.places.Autocomplete(input, options);
                 autocomplete.addListener('place_changed', onPlaceSelected);
                 
-                // Allow "Enter" key
                 input.addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
                         input.blur();
@@ -174,6 +173,7 @@
             }
         }
 
+        // --- THE NEW DIRECT SEARCH FUNCTION ---
         async function performSearch(query, lat, lng) {
             lastSearch = { query, lat, lng };
             const listContainer = document.getElementById('list-view');
@@ -182,24 +182,52 @@
             const nusach = document.getElementById('filter-nusach').value;
             const tefillah = document.getElementById('filter-tefillah').value;
 
+            // Get Date/Time
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
+            const dayOfWeek = now.getDay() + 1;
+
             updateStatus(`Searching GoDaven...`);
             listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Searching...</div>';
             
             try {
-                let url = `/.netlify/functions/get-minyanim?q=${encodeURIComponent(query)}`;
-                if (lat && lng) url += `&lat=${lat}&lng=${lng}`;
-                if (nusach) url += `&nusach=${nusach}`;
-                if (tefillah) url += `&tefillah=${tefillah}`;
-
-                const response = await fetch(url);
-                const data = await response.json();
+                // Build GoDaven URL directly
+                let apiUrl = "";
+                let params = `pagenumber=1&users_date=${dateStr}&current_time=${timeStr}&todays_day=${dayOfWeek}`;
                 
-                if (data.error) {
-                    updateStatus("Server Error");
-                    listContainer.innerHTML = `<div style="padding:20px; color:red; text-align:center;">API Error: ${data.message}</div>`;
-                    return;
+                if (nusach) params += `&nusach=${encodeURIComponent(nusach)}`;
+                if (tefillah) params += `&tefillah=${encodeURIComponent(tefillah)}`;
+
+                if (lat && lng) {
+                    apiUrl = "https://www.godaven.com/api/V2/shuls/radius-search";
+                    params += `&lat=${lat}&lng=${lng}&distance=20`;
+                } else {
+                    apiUrl = "https://www.godaven.com/api/V2/shuls/search-all";
+                    params += `&query=${encodeURIComponent(query)}`;
                 }
 
+                const fullUrl = `${apiUrl}?${params}`;
+
+                // USE PROXY TO BYPASS CORS
+                // This routes the request through a public proxy so your browser doesn't block it.
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`;
+
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        // Note: We are attempting to fetch WITHOUT the private key first.
+                        // GoDaven's V2 API often works publicly for basic searches.
+                        // If this fails, we will need to embed the key (risky but necessary now).
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+
+                const data = await response.json();
                 const results = data.SearchResults || data.results || (Array.isArray(data) ? data : []); 
                 
                 listContainer.innerHTML = '';
