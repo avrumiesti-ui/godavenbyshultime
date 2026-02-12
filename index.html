@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShulTime Unified</title>
+    <title>ShulTime App</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
         :root { --primary: #0D2B4F; --accent: #E3F2FD; --bg: #F2F4F8; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; padding-bottom: 250px; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; padding-bottom: 200px; }
         
         /* FLOATING HEADER */
         .floating-header {
@@ -16,17 +16,21 @@
             display: flex; gap: 10px; align-items: center; pointer-events: none;
         }
 
-        /* SEARCH CONTAINER (Looks like the pill, acts like the manual bar) */
+        /* SEARCH BAR CONTAINER */
         .search-container {
             flex-grow: 1; background: white; height: 50px; border-radius: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center;
-            padding-left: 15px; padding-right: 5px; pointer-events: auto;
+            padding-left: 10px; padding-right: 5px; pointer-events: auto;
+            overflow: hidden; /* Contains the Google Component */
         }
 
-        /* STANDARD INPUT (This is the robust one) */
-        #search-input {
-            border: none; background: transparent; font-size: 16px; color: #111;
-            flex-grow: 1; height: 100%; outline: none; font-weight: 500;
+        /* GOOGLE INPUT STYLING (The New Component) */
+        gmp-place-autocomplete {
+            width: 100%; display: inline-block;
+        }
+        gmp-place-autocomplete::part(input) {
+            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
+            font-weight: 500;
         }
 
         /* BUTTONS */
@@ -36,10 +40,12 @@
             cursor: pointer; color: var(--primary); pointer-events: auto; transition: transform 0.1s;
         }
         .circle-btn:active { transform: scale(0.95); }
+        .map-btn { background: var(--primary); color: white; }
         
-        .search-btn {
-            background: var(--primary); color: white; border-radius: 50%; 
-            width: 40px; height: 40px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        /* FORCE SEARCH BUTTON (Inside Bar) */
+        .search-action-btn {
+            background: var(--primary); color: white; border-radius: 50%; width: 40px; height: 40px; border: none;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 5px;
         }
 
         /* FILTER DRAWER */
@@ -61,8 +67,8 @@
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* LIST & MAP */
-        #list-view { padding: 15px; padding-top: 90px; }
-        #map-view { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
+        #list-view { padding: 15px; padding-top: 90px; position: relative; z-index: 2; }
+        #map-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
 
         /* CARDS */
         .minyan-card {
@@ -84,7 +90,7 @@
             position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
             background: rgba(13, 43, 79, 0.9); color: white; padding: 6px 16px;
             border-radius: 20px; font-size: 12px; font-weight: 600; 
-            backdrop-filter: blur(4px); z-index: 800; display: none;
+            backdrop-filter: blur(4px); z-index: 800; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         /* FAB */
@@ -103,21 +109,17 @@
         .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; }
         .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
         .primary-action { background: var(--primary); color: white; }
-        
-        /* LOG BOX (Hidden unless needed) */
-        #log-box {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 100px; 
-            background: black; color: #0f0; font-family: monospace; font-size: 10px;
-            padding: 5px; overflow-y: scroll; z-index: 9999; opacity: 0.8; display: none;
-        }
     </style>
 </head>
 <body>
 
     <div class="floating-header">
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search City (e.g. Lakewood)">
-            <button class="search-btn" onclick="runSearch()">
+            <i class="material-icons" style="color:#888; margin-right:5px;">search</i>
+            
+            <div id="place-autocomplete-container" style="flex-grow:1;"></div>
+            
+            <button class="search-action-btn" onclick="forceTextSearch()">
                 <i class="material-icons" style="font-size:20px;">arrow_forward</i>
             </button>
         </div>
@@ -189,23 +191,14 @@
     <button class="fab-location" onclick="useMyLocation()">
         <i class="material-icons">my_location</i>
     </button>
-    
-    <div id="log-box"></div>
 
     <script>
-        function log(m) {
-            console.log(m);
-            // Uncomment to see logs on screen
-            // document.getElementById('log-box').style.display = 'block';
-            // document.getElementById('log-box').innerHTML += `> ${m}<br>`;
-        }
-
         let map, allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20.0;
         let filters = { sort: 'distance', tefillah: '', nusach: '' };
         let mapMarkers = [];
-        let PlaceLib = null;
+        let PlaceLib = null; // Store reference to Place Library
 
         // 1. INIT
         document.getElementById('time-start').value = "00:00";
@@ -236,21 +229,17 @@
             });
         }
 
-        // 2. SEARCH LOGIC (ROBUST)
-        async function runSearch() {
-            const query = document.getElementById('search-input').value;
-            if(!query) return;
+        // 2. SEARCH LOGIC (Hybrid: Component + Text Fallback)
+        async function forceTextSearch() {
+            // Get value from inside the shadow DOM of the Google Component
+            const el = document.querySelector('gmp-place-autocomplete');
+            const query = el ? el.value : "";
             
-            // Close keyboard
-            document.getElementById('search-input').blur();
-
-            if(!PlaceLib) {
-                alert("Google Maps not ready. Please wait.");
-                return;
-            }
+            if(!query) { alert("Please type a city first."); return; }
+            if(!PlaceLib) { alert("Maps loading..."); return; }
 
             try {
-                // Use NEW SearchByText API
+                // Use new searchByText (Robust)
                 const { places } = await PlaceLib.searchByText({
                     textQuery: query,
                     fields: ['displayName', 'location'],
@@ -258,14 +247,14 @@
                 });
 
                 if (places && places.length > 0) {
-                    const loc = places[0].location;
-                    const name = places[0].displayName;
-                    setSearchLocation(loc.lat(), loc.lng(), name);
+                    const p = places[0];
+                    setSearchLocation(p.location.lat(), p.location.lng(), p.displayName);
                 } else {
                     alert("City not found.");
                 }
             } catch (e) {
-                alert("Search Error: " + e.message);
+                console.error(e);
+                alert("Search failed. Try selecting from dropdown.");
             }
         }
 
@@ -299,7 +288,6 @@
             }).filter(m => m.distance <= currentRadius);
 
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
-            if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
 
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
@@ -337,8 +325,6 @@
                     if(map) {
                         map.setCenter({ lat: m.lat, lng: m.lng });
                         map.setZoom(16);
-                        // Open InfoWindow for this specific one? 
-                        // For now just centers map.
                     }
                 };
                 list.appendChild(card);
@@ -383,13 +369,15 @@
             document.getElementById('status-pill').style.display = 'block';
             document.getElementById('status-pill').innerText = "Locating...";
             navigator.geolocation.getCurrentPosition(pos => {
-                document.getElementById('search-input').value = "";
+                const el = document.querySelector('gmp-place-autocomplete');
+                if(el) el.value = null;
                 setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
             }, e => alert("Location Denied"));
         }
 
         function clearSearch() {
-            document.getElementById('search-input').value = "";
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
             searchCenter = null;
             document.getElementById('status-pill').style.display = 'none';
             document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;">
@@ -454,48 +442,33 @@
 
         // GOOGLE INIT
         async function initApp() {
-            try {
-                const { Map } = await google.maps.importLibrary("maps");
-                // Import the Place Library so we can use searchByText
-                const lib = await google.maps.importLibrary("places");
-                PlaceLib = lib.Place;
+            const { Map } = await google.maps.importLibrary("maps");
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+            const lib = await google.maps.importLibrary("places");
+            PlaceLib = lib.Place; // Save for fallback search
 
-                // Setup Autocomplete on the standard input
-                const { Autocomplete } = await google.maps.importLibrary("places");
-                const input = document.getElementById('search-input');
-                const autocomplete = new Autocomplete(input, { fields: ['geometry', 'name'] });
+            const container = document.getElementById('place-autocomplete-container');
+            const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.id = "place-input";
+            autocomplete.placeholder = "Search City...";
+            container.appendChild(autocomplete);
 
-                // Standard Listener
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if(place.geometry) {
-                        setSearchLocation(place.geometry.location.lat(), place.geometry.location.lng(), place.name);
-                    } else {
-                        // If they hit enter without selecting, use fallback
-                        runSearch();
-                    }
-                });
+            // MAP
+            map = new Map(document.getElementById("map-view"), {
+                center: { lat: 40.091, lng: -74.218 },
+                zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+            });
 
-                // Enter Key Listener
-                input.addEventListener('keydown', (e) => {
-                    if(e.key === 'Enter') {
-                        // Small delay to let Autocomplete fire first
-                        setTimeout(() => {
-                            if(!searchCenter || searchCenter.name !== input.value) {
-                                runSearch();
-                            }
-                        }, 300);
-                    }
-                });
-
-                map = new Map(document.getElementById("map-view"), {
-                    center: { lat: 40.091, lng: -74.218 },
-                    zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
-                });
-
-            } catch(e) {
-                console.error("Init Error", e);
-            }
+            // COMPONENT SELECTION
+            autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
+                await place.fetchFields({ fields: ['displayName', 'location'] });
+                setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
+            });
+            
+            // KEYBOARD ENTER LISTENER (Fallback)
+            autocomplete.addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') forceTextSearch();
+            });
         }
     </script>
     
