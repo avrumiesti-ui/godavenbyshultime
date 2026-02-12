@@ -3,300 +3,281 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ShulTime</title>
+<title>ShulTime List</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-:root{--primary:#0D2B4F;--bg:#F2F4F8;}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Roboto",sans-serif;background:var(--bg);padding-bottom:120px;}
-#map-view{position:fixed;inset:0;z-index:0;}
-#list-view{position:relative;z-index:2;padding:100px 15px 20px;display:none;}
+    :root { --primary: #0D2B4F; --bg: #F2F4F8; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 100px; }
+    
+    /* MAIN LIST VIEW */
+    #list-view { 
+        padding: 90px 15px 20px; /* Top padding for header */
+        max-width: 600px; margin: 0 auto; 
+    }
 
-.floating-header{
-position:fixed;top:15px;left:15px;right:15px;
-display:flex;gap:10px;z-index:1000;
-}
+    /* FLOATING HEADER */
+    .floating-header {
+        position: fixed; top: 15px; left: 15px; right: 15px;
+        z-index: 1000; display: flex; justify-content: center;
+    }
 
-.search-container{
-flex:1;display:flex;align-items:center;
-background:#fff;height:50px;border-radius:25px;
-box-shadow:0 4px 15px rgba(0,0,0,0.15);
-padding:0 12px;
-}
+    .search-container {
+        width: 100%; max-width: 600px;
+        display: flex; align-items: center;
+        background: #fff; height: 50px; border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        padding: 0 15px;
+    }
 
-.circle-btn{
-width:50px;height:50px;border-radius:50%;
-border:none;background:#fff;cursor:pointer;
-display:flex;align-items:center;justify-content:center;
-box-shadow:0 4px 15px rgba(0,0,0,0.15);
-}
+    /* GOOGLE INPUT STYLING */
+    gmp-place-autocomplete { width: 100%; }
+    gmp-place-autocomplete::part(input) {
+        border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%;
+    }
 
-.map-btn{background:var(--primary);color:#fff;}
+    /* RADIUS SLIDER (Bottom Fixed) */
+    .radius-control {
+        position: fixed; bottom: 20px; left: 50%;
+        transform: translateX(-50%);
+        background: #fff; padding: 10px 20px;
+        border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: flex; align-items: center; gap: 15px; z-index: 900;
+        font-weight: 600; font-size: 14px; color: var(--primary);
+    }
+    .radius-control input[type=range] { width: 150px; accent-color: var(--primary); }
 
-.radius-control{
-position:fixed;bottom:20px;left:50%;
-transform:translateX(-50%);
-background:#fff;padding:10px 15px;
-border-radius:30px;box-shadow:0 4px 15px rgba(0,0,0,0.2);
-display:flex;align-items:center;gap:10px;z-index:900;
-}
+    /* CARDS */
+    .minyan-card {
+        background: #fff; border-radius: 12px;
+        padding: 16px; margin-bottom: 12px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border-left: 5px solid #ccc;
+    }
 
-.radius-control input[type=range]{width:150px;}
+    .type-Shacharis { border-left-color: #4CAF50; }
+    .type-Mincha { border-left-color: #FF9800; }
+    .type-Maariv { border-left-color: #3F51B5; }
 
-.minyan-card{
-background:#fff;border-radius:12px;
-padding:15px;margin-bottom:10px;
-display:flex;justify-content:space-between;
-box-shadow:0 2px 5px rgba(0,0,0,0.05);
-border-left:5px solid #ccc;
-}
+    .distance-tag {
+        font-size: 11px; background: #eee; color: #555;
+        padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: bold;
+    }
 
-.type-Shacharis{border-left-color:#4CAF50;}
-.type-Mincha{border-left-color:#FF9800;}
-.type-Maariv{border-left-color:#3F51B5;}
+    /* STATUS PILL */
+    #status-pill {
+        position: fixed; top: 75px; left: 50%;
+        transform: translateX(-50%);
+        background: rgba(13, 43, 79, 0.95);
+        color: #fff; padding: 6px 16px;
+        border-radius: 20px; font-size: 12px;
+        display: none; z-index: 800;
+    }
 
-.distance-tag{
-font-size:11px;background:#666;color:#fff;
-padding:2px 6px;border-radius:8px;margin-left:6px;
-}
-
-#status-pill{
-position:fixed;top:75px;left:50%;
-transform:translateX(-50%);
-background:rgba(13,43,79,0.95);
-color:#fff;padding:6px 16px;
-border-radius:20px;font-size:12px;
-display:none;z-index:800;
-}
-
-#loading{
-position:fixed;top:50%;left:50%;
-transform:translate(-50%,-50%);
-background:#fff;padding:15px 25px;
-border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.2);
-display:none;z-index:2000;
-}
+    /* LOADING SPINNER */
+    #loading {
+        text-align: center; padding: 20px; color: #888; font-size: 14px; display: none;
+    }
+    
+    .empty-state { text-align: center; color: #aaa; margin-top: 50px; }
 </style>
 </head>
 <body>
 
-<div class="floating-header">
-<div class="search-container">
-<i class="material-icons" style="color:#888;margin-right:6px;">search</i>
-<div id="autocomplete-container" style="flex:1;"></div>
-<i class="material-icons" style="cursor:pointer;color:#bbb;" onclick="clearSearch()">close</i>
-</div>
+    <div class="floating-header">
+        <div class="search-container">
+            <i class="material-icons" style="color:#888; margin-right:10px;">search</i>
+            <div id="autocomplete-container" style="flex:1;"></div>
+            <i class="material-icons" style="cursor:pointer; color:#bbb; margin-left:10px;" onclick="clearSearch()">close</i>
+        </div>
+    </div>
 
-<button class="circle-btn map-btn" onclick="toggleView()">
-<i class="material-icons" id="toggle-icon">map</i>
-</button>
-</div>
+    <div id="status-pill"></div>
 
-<div id="status-pill"></div>
-<div id="loading">Loading...</div>
+    <div id="list-view">
+        <div class="empty-state">
+            <i class="material-icons" style="font-size:48px; margin-bottom:10px;">location_on</i><br>
+            Search for a city to begin.
+        </div>
+    </div>
+    
+    <div id="loading">Searching...</div>
 
-<div id="map-view"></div>
-<div id="list-view"></div>
+    <div class="radius-control">
+        <span id="radius-label">20 mi</span>
+        <input type="range" min="1" max="50" value="20" id="radius-slider"/>
+    </div>
 
-<div class="radius-control">
-<span id="radius-label">20 mi</span>
-<input type="range" min="1" max="50" value="20" id="radius-slider"/>
-</div>
+    <script>
+        let allMinyanim = [];
+        let searchCenter = null;
+        let currentRadius = 20;
 
-<script>
-let map;
-let clusterer;
-let radiusCircle;
-let allMinyanim=[];
-let searchCenter=null;
-let currentRadius=20;
-let markers=[];
+        // 1. INIT
+        document.addEventListener("DOMContentLoaded", async () => {
+            await loadDatabase();
+        });
 
-document.addEventListener("DOMContentLoaded", loadDatabase);
+        async function loadDatabase(){
+            try {
+                const res = await fetch("database.json");
+                const data = await res.json();
+                processMinyanim(data);
+                console.log("Database Loaded:", allMinyanim.length);
+            } catch(e) { console.error("DB Error:", e); }
+        }
 
-async function loadDatabase(){
-try{
-const res=await fetch("database.json");
-const data=await res.json();
-processMinyanim(data);
-console.log("Loaded:",allMinyanim.length);
-}catch(e){console.error(e);}
-}
+        function processMinyanim(data){
+            allMinyanim = [];
+            data.forEach(shul => {
+                ["Shacharis","Mincha","Maariv"].forEach(type => {
+                    if(!shul[type.toLowerCase()]) return;
+                    shul[type.toLowerCase()].split(",").forEach(t => {
+                        let raw = t.trim().replace(/[^0-9:]/g,"");
+                        let [h,m] = raw.split(":").map(Number);
+                        
+                        // Sort Logic
+                        let isPM = (type === "Maariv" || (type === "Mincha" && h < 9));
+                        let sortH = (isPM && h < 12) ? h + 12 : ((!isPM && h === 12) ? 0 : h);
+                        
+                        allMinyanim.push({
+                            name: shul.name,
+                            address: shul.address,
+                            lat: shul.lat,
+                            lng: shul.lng,
+                            tefillah: type,
+                            timeDisplay: `${h}:${String(m).padStart(2,"0")}`,
+                            ampm: isPM ? "PM" : "AM",
+                            timeValue: (sortH * 60) + m
+                        });
+                    });
+                });
+            });
+        }
 
-function processMinyanim(data){
-allMinyanim=[];
-data.forEach(shul=>{
-["Shacharis","Mincha","Maariv"].forEach(type=>{
-if(!shul[type.toLowerCase()])return;
-shul[type.toLowerCase()].split(",").forEach(t=>{
-let raw=t.trim().replace(/[^0-9:]/g,"");
-let [h,m]=raw.split(":").map(Number);
-let isPM=(type==="Maariv"||(type==="Mincha"&&h<9));
-let sortH=(isPM&&h<12)?h+12:((!isPM&&h===12)?0:h);
-allMinyanim.push({
-name:shul.name,
-address:shul.address,
-lat:shul.lat,
-lng:shul.lng,
-tefillah:type,
-timeDisplay:`${h}:${String(m).padStart(2,"0")}`,
-ampm:isPM?"PM":"AM",
-timeValue:(sortH*60)+m
-});
-});
-});
-});
-}
+        // 2. SEARCH HANDLER
+        function setSearchLocation(lat, lng, name){
+            searchCenter = { lat, lng };
+            
+            const pill = document.getElementById("status-pill");
+            pill.style.display = "block";
+            pill.innerText = `Near: ${name}`;
+            
+            applyFilters();
+        }
 
-function setSearchLocation(lat,lng,name){
-searchCenter={lat,lng};
-document.getElementById("status-pill").style.display="block";
-document.getElementById("status-pill").innerText=`Near: ${name}`;
-map.setCenter({lat,lng});
-map.setZoom(13);
-drawRadius();
-applyFilters();
-}
+        // 3. FILTER LOGIC
+        function applyFilters(){
+            if(!searchCenter || !allMinyanim.length) return;
+            
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("list-view").innerHTML = ""; // Clear list while calculating
 
-function drawRadius(){
-if(radiusCircle)radiusCircle.setMap(null);
-radiusCircle=new google.maps.Circle({
-map:map,
-center:searchCenter,
-radius:currentRadius*1609.34,
-strokeOpacity:0.6,
-strokeWeight:1,
-fillOpacity:0.05
-});
-}
+            // Small timeout to allow UI to show "Loading..."
+            setTimeout(() => {
+                let results = allMinyanim.map(m => {
+                    m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                    return m;
+                }).filter(m => m.distance <= currentRadius);
 
-function applyFilters(){
-if(!searchCenter||!allMinyanim.length)return;
-showLoading(true);
+                results.sort((a,b) => a.distance - b.distance);
 
-let results=allMinyanim.map(m=>{
-m.distance=getDistance(searchCenter.lat,searchCenter.lng,m.lat,m.lng);
-return m;
-}).filter(m=>m.distance<=currentRadius);
+                renderList(results);
+                document.getElementById("loading").style.display = "none";
+            }, 50);
+        }
 
-results.sort((a,b)=>a.distance-b.distance);
+        // 4. RENDER LIST
+        function renderList(results){
+            const list = document.getElementById("list-view");
+            list.innerHTML = "";
+            
+            if(results.length === 0) {
+                list.innerHTML = `<div class="empty-state">No minyanim found within ${currentRadius} miles.</div>`;
+                return;
+            }
 
-renderList(results);
-updateMap(results);
+            results.forEach(m => {
+                const div = document.createElement("div");
+                div.className = `minyan-card type-${m.tefillah}`;
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight:700; font-size:16px; color:#0D2B4F;">${m.name} <span class="distance-tag">${m.distance.toFixed(1)} mi</span></div>
+                        <div style="font-size:13px; color:#777; margin-top:4px;">${m.address}</div>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}" target="_blank" style="font-size:11px; color:#0D2B4F; text-decoration:none; display:inline-block; margin-top:6px;">
+                            Navigate <i class="material-icons" style="font-size:10px;">open_in_new</i>
+                        </a>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:800; font-size:18px; color:#0D2B4F;">${m.timeDisplay}<span style="font-size:12px;">${m.ampm}</span></div>
+                        <div style="font-size:11px; font-weight:bold; color:#999; text-transform:uppercase;">${m.tefillah}</div>
+                    </div>`;
+                list.appendChild(div);
+            });
+        }
 
-showLoading(false);
-}
+        // 5. GOOGLE MAPS INIT (For Search Component Only)
+        async function initApp(){
+            // We only import 'places' because we deleted the map
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
 
-function renderList(results){
-const list=document.getElementById("list-view");
-list.innerHTML="";
-results.forEach(m=>{
-const div=document.createElement("div");
-div.className=`minyan-card type-${m.tefillah}`;
-div.innerHTML=`
-<div>
-<strong>${m.name}</strong>
-<span class="distance-tag">${m.distance.toFixed(1)} mi</span><br>
-<span style="font-size:12px;color:#777;">${m.address}</span><br>
-<a href="https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}" target="_blank" style="font-size:11px;">Open in Google Maps</a>
-</div>
-<div>
-<strong>${m.timeDisplay} ${m.ampm}</strong><br>
-<span style="font-size:10px;color:#888;">${m.tefillah}</span>
-</div>`;
-list.appendChild(div);
-});
-}
+            const container = document.getElementById("autocomplete-container");
+            const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.setAttribute("types", "(cities)"); // Limit to cities
+            autocomplete.placeholder = "Search City...";
+            container.appendChild(autocomplete);
 
-function updateMap(results){
-if(clusterer)clusterer.clearMarkers();
-markers=[];
-results.forEach(r=>{
-markers.push(new google.maps.Marker({
-position:{lat:r.lat,lng:r.lng},
-title:r.name
-}));
-});
-clusterer=new markerClusterer.MarkerClusterer({map,markers});
-}
+            // THE CRITICAL FIX: 'gmp-select'
+            autocomplete.addEventListener("gmp-select", async (event) => {
+                if (event.placePrediction) {
+                    const place = event.placePrediction.toPlace();
+                    await place.fetchFields({ fields: ["displayName", "location"] });
+                    
+                    setSearchLocation(
+                        place.location.lat(),
+                        place.location.lng(),
+                        place.displayName
+                    );
+                }
+            });
+        }
 
-function toggleView(){
-const list=document.getElementById("list-view");
-const icon=document.getElementById("toggle-icon");
-if(list.style.display==="none"){
-list.style.display="block";
-icon.innerText="map";
-}else{
-list.style.display="none";
-icon.innerText="list";
-}
-}
+        // UTILS
+        function getDistance(lat1, lon1, lat2, lon2){
+            const R = 3958.8; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+        }
 
-function clearSearch(){
-searchCenter=null;
-document.getElementById("status-pill").style.display="none";
-document.getElementById("list-view").innerHTML="";
-if(clusterer)clusterer.clearMarkers();
-if(radiusCircle)radiusCircle.setMap(null);
-}
+        function clearSearch(){
+            searchCenter = null;
+            document.getElementById("status-pill").style.display = "none";
+            document.getElementById("list-view").innerHTML = `
+                <div class="empty-state">
+                    <i class="material-icons" style="font-size:48px; margin-bottom:10px;">location_on</i><br>
+                    Search for a city to begin.
+                </div>`;
+            // Reset Radius
+            currentRadius = 20;
+            document.getElementById("radius-slider").value = 20;
+            document.getElementById("radius-label").innerText = "20 mi";
+        }
 
-function getDistance(lat1,lon1,lat2,lon2){
-const R=3958.8;
-const dLat=(lat2-lat1)*Math.PI/180;
-const dLon=(lon2-lon1)*Math.PI/180;
-const a=Math.sin(dLat/2)**2+
-Math.cos(lat1*Math.PI/180)*
-Math.cos(lat2*Math.PI/180)*
-Math.sin(dLon/2)**2;
-return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
-}
+        // Radius Slider Listener
+        document.getElementById("radius-slider").addEventListener("input", e => {
+            currentRadius = parseInt(e.target.value);
+            document.getElementById("radius-label").innerText = currentRadius + " mi";
+            if(searchCenter) applyFilters();
+        });
 
-function showLoading(state){
-document.getElementById("loading").style.display=state?"block":"none";
-}
+    </script>
 
-document.getElementById("radius-slider").addEventListener("input",e=>{
-currentRadius=parseInt(e.target.value);
-document.getElementById("radius-label").innerText=currentRadius+" mi";
-if(searchCenter){
-drawRadius();
-applyFilters();
-}
-});
-
-async function initApp(){
-const {Map}=await google.maps.importLibrary("maps");
-const {PlaceAutocompleteElement}=await google.maps.importLibrary("places");
-
-map=new Map(document.getElementById("map-view"),{
-center:{lat:40.091,lng:-74.218},
-zoom:12,
-disableDefaultUI:true
-});
-
-const container=document.getElementById("autocomplete-container");
-const autocomplete=new PlaceAutocompleteElement();
-autocomplete.setAttribute("types","(cities)");
-autocomplete.placeholder="Search City...";
-container.appendChild(autocomplete);
-
-autocomplete.addEventListener("gmp-select",async(event)=>{
-const place=event.placePrediction.toPlace();
-await place.fetchFields({fields:["displayName","location"]});
-setSearchLocation(
-place.location.lat(),
-place.location.lng(),
-place.displayName
-);
-});
-}
-</script>
-
-<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-
-<script async
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp">
-</script>
+    <script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places&callback=initApp">
+    </script>
 
 </body>
 </html>
