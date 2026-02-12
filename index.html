@@ -21,18 +21,35 @@
             display: flex; gap: 10px; align-items: center; pointer-events: none;
         }
 
-        /* SEARCH PILL */
+        /* SEARCH PILL CONTAINER */
         .search-container {
             flex-grow: 1; background: white; height: 50px; border-radius: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center;
             padding-left: 15px; padding-right: 5px; pointer-events: auto;
+            overflow: hidden; /* Keeps the google component inside */
         }
 
-        /* STANDARD INPUT (Reliable) */
-        #search-input {
-            border: none; background: transparent; font-size: 16px; color: #111;
-            flex-grow: 1; height: 100%; outline: none; font-weight: 500;
+        /* NEW GOOGLE COMPONENT STYLING */
+        /* We strip Google's default styling so it fits our Pill */
+        gmp-place-autocomplete {
+            width: 100%;
+            display: inline-block;
         }
+        
+        gmp-place-autocomplete::part(input) {
+            border: none; 
+            background: transparent; 
+            padding: 0; 
+            font-size: 16px; 
+            color: #111; 
+            outline: none; 
+            height: 100%;
+            font-weight: 500;
+            margin-left: 5px;
+        }
+        
+        /* Hide the Google Search Icon since we have our own */
+        gmp-place-autocomplete::part(search-icon) { display: none; }
 
         /* CIRCLE BUTTONS */
         .circle-btn {
@@ -119,7 +136,7 @@
     <div class="floating-header">
         <div class="search-container">
             <i class="material-icons" style="color:#888; margin-right:8px;">search</i>
-            <input type="text" id="search-input" placeholder="Search City..." autocomplete="off">
+            <div id="place-autocomplete-container" style="flex-grow:1;"></div>
             <i class="material-icons" onclick="clearSearch()" style="color:#ccc; cursor:pointer; padding:5px;">close</i>
         </div>
 
@@ -196,7 +213,6 @@
         let searchCenter = null;
         let currentRadius = 20.0;
         let filters = { sort: 'distance', tefillah: '', nusach: '' };
-        let geocoder; 
 
         // 1. INIT
         document.getElementById('time-start').value = "00:00";
@@ -228,7 +244,7 @@
             });
         }
 
-        // 2. SEARCH LOGIC (ROBUST)
+        // 2. SEARCH LOGIC
         function applyFilters() {
             if(!searchCenter) return;
 
@@ -334,13 +350,18 @@
             document.getElementById('status-pill').innerText = "Locating...";
             navigator.geolocation.getCurrentPosition(pos => {
                 searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
-                document.getElementById('search-input').value = ""; // Clear text
+                
+                // Clear the Web Component (best effort)
+                const el = document.querySelector('gmp-place-autocomplete');
+                if(el) el.value = null;
+
                 applyFilters();
             }, () => alert("Location denied."));
         }
 
         function clearSearch() {
-            document.getElementById('search-input').value = "";
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
             searchCenter = null;
             document.getElementById('status-pill').style.display = 'none';
             document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;">
@@ -399,54 +420,25 @@
             }
         }
 
-        // GOOGLE INIT (Standard Autocomplete)
+        // GOOGLE INIT - NEW API VERSION
         async function initApp() {
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
             const { Map } = await google.maps.importLibrary("maps");
-            geocoder = new google.maps.Geocoder();
 
-            // 1. Setup Autocomplete on Standard Input
-            const input = document.getElementById("search-input");
-            const autocomplete = new google.maps.places.Autocomplete(input, { types: ['geocode'] });
+            const container = document.getElementById('place-autocomplete-container');
+            const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.id = "place-input";
+            autocomplete.placeholder = "Search City...";
+            container.appendChild(autocomplete);
 
-            // 2. Standard Selection Listener
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-                
-                if (!place.geometry) {
-                    // Fallback: User hit enter without selecting
-                    manualSearch(input.value);
-                    return;
-                }
-
-                setSearchLocation(place.geometry.location.lat(), place.geometry.location.lng(), place.name);
-            });
-
-            // 3. Fallback for "Enter" key
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    // Slight delay to let autocomplete fire first if it can
-                    setTimeout(() => {
-                        const val = input.value;
-                        if(val) manualSearch(val);
-                    }, 300);
-                }
+            // EVENT LISTENER
+            autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
+                await place.fetchFields({ fields: ['displayName', 'location'] });
+                searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
+                applyFilters(); // TRIGGER SEARCH
             });
 
             map = new Map(document.getElementById("map-view"), { center: {lat:40, lng:-74}, zoom: 14, disableDefaultUI: true, mapId: "DEMO_MAP_ID" });
-        }
-
-        function manualSearch(query) {
-            geocoder.geocode({ 'address': query }, (results, status) => {
-                if (status === 'OK' && results[0]) {
-                    const loc = results[0].geometry.location;
-                    setSearchLocation(loc.lat(), loc.lng(), results[0].formatted_address.split(',')[0]);
-                }
-            });
-        }
-
-        function setSearchLocation(lat, lng, name) {
-            searchCenter = { lat, lng, name };
-            applyFilters();
         }
     </script>
     
