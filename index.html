@@ -3,253 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShulTime Floating</title>
+    <title>ShulTime Diagnostic</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
-        :root {
-            --primary: #0D2B4F;
-            --accent: #E3F2FD;
-            --bg: #F2F4F8;
-            --white: #ffffff;
-        }
-
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; }
+        :root { --primary: #0D2B4F; --bg: #F2F4F8; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; padding-bottom: 200px; }
         
-        /* --- FLOATING HEADER CONTAINER --- */
+        /* FLOATING HEADER */
         .floating-header {
-            position: fixed; 
-            top: 10px; 
-            left: 10px; 
-            right: 10px; 
-            z-index: 1000;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            pointer-events: none; /* Let clicks pass through empty space */
+            position: fixed; top: 10px; left: 10px; right: 10px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 8px; pointer-events: none;
         }
 
-        /* SEARCH PILL (Floating) */
+        .top-row { display: flex; gap: 8px; width: 100%; pointer-events: auto; }
+
+        /* SEARCH CONTAINER */
         .search-container {
-            flex-grow: 1;
-            background: white;
-            height: 50px;
-            border-radius: 25px; /* Fully rounded pill */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            padding-left: 15px;
-            padding-right: 5px;
-            pointer-events: auto; /* Re-enable clicks */
-            overflow: hidden;
+            flex-grow: 1; background: white; height: 50px; border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center;
+            padding-left: 15px; padding-right: 5px; overflow: hidden;
         }
 
-        /* CIRCLE BUTTONS (Floating) */
-        .circle-btn {
-            width: 50px; 
-            height: 50px; 
-            border-radius: 50%; 
-            background: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            cursor: pointer;
-            pointer-events: auto; /* Re-enable clicks */
-            color: var(--primary);
-        }
-        
-        .circle-btn.map-btn {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* GOOGLE INPUT STYLING */
-        /* We hide the default Google border so it fits our Pill */
-        gmp-place-autocomplete { 
-            width: 100%; 
-            display: inline-block; 
-        }
+        /* GOOGLE INPUT OVERRIDE */
+        gmp-place-autocomplete { width: 100%; display: inline-block; }
         gmp-place-autocomplete::part(input) {
-            border: none; 
-            background: transparent; 
-            padding: 0; 
-            font-size: 16px; 
-            color: #111; 
-            outline: none; 
-            height: 100%;
-            font-weight: 500;
+            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
         }
 
-        /* FILTER DRAWER */
-        #filter-drawer {
-            display: none; 
-            position: fixed;
-            top: 70px; /* Below the floating header */
-            left: 10px;
-            right: 10px;
-            background: white; 
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 999;
-            max-height: 70vh; 
-            overflow-y: auto;
+        /* BUTTONS */
+        .circle-btn {
+            width: 50px; height: 50px; border-radius: 50%; background: white; border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--primary); font-weight: bold; font-size: 12px;
         }
+        .apply-btn { background: #4CAF50; color: white; border-radius: 12px; width: auto; padding: 0 15px; }
 
-        /* FILTER STYLES */
-        .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
-        .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
-        
-        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip {
-            padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
-            font-size: 13px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s;
+        /* DEBUG CONSOLE */
+        #debug-console {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 150px;
+            background: black; color: #0f0; font-family: monospace; font-size: 11px;
+            padding: 10px; overflow-y: scroll; z-index: 9999; opacity: 0.9;
+            border-top: 2px solid #0f0;
         }
-        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .radius-row { display: flex; align-items: center; gap: 10px; }
-        input[type=range] { flex-grow: 1; accent-color: var(--primary); }
-        .radius-input { width: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; }
-
-        .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
-        .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; }
-
-        .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-        .primary-action { background: var(--primary); color: white; }
 
         /* LIST & CARD STYLES */
-        #list-view { 
-            padding: 12px; 
-            padding-top: 80px; /* Space for floating header */
-            padding-bottom: 80px; 
-        }
-        
+        #list-view { padding: 12px; padding-top: 130px; } /* Extra padding for header */
         .minyan-card {
             background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.04); cursor: pointer;
-            border-left: 5px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            border-left: 5px solid #ccc;
         }
-        
         .type-Shacharis { border-left-color: #4CAF50; } 
         .type-Mincha { border-left-color: #FF9800; }    
         .type-Maariv { border-left-color: #3F51B5; }    
 
-        .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: var(--primary); }
-        .address { font-size: 12px; color: #777; margin: 0; display:block; margin-bottom:6px;}
+        .card-left h3 { margin: 0; font-size: 16px; color: var(--primary); }
         .distance-tag { font-size: 11px; color: #fff; background: #666; padding: 2px 6px; border-radius: 8px; margin-left: 5px; }
-        .nusach-tag { font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; background:#eee; color:#555; }
-        .time-display { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        .tefillah-label { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #999; margin-top: 2px; text-align: right;}
-        .ampm-label { font-size: 12px; font-weight: 600; color: #555; margin-left: 2px; }
-
-        /* MAP VIEW */
-        #map-view { 
-            display: none; 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; /* Full Screen */
-            z-index: 0; 
-        }
-
-        /* CURRENT LOCATION TEXT (Floating below header) */
-        #location-status-pill {
-            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-            background: rgba(13, 43, 79, 0.8); color: white;
-            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-            backdrop-filter: blur(4px); z-index: 900;
-            display: none; pointer-events: none;
-        }
-
-        /* FAB (User Location) */
-        .fab-location {
-            position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px;
-            background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: none; color: #333; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 200;
+        .time-display { font-size: 20px; font-weight: 800; color: var(--primary); }
+        
+        /* MAP */
+        #map-view { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 150px; z-index: 0; }
+        
+        /* STATUS PILL */
+        #status-pill {
+            background: rgba(255, 255, 255, 0.95); padding: 8px 16px; border-radius: 20px;
+            text-align: center; font-size: 12px; font-weight: 600; color: #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); pointer-events: auto;
+            align-self: center; border: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
 
     <div class="floating-header">
+        <div class="top-row">
+            <div class="search-container">
+                <i class="material-icons" style="color:#888; margin-right:8px;">search</i>
+                <div id="place-autocomplete-container" style="flex-grow:1;"></div>
+            </div>
+
+            <button class="circle-btn apply-btn" onclick="manualApply()">
+                APPLY
+            </button>
+        </div>
         
-        <div class="search-container">
-            <i class="material-icons" style="color:#888; margin-right:8px;">search</i>
-            <div id="place-autocomplete-container" style="flex-grow:1;"></div>
-            <i class="material-icons" onclick="clearSearch()" style="color:#ccc; cursor:pointer; padding:5px;">close</i>
+        <div class="top-row" style="justify-content: center;">
+            <div id="status-pill">System Ready.</div>
         </div>
 
-        <button class="circle-btn" onclick="toggleFilters()">
-            <i class="material-icons">tune</i>
-        </button>
-
-        <button class="circle-btn map-btn" onclick="toggleView()">
-            <i class="material-icons" id="toggle-icon">map</i>
-        </button>
-    </div>
-
-    <div id="location-status-pill">Select a location</div>
-
-    <div id="filter-drawer">
-        <div class="filter-section">
-            <label class="filter-label">Radius: <span id="radius-val">20</span> miles</label>
-            <div class="radius-row">
-                <input type="range" id="radius-slider" min="0.1" max="99.9" step="0.1" value="20.0" oninput="updateRadius(this.value)">
-                <input type="number" id="radius-input" class="radius-input" value="20.0" onchange="updateRadius(this.value)">
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Sort By</label>
-            <div class="chip-group">
-                <button class="chip active" onclick="setFilter('sort', 'distance', this)">Distance</button>
-                <button class="chip" onclick="setFilter('sort', 'time_asc', this)">Earliest</button>
-                <button class="chip" onclick="setFilter('sort', 'time_desc', this)">Latest</button>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Time</label>
-            <div class="time-inputs-row">
-                <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
-                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
-            </div>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="action-btn" onclick="setAllDay()">All Day</button>
-                <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
-            </div>
-        </div>
-
-        <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:20px;">Done</button>
-    </div>
-
-    <div id="list-view">
-        <div style="text-align:center; padding:60px 20px; color:#999;">
-            <i class="material-icons" style="font-size:48px; opacity:0.3; margin-bottom:10px;">location_on</i><br>
-            <strong>Welcome</strong><br>
-            Please search a city above or<br>click the target button below.
+        <div class="top-row" style="justify-content: center; gap:15px;">
+            <button class="circle-btn" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
+            <button class="circle-btn" onclick="toggleView()"><i class="material-icons">map</i></button>
+            <button class="circle-btn" onclick="location.reload()"><i class="material-icons">refresh</i></button>
         </div>
     </div>
-    
+
+    <div id="list-view"></div>
     <div id="map-view"></div>
 
-    <button class="fab-location" onclick="useMyLocation()">
-        <i class="material-icons">my_location</i>
-    </button>
+    <div id="debug-console">Initializing Diagnostic Mode...<br></div>
 
     <script>
+        // --- DIAGNOSTIC LOGGER ---
+        function log(msg) {
+            const consoleDiv = document.getElementById('debug-console');
+            const time = new Date().toLocaleTimeString();
+            consoleDiv.innerHTML += `[${time}] ${msg}<br>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            console.log(msg);
+        }
+
+        // --- GLOBAL STATE ---
         let map, allMinyanim = [];
-        let searchCenter = null; // { lat, lng, name }
-        let currentRadius = 20.0;
-        let filters = { sort: 'distance', tefillah: '', nusach: '' };
+        let searchCenter = null; 
+        const DEFAULT_RADIUS = 20; 
 
         // 1. INIT
-        document.getElementById('time-start').value = "00:00";
-        document.getElementById('time-end').value = "23:59";
-
-        fetch('database.json').then(r => r.json()).then(data => {
-            processMinyanim(data);
-        });
+        log("Fetching database...");
+        fetch('database.json')
+            .then(r => r.json())
+            .then(data => {
+                log(`Database loaded: ${data.length} shuls.`);
+                processMinyanim(data);
+            })
+            .catch(e => log("DB ERROR: " + e.message));
 
         function processMinyanim(data) {
             allMinyanim = [];
@@ -261,7 +140,6 @@
                         let [h, m] = raw.split(':').map(Number);
                         let isPM = (type==='Maariv' || (type==='Mincha' && h<9));
                         let sortH = (isPM && h<12) ? h+12 : ((!isPM && h===12) ? 0 : h);
-                        
                         allMinyanim.push({
                             name: shul.name, address: shul.address,
                             lat: shul.lat, lng: shul.lng, nusach: shul.nusach,
@@ -271,46 +149,108 @@
                     });
                 });
             });
+            log(`Processed ${allMinyanim.length} minyanim times.`);
         }
 
-        // 2. SEARCH & FILTER ENGINE
-        function applyFilters() {
-            if(!searchCenter) return;
+        // 2. GOOGLE MAPS INIT
+        async function initApp() {
+            log("Google API Loaded. Importing libraries...");
+            try {
+                const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+                const { Map } = await google.maps.importLibrary("maps");
 
-            // UI Feedback
-            const pill = document.getElementById('location-status-pill');
-            pill.style.display = 'block';
-            pill.innerText = `Near: ${searchCenter.name}`;
+                // Setup Search Input
+                const container = document.getElementById('place-autocomplete-container');
+                if(!container) { log("ERROR: Container missing!"); return; }
 
-            // Time Values
-            const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
-            const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
-            const startVal = (sH*60)+sM;
-            const endVal = (eH*60)+eM;
+                const autocomplete = new PlaceAutocompleteElement();
+                autocomplete.id = "place-input";
+                autocomplete.placeholder = "Search City...";
+                container.appendChild(autocomplete);
+                log("Search Input Created.");
 
-            // 1. Calculate Distances
+                // LISTENER
+                autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
+                    log("EVENT FIRED: Place Selected!");
+                    try {
+                        await place.fetchFields({ fields: ['displayName', 'location'] });
+                        
+                        const lat = place.location.lat();
+                        const lng = place.location.lng();
+                        const name = place.displayName;
+                        
+                        log(`Location Found: ${name} (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+                        
+                        // SET CENTER
+                        searchCenter = { lat, lng, name };
+                        updateStatus(`Selected: ${name}`);
+                        
+                        // RUN SEARCH
+                        runSearch();
+
+                    } catch(err) {
+                        log("ERROR fetching place details: " + err.message);
+                    }
+                });
+
+                // Setup Hidden Map
+                map = new Map(document.getElementById("map-view"), { 
+                    center: {lat:40, lng:-74}, zoom: 14, disableDefaultUI: true, mapId: "DEMO_MAP_ID" 
+                });
+                log("Map Initialized.");
+
+            } catch (e) {
+                log("INIT CRITICAL FAILURE: " + e.message);
+            }
+        }
+
+        // 3. MANUAL APPLY BUTTON (The fallback)
+        function manualApply() {
+            log("Button Clicked: Checking Status...");
+            if(searchCenter) {
+                log(`Center exists: ${searchCenter.name}. Re-running search.`);
+                runSearch();
+            } else {
+                log("No location selected yet. Trying to force read...");
+                const el = document.querySelector('gmp-place-autocomplete');
+                if(el && el.value) {
+                    log(`Input has text: "${el.value.name || el.value}". But no event fired.`);
+                    alert("Diagnostic: Input has value but event didn't fire. Try clicking the dropdown item again slowly.");
+                } else {
+                    log("Input is empty.");
+                    alert("Please select a city from the dropdown first.");
+                }
+            }
+        }
+
+        // 4. SEARCH LOGIC
+        function runSearch() {
+            if(!searchCenter) { log("Aborting search: No center."); return; }
+            
+            log(`Running Radius Search (${DEFAULT_RADIUS} mi)...`);
+            
+            // Calc Distances
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
-            }).filter(m => m.distance <= currentRadius);
+            }).filter(m => m.distance <= DEFAULT_RADIUS);
 
-            // 2. Filter Time
-            results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
-
-            // 3. Sort
-            if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
-            if(filters.sort === 'time_asc') results.sort((a,b) => a.timeValue - b.timeValue);
-            if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
-
+            results.sort((a,b) => a.distance - b.distance);
+            
+            log(`Found ${results.length} results.`);
             renderList(results);
-            updateMap(results);
+            
+            if(map) {
+                map.setCenter(searchCenter);
+                map.setZoom(13);
+            }
         }
 
         function renderList(results) {
             const list = document.getElementById('list-view');
             list.innerHTML = '';
             if(results.length === 0) {
-                list.innerHTML = `<div style="text-align:center; padding:60px; color:#888;">No results found within ${currentRadius} miles.</div>`;
+                list.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No results found near ${searchCenter.name}.</div>`;
                 return;
             }
             results.forEach(m => {
@@ -319,58 +259,41 @@
                 card.innerHTML = `
                     <div class="card-left">
                         <h3>${m.name} <span class="distance-tag">${m.distance.toFixed(1)} mi</span></h3>
-                        <span class="address">${m.address}</span>
-                        <span class="nusach-tag">${m.nusach}</span>
+                        <span style="font-size:12px; color:#666;">${m.address}</span>
                     </div>
                     <div class="card-right">
-                        <div class="tefillah-label">${m.tefillah}</div>
-                        <div class="time-display">${m.timeDisplay}<span class="ampm-label">${m.ampm}</span></div>
+                        <div class="time-display">${m.timeDisplay}<span style="font-size:12px;">${m.ampm}</span></div>
                     </div>
                 `;
-                card.onclick = () => showOnMap(m);
                 list.appendChild(card);
             });
         }
 
-        // 3. MAP LOGIC
-        async function updateMap(results) {
-            if(!map) return;
-            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-            
-            // Re-init map to clear old markers (simplest way for now)
-            map = new google.maps.Map(document.getElementById("map-view"), {
-                center: searchCenter, zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
-            });
-
-            // Group by location
-            const locs = {};
-            results.forEach(m => {
-                const k = `${m.lat},${m.lng}`;
-                if(!locs[k]) locs[k] = { ...m, count: 1 };
-                else locs[k].count++;
-            });
-
-            Object.values(locs).forEach(l => {
-                const marker = new AdvancedMarkerElement({
-                    map: map, position: { lat: l.lat, lng: l.lng }, title: l.name
-                });
-                marker.addListener("click", () => {
-                    new google.maps.InfoWindow({
-                        content: `<strong>${l.name}</strong><br>${l.count} Minyanim`
-                    }).open(map, marker);
-                });
-            });
+        // 5. UTILS
+        function useMyLocation() {
+            log("Requesting GPS...");
+            navigator.geolocation.getCurrentPosition(pos => {
+                log("GPS Success.");
+                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "GPS Location" };
+                updateStatus("Using GPS Location");
+                runSearch();
+            }, err => log("GPS Error: " + err.message));
         }
 
-        function showOnMap(m) {
-            toggleView(true);
-            if(map) {
-                map.setCenter({ lat: m.lat, lng: m.lng });
-                map.setZoom(16);
+        function updateStatus(msg) {
+            document.getElementById('status-pill').innerText = msg;
+        }
+
+        function toggleView() {
+            const list = document.getElementById('list-view');
+            const mapV = document.getElementById('map-view');
+            if(list.style.display !== 'none') {
+                list.style.display='none'; mapV.style.display='block';
+            } else {
+                list.style.display='block'; mapV.style.display='none';
             }
         }
 
-        // 4. UTILS
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 3958.8; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -379,99 +302,7 @@
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
         }
 
-        function useMyLocation() {
-            navigator.geolocation.getCurrentPosition(pos => {
-                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
-                
-                // Reset Google Input
-                const el = document.querySelector('gmp-place-autocomplete');
-                if(el) el.value = null;
-
-                applyFilters();
-            }, () => alert("Location access denied."));
-        }
-
-        function clearSearch() {
-            const el = document.querySelector('gmp-place-autocomplete');
-            if(el) el.value = null;
-            searchCenter = null;
-            document.getElementById('location-status-pill').style.display = 'none';
-            document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px; color:#888;">Search cleared.</div>`;
-        }
-
-        function updateRadius(val) {
-            currentRadius = parseFloat(val);
-            document.getElementById('radius-slider').value = currentRadius;
-            document.getElementById('radius-input').value = currentRadius;
-            document.getElementById('radius-val').innerText = currentRadius;
-            applyFilters();
-        }
-
-        function setFilter(type, val, btn) {
-            filters[type] = val;
-            btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
-        }
-
-        function setAllDay() {
-            document.getElementById('time-start').value = "00:00";
-            document.getElementById('time-end').value = "23:59";
-            applyFilters();
-        }
-
-        function setNextHour() {
-            const now = new Date();
-            const pad = n => String(n).padStart(2,'0');
-            document.getElementById('time-start').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            now.setHours(now.getHours()+1);
-            document.getElementById('time-end').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            applyFilters();
-        }
-
-        function onStartTimeChange() {
-            const [h,m] = document.getElementById('time-start').value.split(':').map(Number);
-            document.getElementById('time-end').value = `${String((h+1)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-            applyFilters();
-        }
-
-        function toggleFilters() {
-            const d = document.getElementById('filter-drawer');
-            d.style.display = (d.style.display==='block') ? 'none' : 'block';
-        }
-
-        function toggleView(forceMap) {
-            const list = document.getElementById('list-view');
-            const mapV = document.getElementById('map-view');
-            const icon = document.getElementById('toggle-icon');
-            if(forceMap || list.style.display !== 'none') {
-                list.style.display='none'; mapV.style.display='block'; icon.innerText='list';
-            } else {
-                list.style.display='block'; mapV.style.display='none'; icon.innerText='map';
-            }
-        }
-
-        // GOOGLE INIT
-        async function initApp() {
-            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-            const { Map } = await google.maps.importLibrary("maps");
-            
-            const autocomplete = new PlaceAutocompleteElement();
-            autocomplete.id = "place-input";
-            autocomplete.placeholder = "Search City...";
-            document.getElementById('place-autocomplete-container').appendChild(autocomplete);
-            
-            // KEY SEARCH FIX:
-            autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
-                await place.fetchFields({ fields: ['displayName', 'location'] });
-                searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
-                applyFilters(); // TRIGGER SEARCH
-            });
-
-            map = new Map(document.getElementById("map-view"), { center: {lat:40, lng:-74}, zoom: 14, disableDefaultUI: true, mapId: "DEMO_MAP_ID" });
-        }
     </script>
-    
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
