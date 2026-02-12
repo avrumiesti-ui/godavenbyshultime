@@ -3,71 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShulTime Schedule</title>
+    <title>ShulTime Floating</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
         :root {
             --primary: #0D2B4F;
             --accent: #E3F2FD;
-            --text-dark: #111;
-            --text-light: #666;
             --bg: #F2F4F8;
             --white: #ffffff;
         }
 
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: var(--text-dark); }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); color: #111; }
         
-        /* HEADER */
-        .app-header {
-            position: sticky; top: 0; z-index: 1000;
-            background: var(--white); padding: 10px 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        /* --- FLOATING HEADER CONTAINER --- */
+        .floating-header {
+            position: fixed; 
+            top: 10px; 
+            left: 10px; 
+            right: 10px; 
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            pointer-events: none; /* Let clicks pass through empty space */
         }
 
-        /* SEARCH ROW */
-        .search-row { display: flex; gap: 8px; align-items: center; }
-        
-        .search-pill {
-            flex-grow: 1; display: flex; align-items: center;
-            background: #F0F2F5; border-radius: 12px; height: 50px; border: 1px solid #ddd;
-            overflow: hidden; padding-left: 10px;
+        /* SEARCH PILL (Floating) */
+        .search-container {
+            flex-grow: 1;
+            background: white;
+            height: 50px;
+            border-radius: 25px; /* Fully rounded pill */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            padding-right: 5px;
+            pointer-events: auto; /* Re-enable clicks */
+            overflow: hidden;
         }
 
-        /* BUTTONS */
-        .icon-btn {
-            width: 50px; height: 50px; border: none; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: background 0.2s;
+        /* CIRCLE BUTTONS (Floating) */
+        .circle-btn {
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            background: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer;
+            pointer-events: auto; /* Re-enable clicks */
+            color: var(--primary);
         }
-        .map-btn { background: var(--primary); color: white; }
-        .gear-btn { background: var(--accent); color: var(--primary); border: 1px solid #bbdefb; }
         
-        /* GOOGLE INPUT */
-        gmp-place-autocomplete { width: 100%; display: inline-block; }
+        .circle-btn.map-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* GOOGLE INPUT STYLING */
+        /* We hide the default Google border so it fits our Pill */
+        gmp-place-autocomplete { 
+            width: 100%; 
+            display: inline-block; 
+        }
         gmp-place-autocomplete::part(input) {
-            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
+            border: none; 
+            background: transparent; 
+            padding: 0; 
+            font-size: 16px; 
+            color: #111; 
+            outline: none; 
+            height: 100%;
+            font-weight: 500;
         }
-
-        /* STATUS BAR */
-        #status-bar {
-            text-align: center; font-size: 12px; color: var(--text-light); margin-top: 8px; font-weight: 500;
-        }
-        #location-name-display { color: var(--primary); font-weight: 700; }
 
         /* FILTER DRAWER */
         #filter-drawer {
-            display: none; background: white; border-top: 1px solid #eee; padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-height: 80vh; overflow-y: auto;
+            display: none; 
+            position: fixed;
+            top: 70px; /* Below the floating header */
+            left: 10px;
+            right: 10px;
+            background: white; 
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 999;
+            max-height: 70vh; 
+            overflow-y: auto;
         }
 
-        /* FILTER SECTIONS */
+        /* FILTER STYLES */
         .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
-        .filter-section:last-child { border-bottom: none; }
         .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
-
-        /* BUTTON GROUPS (Chips) */
+        
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip {
             padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
@@ -75,26 +109,25 @@
         }
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* RADIUS SLIDER */
         .radius-row { display: flex; align-items: center; gap: 10px; }
-        .radius-input { 
-            width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold;
-        }
-        input[type=range] { flex-grow: 1; accent-color: var(--primary); cursor: pointer; }
+        input[type=range] { flex-grow: 1; accent-color: var(--primary); }
+        .radius-input { width: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; }
 
-        /* TIME INPUTS */
         .time-inputs-row { display: flex; gap: 10px; margin-top: 5px; }
-        .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; text-align: center; }
-        
-        .action-btn {
-            width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px;
-            font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px;
-        }
+        .time-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; }
+
+        .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
         .primary-action { background: var(--primary); color: white; }
 
-        /* CARD DESIGN */
+        /* LIST & CARD STYLES */
+        #list-view { 
+            padding: 12px; 
+            padding-top: 80px; /* Space for floating header */
+            padding-bottom: 80px; 
+        }
+        
         .minyan-card {
-            background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+            background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.04); cursor: pointer;
             border-left: 5px solid transparent;
@@ -106,141 +139,121 @@
 
         .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: var(--primary); }
         .address { font-size: 12px; color: #777; margin: 0; display:block; margin-bottom:6px;}
-        .distance-tag { font-size: 11px; color: #fff; background: #666; padding: 2px 6px; border-radius: 8px; margin-left: 5px; font-weight: normal; }
+        .distance-tag { font-size: 11px; color: #fff; background: #666; padding: 2px 6px; border-radius: 8px; margin-left: 5px; }
         .nusach-tag { font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; background:#eee; color:#555; }
-
-        .card-right { text-align: right; }
         .time-display { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        .tefillah-label { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #999; margin-top: 2px; }
+        .tefillah-label { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #999; margin-top: 2px; text-align: right;}
         .ampm-label { font-size: 12px; font-weight: 600; color: #555; margin-left: 2px; }
 
-        /* VIEWS */
-        #list-view { padding: 12px; padding-bottom: 80px; }
-        #map-view { display: none; height: calc(100vh - 140px); background: #e0e0e0; margin-top: 10px; }
-        #empty-state { text-align: center; padding: 50px 20px; color: #888; }
-        
-        /* FAB */
+        /* MAP VIEW */
+        #map-view { 
+            display: none; 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; /* Full Screen */
+            z-index: 0; 
+        }
+
+        /* CURRENT LOCATION TEXT (Floating below header) */
+        #location-status-pill {
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background: rgba(13, 43, 79, 0.8); color: white;
+            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+            backdrop-filter: blur(4px); z-index: 900;
+            display: none; pointer-events: none;
+        }
+
+        /* FAB (User Location) */
         .fab-location {
-            position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
-            background: #fff; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px;
+            background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             border: none; color: #333; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 200;
         }
     </style>
 </head>
 <body>
 
-    <div id="app-interface">
-        <div class="app-header">
-            <div class="search-row">
-                <div class="search-pill">
-                    <div id="place-autocomplete-container" style="flex-grow:1;"></div>
-                    <i class="material-icons" onclick="clearSearch()" style="color:#aaa; cursor:pointer; font-size:18px; margin-right:10px;">close</i>
-                </div>
-                
-                <button class="icon-btn gear-btn" onclick="toggleFilters()">
-                    <i class="material-icons">tune</i>
-                </button>
-
-                <button class="icon-btn map-btn" onclick="toggleView()">
-                    <i class="material-icons" id="toggle-icon">map</i>
-                </button>
-            </div>
-
-            <div id="status-bar">
-                <span id="location-name-display">Select Location</span> • <span id="count-display">Waiting...</span>
-            </div>
+    <div class="floating-header">
+        
+        <div class="search-container">
+            <i class="material-icons" style="color:#888; margin-right:8px;">search</i>
+            <div id="place-autocomplete-container" style="flex-grow:1;"></div>
+            <i class="material-icons" onclick="clearSearch()" style="color:#ccc; cursor:pointer; padding:5px;">close</i>
         </div>
 
-        <div id="filter-drawer">
-            
-            <div class="filter-section">
-                <label class="filter-label">Search Radius (Miles)</label>
-                <div class="radius-row">
-                    <input type="range" id="radius-slider" min="0.1" max="99.9" step="0.1" value="20.0" oninput="updateRadius(this.value)">
-                    <input type="number" id="radius-input" class="radius-input" min="0.1" max="99.99" step="0.01" value="20.00" onchange="updateRadius(this.value)">
-                </div>
-            </div>
+        <button class="circle-btn" onclick="toggleFilters()">
+            <i class="material-icons">tune</i>
+        </button>
 
-            <div class="filter-section">
-                <label class="filter-label">Time Range</label>
-                <div class="time-inputs-row">
-                    <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
-                    <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
-                </div>
-                <div style="display:flex; gap:10px; margin-top:8px;">
-                    <button class="action-btn" onclick="setAllDay()">Show All Day</button>
-                    <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <label class="filter-label">Sort By</label>
-                <div class="chip-group" id="sort-group">
-                    <button class="chip active" onclick="setFilter('sort', 'distance', this)">Distance</button>
-                    <button class="chip" onclick="setFilter('sort', 'time_asc', this)">Earliest</button>
-                    <button class="chip" onclick="setFilter('sort', 'time_desc', this)">Latest</button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <label class="filter-label">Tefillah</label>
-                <div class="chip-group" id="tefillah-group">
-                    <button class="chip active" onclick="setFilter('tefillah', '', this)">All</button>
-                    <button class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</button>
-                    <button class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</button>
-                    <button class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <label class="filter-label">Nusach</label>
-                <div class="chip-group" id="nusach-group">
-                    <button class="chip active" onclick="setFilter('nusach', '', this)">All</button>
-                    <button class="chip" onclick="setFilter('nusach', 'Ashkenaz', this)">Ashkenaz</button>
-                    <button class="chip" onclick="setFilter('nusach', 'Sefard', this)">Sefard</button>
-                    <button class="chip" onclick="setFilter('nusach', 'Ari', this)">Ari</button>
-                </div>
-            </div>
-
-            <button class="action-btn primary-action" onclick="toggleFilters()">Close Filters</button>
-        </div>
-
-        <div id="list-view">
-            <div id="empty-state">
-                <i class="material-icons" style="font-size:48px; color:#ddd;">search</i><br><br>
-                Use the search bar or<br>click the location button below.
-            </div>
-        </div>
-        <div id="map-view"></div>
+        <button class="circle-btn map-btn" onclick="toggleView()">
+            <i class="material-icons" id="toggle-icon">map</i>
+        </button>
     </div>
+
+    <div id="location-status-pill">Select a location</div>
+
+    <div id="filter-drawer">
+        <div class="filter-section">
+            <label class="filter-label">Radius: <span id="radius-val">20</span> miles</label>
+            <div class="radius-row">
+                <input type="range" id="radius-slider" min="0.1" max="99.9" step="0.1" value="20.0" oninput="updateRadius(this.value)">
+                <input type="number" id="radius-input" class="radius-input" value="20.0" onchange="updateRadius(this.value)">
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label">Sort By</label>
+            <div class="chip-group">
+                <button class="chip active" onclick="setFilter('sort', 'distance', this)">Distance</button>
+                <button class="chip" onclick="setFilter('sort', 'time_asc', this)">Earliest</button>
+                <button class="chip" onclick="setFilter('sort', 'time_desc', this)">Latest</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label">Time</label>
+            <div class="time-inputs-row">
+                <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
+                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="action-btn" onclick="setAllDay()">All Day</button>
+                <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
+            </div>
+        </div>
+
+        <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:20px;">Done</button>
+    </div>
+
+    <div id="list-view">
+        <div style="text-align:center; padding:60px 20px; color:#999;">
+            <i class="material-icons" style="font-size:48px; opacity:0.3; margin-bottom:10px;">location_on</i><br>
+            <strong>Welcome</strong><br>
+            Please search a city above or<br>click the target button below.
+        </div>
+    </div>
+    
+    <div id="map-view"></div>
 
     <button class="fab-location" onclick="useMyLocation()">
         <i class="material-icons">my_location</i>
     </button>
 
     <script>
-        let map, infoWindow, allMinyanim = []; 
-        let googleLoaded = false;
-        let searchCenter = null; 
-        
-        // Filter States
+        let map, allMinyanim = [];
+        let searchCenter = null; // { lat, lng, name }
         let currentRadius = 20.0;
-        let filterSort = 'distance';
-        let filterTefillah = '';
-        let filterNusach = '';
+        let filters = { sort: 'distance', tefillah: '', nusach: '' };
 
         // 1. INIT
         document.getElementById('time-start').value = "00:00";
         document.getElementById('time-end').value = "23:59";
 
-        fetch('database.json').then(res => res.json()).then(data => {
-            processMinyanim(data); 
-            document.getElementById('count-display').innerText = "Ready";
+        fetch('database.json').then(r => r.json()).then(data => {
+            processMinyanim(data);
         });
 
-        function processMinyanim(shuls) {
+        function processMinyanim(data) {
             allMinyanim = [];
-            shuls.forEach(shul => {
+            data.forEach(shul => {
                 ['Shacharis','Mincha','Maariv'].forEach(type => {
                     if(!shul[type.toLowerCase()]) return;
                     shul[type.toLowerCase()].split(',').forEach(t => {
@@ -250,7 +263,6 @@
                         let sortH = (isPM && h<12) ? h+12 : ((!isPM && h===12) ? 0 : h);
                         
                         allMinyanim.push({
-                            id: shul.name + type + t,
                             name: shul.name, address: shul.address,
                             lat: shul.lat, lng: shul.lng, nusach: shul.nusach,
                             tefillah: type, timeDisplay: `${h}:${String(m).padStart(2,'0')}`,
@@ -261,53 +273,46 @@
             });
         }
 
-        // 2. CORE SEARCH LOGIC
+        // 2. SEARCH & FILTER ENGINE
         function applyFilters() {
-            if (!searchCenter) return;
-            
-            // UI Update
-            document.getElementById('location-name-display').innerText = searchCenter.name;
+            if(!searchCenter) return;
 
-            const tStart = document.getElementById('time-start').value;
-            const tEnd = document.getElementById('time-end').value;
-            
-            // 1. Calc Distance
+            // UI Feedback
+            const pill = document.getElementById('location-status-pill');
+            pill.style.display = 'block';
+            pill.innerText = `Near: ${searchCenter.name}`;
+
+            // Time Values
+            const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
+            const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
+            const startVal = (sH*60)+sM;
+            const endVal = (eH*60)+eM;
+
+            // 1. Calculate Distances
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
             }).filter(m => m.distance <= currentRadius);
 
-            // 2. Fallback if empty (Only if using GPS, keep strict if using manual search to avoid confusion?)
-            // For now, let's just show no results if outside radius to respect the user's explicit radius.
-            
-            // 3. Apply Filters
-            if(filterTefillah) results = results.filter(m => m.tefillah === filterTefillah);
-            if(filterNusach) results = results.filter(m => m.nusach === filterNusach);
-            
-            const [sH, sM] = tStart.split(':').map(Number);
-            const [eH, eM] = tEnd.split(':').map(Number);
-            const sVal = (sH*60)+sM;
-            const eVal = (eH*60)+eM;
-            results = results.filter(m => m.timeValue >= sVal && m.timeValue <= eVal);
+            // 2. Filter Time
+            results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
 
-            // 4. Sort
-            if(filterSort === 'distance') results.sort((a,b) => a.distance - b.distance);
-            if(filterSort === 'time_asc') results.sort((a,b) => a.timeValue - b.timeValue);
-            if(filterSort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
+            // 3. Sort
+            if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
+            if(filters.sort === 'time_asc') results.sort((a,b) => a.timeValue - b.timeValue);
+            if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
 
-            document.getElementById('count-display').innerText = `${results.length} Minyanim`;
-            renderResults(results);
+            renderList(results);
+            updateMap(results);
         }
 
-        function renderResults(results) {
+        function renderList(results) {
             const list = document.getElementById('list-view');
             list.innerHTML = '';
-            
             if(results.length === 0) {
-                list.innerHTML = `<div style="text-align:center; padding:40px; color:#888;">No minyanim found within ${currentRadius} miles.</div>`;
+                list.innerHTML = `<div style="text-align:center; padding:60px; color:#888;">No results found within ${currentRadius} miles.</div>`;
                 return;
             }
-
             results.forEach(m => {
                 const card = document.createElement('div');
                 card.className = `minyan-card type-${m.tefillah}`;
@@ -325,28 +330,87 @@
                 card.onclick = () => showOnMap(m);
                 list.appendChild(card);
             });
-            updateMap(results);
         }
 
-        // 3. UI HANDLERS
+        // 3. MAP LOGIC
+        async function updateMap(results) {
+            if(!map) return;
+            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+            
+            // Re-init map to clear old markers (simplest way for now)
+            map = new google.maps.Map(document.getElementById("map-view"), {
+                center: searchCenter, zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+            });
+
+            // Group by location
+            const locs = {};
+            results.forEach(m => {
+                const k = `${m.lat},${m.lng}`;
+                if(!locs[k]) locs[k] = { ...m, count: 1 };
+                else locs[k].count++;
+            });
+
+            Object.values(locs).forEach(l => {
+                const marker = new AdvancedMarkerElement({
+                    map: map, position: { lat: l.lat, lng: l.lng }, title: l.name
+                });
+                marker.addListener("click", () => {
+                    new google.maps.InfoWindow({
+                        content: `<strong>${l.name}</strong><br>${l.count} Minyanim`
+                    }).open(map, marker);
+                });
+            });
+        }
+
+        function showOnMap(m) {
+            toggleView(true);
+            if(map) {
+                map.setCenter({ lat: m.lat, lng: m.lng });
+                map.setZoom(16);
+            }
+        }
+
+        // 4. UTILS
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
+        }
+
+        function useMyLocation() {
+            navigator.geolocation.getCurrentPosition(pos => {
+                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
+                
+                // Reset Google Input
+                const el = document.querySelector('gmp-place-autocomplete');
+                if(el) el.value = null;
+
+                applyFilters();
+            }, () => alert("Location access denied."));
+        }
+
+        function clearSearch() {
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
+            searchCenter = null;
+            document.getElementById('location-status-pill').style.display = 'none';
+            document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px; color:#888;">Search cleared.</div>`;
+        }
+
         function updateRadius(val) {
             currentRadius = parseFloat(val);
             document.getElementById('radius-slider').value = currentRadius;
-            document.getElementById('radius-input').value = currentRadius.toFixed(2);
+            document.getElementById('radius-input').value = currentRadius;
+            document.getElementById('radius-val').innerText = currentRadius;
             applyFilters();
         }
 
-        function setFilter(type, value, btnElement) {
-            // Update State
-            if(type === 'sort') filterSort = value;
-            if(type === 'tefillah') filterTefillah = value;
-            if(type === 'nusach') filterNusach = value;
-
-            // Update UI (Chips)
-            const parent = btnElement.parentElement;
-            parent.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            btnElement.classList.add('active');
-
+        function setFilter(type, val, btn) {
+            filters[type] = val;
+            btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
             applyFilters();
         }
 
@@ -365,96 +429,26 @@
             applyFilters();
         }
 
-        function showOnMap(m) {
-            toggleView(true);
-            if(map) {
-                map.setCenter({ lat: m.lat, lng: m.lng });
-                map.setZoom(16);
-                infoWindow.setContent(`<strong>${m.name}</strong><br>${m.timeDisplay} ${m.ampm}`);
-                infoWindow.setPosition({ lat: m.lat, lng: m.lng });
-                infoWindow.open(map);
-            }
-        }
-
-        async function updateMap(results) {
-            if(!map) return;
-            const locs = {};
-            results.forEach(m => {
-                const k = `${m.lat},${m.lng}`;
-                if(!locs[k]) locs[k] = { ...m, count: 1 };
-                else locs[k].count++;
-            });
-
-            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-            map = new google.maps.Map(document.getElementById("map-view"), {
-                center: searchCenter, zoom: 12, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
-            });
-            
-            Object.values(locs).forEach(l => {
-                const marker = new AdvancedMarkerElement({
-                    map: map, position: { lat: l.lat, lng: l.lng }, title: l.name
-                });
-                marker.addListener("click", () => {
-                    infoWindow.setContent(`<strong>${l.name}</strong><br>${l.count} Minyanim`);
-                    infoWindow.open(map, marker);
-                });
-            });
-        }
-
-        function toggleFilters() {
-            const drawer = document.getElementById('filter-drawer');
-            drawer.style.display = (drawer.style.display === 'block') ? 'none' : 'block';
-        }
-
-        function useMyLocation() {
-            document.getElementById('location-name-display').innerText = "Locating...";
-            navigator.geolocation.getCurrentPosition(pos => {
-                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
-                // Also reset input
-                const el = document.querySelector('gmp-place-autocomplete');
-                if(el) el.value = null;
-                applyFilters();
-            }, () => alert("Location denied."));
-        }
-        
-        function clearSearch() {
-            const el = document.querySelector('gmp-place-autocomplete');
-            if(el) el.value = null;
-            searchCenter = null;
-            document.getElementById('list-view').innerHTML = `
-                <div id="empty-state">
-                    <i class="material-icons" style="font-size:48px; color:#ddd;">search</i><br><br>
-                    Use the search bar or<br>click the location button below.
-                </div>
-            `;
-            document.getElementById('location-name-display').innerText = "Select Location";
-            document.getElementById('count-display').innerText = "Waiting...";
-        }
-
-        function toggleView(forceMap = false) {
-            const list = document.getElementById('list-view');
-            const mapDiv = document.getElementById('map-view');
-            const icon = document.getElementById('toggle-icon');
-            
-            if (forceMap || list.style.display !== 'none') {
-                list.style.display = 'none'; mapDiv.style.display = 'block'; icon.innerText = 'list';
-            } else {
-                list.style.display = 'block'; mapDiv.style.display = 'none'; icon.innerText = 'map';
-            }
-        }
-        
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 3958.8; 
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); 
-        }
-
         function onStartTimeChange() {
             const [h,m] = document.getElementById('time-start').value.split(':').map(Number);
             document.getElementById('time-end').value = `${String((h+1)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             applyFilters();
+        }
+
+        function toggleFilters() {
+            const d = document.getElementById('filter-drawer');
+            d.style.display = (d.style.display==='block') ? 'none' : 'block';
+        }
+
+        function toggleView(forceMap) {
+            const list = document.getElementById('list-view');
+            const mapV = document.getElementById('map-view');
+            const icon = document.getElementById('toggle-icon');
+            if(forceMap || list.style.display !== 'none') {
+                list.style.display='none'; mapV.style.display='block'; icon.innerText='list';
+            } else {
+                list.style.display='block'; mapV.style.display='none'; icon.innerText='map';
+            }
         }
 
         // GOOGLE INIT
@@ -463,24 +457,21 @@
             const { Map } = await google.maps.importLibrary("maps");
             
             const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.id = "place-input";
             autocomplete.placeholder = "Search City...";
             document.getElementById('place-autocomplete-container').appendChild(autocomplete);
             
-            // KEY FIX: Forces this location to override GPS
+            // KEY SEARCH FIX:
             autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
-                document.getElementById('location-name-display').innerText = "Loading...";
-                try {
-                    await place.fetchFields({ fields: ['displayName', 'location'] });
-                    searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
-                    applyFilters();
-                } catch(e) { console.error(e); }
+                await place.fetchFields({ fields: ['displayName', 'location'] });
+                searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
+                applyFilters(); // TRIGGER SEARCH
             });
-            
+
             map = new Map(document.getElementById("map-view"), { center: {lat:40, lng:-74}, zoom: 14, disableDefaultUI: true, mapId: "DEMO_MAP_ID" });
-            infoWindow = new google.maps.InfoWindow();
         }
     </script>
-
+    
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
