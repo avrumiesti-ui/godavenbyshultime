@@ -8,7 +8,22 @@
 
 <style>
     :root { --primary: #0D2B4F; --bg: #F2F4F8; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 100px; overflow-x: hidden; touch-action: manipulation; }
+    
+    /* CRITICAL FIX: Stops the browser from refreshing when pulling down */
+    html, body { 
+        margin: 0; 
+        padding: 0;
+        height: 100%;
+        overscroll-behavior-y: contain; 
+    }
+
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; 
+        background: var(--bg); 
+        padding-bottom: 100px; 
+        overflow-x: hidden; 
+        touch-action: pan-x pan-y; 
+    }
     
     /* FLOATING HEADER */
     .floating-header {
@@ -100,6 +115,7 @@
         background: #fff; border-radius: 25px 25px 0 0; z-index: 3000;
         box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: transform 0.3s ease-out;
         padding: 0; display: flex; flex-direction: column;
+        overscroll-behavior: contain; /* Prevents background from scrolling/refreshing */
     }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
     .drawer-header { padding: 15px; display: flex; flex-direction: column; align-items: center; cursor: grab; width: 100%; box-sizing: border-box; }
@@ -152,7 +168,7 @@
             </div>
         </div>
         <div class="filter-section">
-            <label class="filter-label">Sort</label>
+            <label class="filter-label">Sort By</label>
             <div class="chip-group">
                 <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
                 <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
@@ -208,9 +224,11 @@
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
             document.getElementById('time-end').value = "23:59";
-            const res = await fetch("database.json");
-            const data = await res.json();
-            processMinyanim(data);
+            try {
+                const res = await fetch("database.json");
+                const data = await res.json();
+                processMinyanim(data);
+            } catch(e) { console.error("Database load error:", e); }
             initPullToDismiss();
         });
 
@@ -299,9 +317,12 @@
                 
                 <div class="drawer-nav-row">
                     <div class="tefillah-text tef-${m.tefillah}">${m.tefillah} • ${m.timeDisplay}${m.ampm}</div>
-                    <a href="${searchUrl}" target="_blank" class="drawer-nav-btn">
-                        ${m.distance.toFixed(1)}mi <i class="material-icons">map</i>
-                    </a>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="font-size:14px; font-weight:700; color:#666;">${m.distance.toFixed(1)}mi</div>
+                        <a href="${searchUrl}" target="_blank" class="drawer-nav-btn" style="padding: 10px 15px;">
+                            <i class="material-icons">map</i>
+                        </a>
+                    </div>
                 </div>
 
                 <div style="margin-top:20px;">
@@ -314,14 +335,16 @@
                     </div>
                 </div>
             `;
-            document.getElementById("details-drawer").classList.add("open");
-            document.getElementById("details-drawer").style.transform = "translateY(0)";
+            const drawer = document.getElementById("details-drawer");
+            drawer.classList.add("open");
+            drawer.style.transform = "translateY(0)";
             document.getElementById("scrim").style.display = "block";
         }
 
         function closeDetails() {
-            document.getElementById("details-drawer").classList.remove("open");
-            document.getElementById("details-drawer").style.transform = "translateY(100%)";
+            const drawer = document.getElementById("details-drawer");
+            drawer.classList.remove("open");
+            drawer.style.transform = "translateY(100%)";
             document.getElementById("scrim").style.display = "none";
         }
 
@@ -330,7 +353,6 @@
             let startY = 0;
             let currentY = 0;
 
-            // Allow dragging from anywhere on the drawer
             drawer.addEventListener('touchstart', (e) => {
                 startY = e.touches[0].clientY;
             }, {passive: true});
@@ -392,7 +414,7 @@
         function useMyLocation() {
             navigator.geolocation.getCurrentPosition(pos => {
                 setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
-            }, e => alert("Location Denied"));
+            }, e => alert("Location services are disabled."));
         }
 
         function clearSearch(){
