@@ -16,36 +16,24 @@
             display: flex; gap: 10px; align-items: center; pointer-events: none;
         }
 
-        /* SEARCH BAR CONTAINER */
+        /* SEARCH BAR */
         .search-container {
             flex-grow: 1; background: white; height: 50px; border-radius: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center;
             padding-left: 10px; padding-right: 5px; pointer-events: auto;
-            overflow: hidden; /* Contains the Google Component */
+            overflow: hidden;
         }
 
-        /* GOOGLE INPUT STYLING (The New Component) */
-        gmp-place-autocomplete {
-            width: 100%; display: inline-block;
-        }
+        gmp-place-autocomplete { width: 100%; display: inline-block; }
         gmp-place-autocomplete::part(input) {
             border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
-            font-weight: 500;
         }
 
-        /* BUTTONS */
+        /* CIRCLE BUTTONS */
         .circle-btn {
-            width: 50px; height: 50px; border-radius: 50%; background: white; border: none;
+            width: 50px; height: 50px; flex-shrink: 0; border-radius: 50%; background: white; border: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--primary); pointer-events: auto; transition: transform 0.1s;
-        }
-        .circle-btn:active { transform: scale(0.95); }
-        .map-btn { background: var(--primary); color: white; }
-        
-        /* FORCE SEARCH BUTTON (Inside Bar) */
-        .search-action-btn {
-            background: var(--primary); color: white; border-radius: 50%; width: 40px; height: 40px; border: none;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 5px;
+            cursor: pointer; color: var(--primary); pointer-events: auto;
         }
 
         /* FILTER DRAWER */
@@ -59,6 +47,7 @@
         .filter-section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
         .filter-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
         
+        /* CHIPS */
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip {
             padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff;
@@ -66,11 +55,9 @@
         }
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* LIST & MAP */
-        #list-view { padding: 15px; padding-top: 90px; position: relative; z-index: 2; }
-        #map-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
-
-        /* CARDS */
+        /* LIST VIEW */
+        #list-view { padding: 15px; padding-top: 90px; }
+        
         .minyan-card {
             background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
@@ -81,6 +68,7 @@
         .type-Maariv { border-left-color: #3F51B5; }    
 
         .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: var(--primary); }
+        .address { font-size: 12px; color: #777; display:block; }
         .distance-tag { font-size: 11px; color: #fff; background: #666; padding: 2px 6px; border-radius: 8px; margin-left: 5px; }
         .time-display { font-size: 20px; font-weight: 800; color: var(--primary); }
         .ampm-label { font-size: 12px; font-weight: 600; color: #555; margin-left: 2px; }
@@ -90,7 +78,7 @@
             position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
             background: rgba(13, 43, 79, 0.9); color: white; padding: 6px 16px;
             border-radius: 20px; font-size: 12px; font-weight: 600; 
-            backdrop-filter: blur(4px); z-index: 800; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(4px); z-index: 800; display: none;
         }
 
         /* FAB */
@@ -116,20 +104,12 @@
     <div class="floating-header">
         <div class="search-container">
             <i class="material-icons" style="color:#888; margin-right:5px;">search</i>
-            
             <div id="place-autocomplete-container" style="flex-grow:1;"></div>
-            
-            <button class="search-action-btn" onclick="forceTextSearch()">
-                <i class="material-icons" style="font-size:20px;">arrow_forward</i>
-            </button>
+            <i class="material-icons" onclick="clearSearch()" style="color:#ccc; cursor:pointer; padding:5px;">close</i>
         </div>
 
         <button class="circle-btn" onclick="toggleFilters()">
             <i class="material-icons">tune</i>
-        </button>
-
-        <button class="circle-btn map-btn" onclick="toggleView()">
-            <i class="material-icons" id="toggle-icon">map</i>
         </button>
     </div>
 
@@ -147,8 +127,8 @@
         <div class="filter-section">
             <label class="filter-label">Sort By</label>
             <div class="chip-group">
-                <div class="chip active" onclick="setFilter('sort', 'distance', this)">Distance</div>
-                <div class="chip" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
+                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
+                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
                 <div class="chip" onclick="setFilter('sort', 'time_desc', this)">Latest</div>
             </div>
         </div>
@@ -185,20 +165,16 @@
             Please search a city above or<br>click the location button below.
         </div>
     </div>
-    
-    <div id="map-view"></div>
 
     <button class="fab-location" onclick="useMyLocation()">
         <i class="material-icons">my_location</i>
     </button>
 
     <script>
-        let map, allMinyanim = [];
+        let allMinyanim = [];
         let searchCenter = null;
         let currentRadius = 20.0;
-        let filters = { sort: 'distance', tefillah: '', nusach: '' };
-        let mapMarkers = [];
-        let PlaceLib = null; // Store reference to Place Library
+        let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
 
         // 1. INIT
         document.getElementById('time-start').value = "00:00";
@@ -229,73 +205,35 @@
             });
         }
 
-        // 2. SEARCH LOGIC (Hybrid: Component + Text Fallback)
-        async function forceTextSearch() {
-            // Get value from inside the shadow DOM of the Google Component
-            const el = document.querySelector('gmp-place-autocomplete');
-            const query = el ? el.value : "";
-            
-            if(!query) { alert("Please type a city first."); return; }
-            if(!PlaceLib) { alert("Maps loading..."); return; }
-
-            try {
-                // Use new searchByText (Robust)
-                const { places } = await PlaceLib.searchByText({
-                    textQuery: query,
-                    fields: ['displayName', 'location'],
-                    maxResultCount: 1
-                });
-
-                if (places && places.length > 0) {
-                    const p = places[0];
-                    setSearchLocation(p.location.lat(), p.location.lng(), p.displayName);
-                } else {
-                    alert("City not found.");
-                }
-            } catch (e) {
-                console.error(e);
-                alert("Search failed. Try selecting from dropdown.");
-            }
-        }
-
-        function setSearchLocation(lat, lng, name) {
-            searchCenter = { lat, lng, name };
-            
-            const pill = document.getElementById('status-pill');
-            pill.style.display = 'block';
-            pill.innerText = `Near: ${name}`;
-
-            if(map) {
-                map.setCenter({ lat, lng });
-                map.setZoom(13);
-            }
-            
-            applyFilters();
-        }
-
-        // 3. FILTER
+        // 2. SEARCH & FILTER
         function applyFilters() {
             if(!searchCenter) return;
+
+            const pill = document.getElementById('status-pill');
+            pill.style.display = 'block';
+            pill.innerText = `Near: ${searchCenter.name}`;
 
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM;
             const endVal = (eH*60)+eM;
 
+            // Distance
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
             }).filter(m => m.distance <= currentRadius);
 
+            // Filters
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
             results = results.filter(m => m.timeValue >= startVal && m.timeValue <= endVal);
 
+            // Sort
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else if(filters.sort === 'time_asc') results.sort((a,b) => a.timeValue - b.timeValue);
             else if(filters.sort === 'time_desc') results.sort((a,b) => b.timeValue - a.timeValue);
 
             renderList(results);
-            updateMap(results);
         }
 
         function renderList(results) {
@@ -320,43 +258,13 @@
                         <div class="time-display">${m.timeDisplay}<span class="ampm-label">${m.ampm}</span></div>
                     </div>
                 `;
-                card.onclick = () => {
-                    toggleView(true);
-                    if(map) {
-                        map.setCenter({ lat: m.lat, lng: m.lng });
-                        map.setZoom(16);
-                    }
-                };
+                // Map functionality removed, card click does nothing for now
+                // card.onclick = () => { ... } 
                 list.appendChild(card);
             });
         }
 
-        // 4. MAP UPDATE
-        async function updateMap(results) {
-            if(!map) return;
-            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-            
-            mapMarkers.forEach(m => m.map = null);
-            mapMarkers = [];
-
-            const locs = {};
-            results.forEach(m => {
-                const k = `${m.lat},${m.lng}`;
-                if(!locs[k]) locs[k] = { ...m, count: 1 }; else locs[k].count++;
-            });
-
-            Object.values(locs).forEach(l => {
-                const marker = new AdvancedMarkerElement({
-                    map: map, position: { lat: l.lat, lng: l.lng }, title: l.name
-                });
-                mapMarkers.push(marker);
-                marker.addListener("click", () => {
-                    new google.maps.InfoWindow({ content: `<strong>${l.name}</strong><br>${l.count} Minyanim` }).open(map, marker);
-                });
-            });
-        }
-
-        // 5. UTILS
+        // 4. UTILS
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 3958.8; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -369,9 +277,13 @@
             document.getElementById('status-pill').style.display = 'block';
             document.getElementById('status-pill').innerText = "Locating...";
             navigator.geolocation.getCurrentPosition(pos => {
+                // Clear Search Bar
                 const el = document.querySelector('gmp-place-autocomplete');
                 if(el) el.value = null;
-                setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
+                
+                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Current Location" };
+                
+                applyFilters();
             }, e => alert("Location Denied"));
         }
 
@@ -383,10 +295,6 @@
             document.getElementById('list-view').innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;">
             <i class="material-icons" style="font-size:48px; opacity:0.3; margin-bottom:10px;">location_on</i><br>
             <strong>Welcome</strong><br>Please search a city above or<br>click the location button below.</div>`;
-            if(map) {
-                mapMarkers.forEach(m => m.map = null);
-                mapMarkers = [];
-            }
         }
 
         function updateRadius(val) {
@@ -429,49 +337,27 @@
             d.style.display = (d.style.display==='block') ? 'none' : 'block';
         }
 
-        function toggleView(forceMap) {
-            const list = document.getElementById('list-view');
-            const mapV = document.getElementById('map-view');
-            const icon = document.getElementById('toggle-icon');
-            if(forceMap || list.style.display !== 'none') {
-                list.style.display='none'; mapV.style.display='block'; icon.innerText='list';
-            } else {
-                list.style.display='block'; mapV.style.display='none'; icon.innerText='map';
-            }
-        }
-
         // GOOGLE INIT
         async function initApp() {
-            const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-            const lib = await google.maps.importLibrary("places");
-            PlaceLib = lib.Place; // Save for fallback search
 
+            // Setup Search
             const container = document.getElementById('place-autocomplete-container');
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.id = "place-input";
             autocomplete.placeholder = "Search City...";
             container.appendChild(autocomplete);
 
-            // MAP
-            map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 },
-                zoom: 13, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
-            });
-
-            // COMPONENT SELECTION
+            // LISTEN FOR SEARCH
             autocomplete.addEventListener('gmp-places-select', async ({ place }) => {
                 await place.fetchFields({ fields: ['displayName', 'location'] });
-                setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
-            });
-            
-            // KEYBOARD ENTER LISTENER (Fallback)
-            autocomplete.addEventListener('keydown', (e) => {
-                if(e.key === 'Enter') forceTextSearch();
+                searchCenter = { lat: place.location.lat(), lng: place.location.lng(), name: place.displayName };
+                
+                applyFilters();
             });
         }
     </script>
     
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places&callback=initApp"></script>
 </body>
 </html>
