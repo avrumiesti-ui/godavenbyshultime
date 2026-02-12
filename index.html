@@ -16,22 +16,22 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* SEARCH BAR (Container for New Google Component) */
+        /* SEARCH BAR */
         .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; }
         .search-pill {
             flex-grow: 1; display: flex; align-items: center;
             background: #F0F2F5; border-radius: 12px; padding: 0 12px; height: 50px; border: 1px solid #ddd;
-            overflow: hidden; /* Keeps the google input inside */
+            overflow: hidden; 
         }
         
-        /* NEW GOOGLE INPUT STYLING */
+        /* GOOGLE INPUT STYLING */
+        /* Note: We set opacity to 0 initially to prevent flash until loaded */
         gmp-place-autocomplete {
             width: 100%;
             display: inline-block;
         }
-        /* Hide the default border of the component to blend in */
         gmp-place-autocomplete::part(input) {
-            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none;
+            border: none; background: transparent; padding: 0; font-size: 16px; color: #111; outline: none; height: 100%;
         }
 
         /* FILTERS ROW */
@@ -64,19 +64,18 @@
             border-left: 5px solid transparent;
         }
         
-        /* Tefillah Types (Left Border) */
-        .type-Shacharis { border-left-color: #4CAF50; } /* Green */
-        .type-Mincha { border-left-color: #FF9800; }    /* Orange */
-        .type-Maariv { border-left-color: #3F51B5; }    /* Blue */
+        .type-Shacharis { border-left-color: #4CAF50; } 
+        .type-Mincha { border-left-color: #FF9800; }    
+        .type-Maariv { border-left-color: #3F51B5; }    
 
         .card-left h3 { margin: 0 0 4px 0; font-size: 16px; color: #0D2B4F; }
         .address { font-size: 12px; color: #777; margin: 0; display:block; margin-bottom:6px;}
-        
-        /* NUSACH COLORS */
+        .distance-tag { font-size: 10px; color: #666; background: #eee; padding: 2px 5px; border-radius: 4px; margin-left: 5px; }
+
         .nusach-tag { font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-        .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; border: 1px solid #BBDEFB; } /* Blue */
-        .nusach-Sefard { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; } /* Green */
-        .nusach-Ari { background: #F3E5F5; color: #7B1FA2; border: 1px solid #E1BEE7; } /* Purple */
+        .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; border: 1px solid #BBDEFB; } 
+        .nusach-Sefard { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; } 
+        .nusach-Ari { background: #F3E5F5; color: #7B1FA2; border: 1px solid #E1BEE7; } 
         .nusach-Other { background: #F5F5F5; color: #616161; }
 
         .card-right { text-align: right; }
@@ -112,6 +111,7 @@
                 <div class="select-wrapper">
                     <select id="filter-sort" onchange="applyFilters()">
                         <option value="time_asc">Sort: Earliest</option>
+                        <option value="distance">Sort: Distance</option>
                         <option value="time_desc">Sort: Latest</option>
                     </select>
                     <i class="material-icons">sort</i>
@@ -168,7 +168,10 @@
         let allShuls = []; 
         let allMinyanim = []; 
         let googleLoaded = false;
-        let lastSearchQuery = "";
+        
+        // GLOBAL SEARCH STATE
+        let searchCenter = null; // { lat: 40.091, lng: -74.218 }
+        const DEFAULT_RADIUS_MILES = 5;
 
         // 1. INIT
         document.getElementById('time-start').value = "00:00";
@@ -181,6 +184,7 @@
                 allShuls = data;
                 processMinyanim(allShuls); 
                 document.getElementById('status-bar').innerText = `Schedule Loaded (${allMinyanim.length} times)`;
+                // Initially show all (or could filter by default location if we had one)
                 applyFilters(); 
             })
             .catch(err => {
@@ -222,18 +226,18 @@
                             tefillah: type,
                             timeDisplay: `${displayH}:${String(m).padStart(2, '0')}`,
                             ampm: ampm,
-                            timeValue: (sortHour * 60) + m
+                            timeValue: (sortHour * 60) + m,
+                            distance: null // Will be calculated dynamically
                         });
                     });
                 };
-
                 addTimes(shul.shacharis, 'Shacharis');
                 addTimes(shul.mincha, 'Mincha');
                 addTimes(shul.maariv, 'Maariv');
             });
         }
 
-        // 3. APPLY FILTERS
+        // 3. APPLY FILTERS & DISTANCE LOGIC
         function applyFilters() {
             const sortType = document.getElementById('filter-sort').value;
             const tefillahFilter = document.getElementById('filter-tefillah').value;
@@ -243,14 +247,22 @@
 
             let results = allMinyanim;
 
-            // Search (Filter by cached query)
-            if (lastSearchQuery.length > 0) {
-                results = results.filter(m => 
-                    m.name.toLowerCase().includes(lastSearchQuery) || 
-                    m.address.toLowerCase().includes(lastSearchQuery)
-                );
+            // A. GEOSPATIAL FILTER (Radius)
+            if (searchCenter) {
+                // Calculate distance for every minyan
+                results = results.map(m => {
+                    m.distance = getDistanceMiles(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                    return m;
+                });
+
+                // Filter out far away places (Radius check)
+                results = results.filter(m => m.distance <= DEFAULT_RADIUS_MILES);
+                
+                // Update Status
+                document.getElementById('status-bar').innerText = `Found ${results.length} minyanim within ${DEFAULT_RADIUS_MILES} miles of ${searchCenter.name || 'Location'}`;
             }
 
+            // B. Standard Filters
             if (tefillahFilter) results = results.filter(m => m.tefillah === tefillahFilter);
             if (nusachFilter) results = results.filter(m => m.nusach === nusachFilter);
 
@@ -262,16 +274,36 @@
                 results = results.filter(m => m.timeValue >= startMins && m.timeValue <= endMins);
             }
 
+            // C. Sort
             if (sortType === 'time_asc') results.sort((a, b) => a.timeValue - b.timeValue);
             if (sortType === 'time_desc') results.sort((a, b) => b.timeValue - a.timeValue);
+            if (sortType === 'distance') {
+                if(searchCenter) {
+                    results.sort((a, b) => a.distance - b.distance);
+                } else {
+                    alert("Please select a location to sort by distance.");
+                    document.getElementById('filter-sort').value = 'time_asc'; // reset
+                }
+            }
 
             renderResults(results);
+        }
+
+        // Helper: Haversine Distance Calculation
+        function getDistanceMiles(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; // Radius of Earth in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            return R * c;
         }
 
         // 4. RENDER LIST
         function renderResults(results) {
             const list = document.getElementById('list-view');
-            const status = document.getElementById('status-bar');
             list.innerHTML = '';
             
             if(googleLoaded && map) {
@@ -280,12 +312,9 @@
             }
 
             if (results.length === 0) {
-                status.innerText = "0 Results Found";
-                list.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">No minyanim found matching filters.</div>';
+                list.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">No minyanim found in this area.</div>';
                 return;
             }
-
-            status.innerText = `Found ${results.length} minyanim`;
 
             results.forEach(minyan => {
                 let nusachClass = "nusach-Other";
@@ -293,11 +322,14 @@
                 if(minyan.nusach === "Sefard") nusachClass = "nusach-Sefard";
                 if(minyan.nusach === "Ari") nusachClass = "nusach-Ari";
 
+                // Show distance tag if calculated
+                const distText = minyan.distance !== null ? `<span class="distance-tag">${minyan.distance.toFixed(1)} mi</span>` : '';
+
                 const card = document.createElement('div');
                 card.className = `minyan-card type-${minyan.tefillah}`; 
                 card.innerHTML = `
                     <div class="card-left">
-                        <h3>${minyan.name}</h3>
+                        <h3>${minyan.name} ${distText}</h3>
                         <span class="address">${minyan.address}</span>
                         <span class="nusach-tag ${nusachClass}">${minyan.nusach}</span>
                     </div>
@@ -323,10 +355,7 @@
                         infoWindow.open(map, marker);
                     } 
                     else {
-                        const confirmNav = confirm("Map Preview is unavailable (Waiting for Google Key).\n\nOpen navigation?");
-                        if(confirmNav) {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${minyan.address}`);
-                        }
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${minyan.address}`);
                     }
                 };
                 list.appendChild(card);
@@ -353,15 +382,18 @@
         }
         
         function clearSearch() { 
-            lastSearchQuery = "";
+            searchCenter = null;
+            document.getElementById('filter-sort').value = 'time_asc';
+            document.getElementById('status-bar').innerText = "Cleared.";
+            // Reset the component input manually by reloading it or just clearing state
+            const autocomplete = document.querySelector('gmp-place-autocomplete');
+            if(autocomplete) autocomplete.value = null; // Try to reset component
             applyFilters();
-            // Clear the actual web component text if possible, though strict shadow DOM makes it hard.
         }
 
-        // --- NEW GOOGLE INIT ---
+        // --- GOOGLE INIT ---
         async function initApp() {
             try {
-                // Import the NEW Libraries
                 const { Map } = await google.maps.importLibrary("maps");
                 const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
                 const { Marker } = await google.maps.importLibrary("marker");
@@ -375,16 +407,29 @@
                 });
                 infoWindow = new google.maps.InfoWindow();
 
-                // 2. Setup New Autocomplete Element
+                // 2. Setup New Autocomplete
                 const autocomplete = new PlaceAutocompleteElement();
                 autocomplete.id = "place-input";
+                autocomplete.placeholder = "Search City (e.g. Lakewood)";
                 document.getElementById("place-autocomplete-container").appendChild(autocomplete);
 
-                // Listen for user selection
-                autocomplete.addEventListener("gmp-places-select", ({ place }) => {
-                    const placeName = place.displayName || ""; // Get text
-                    lastSearchQuery = placeName.toLowerCase();
-                    applyFilters(); // Filter list
+                // 3. LISTEN FOR SELECTION (CRITICAL STEP)
+                autocomplete.addEventListener("gmp-places-select", async ({ place }) => {
+                    // We need to fetch the location (lat/lng) because it's not given by default
+                    await place.fetchFields({ fields: ['displayName', 'location'] });
+                    
+                    searchCenter = {
+                        lat: place.location.lat(),
+                        lng: place.location.lng(),
+                        name: place.displayName
+                    };
+
+                    // Move map
+                    map.setCenter(searchCenter);
+                    map.setZoom(14);
+
+                    // TRIGGER FILTER
+                    applyFilters();
                 });
 
             } catch (e) { 
