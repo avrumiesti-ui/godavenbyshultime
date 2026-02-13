@@ -21,7 +21,7 @@
         flex: 1; pointer-events: auto; display: flex; align-items: center;
         background: #fff; height: 50px; border-radius: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 15px;
-        overflow: hidden; /* Clips internal borders */
+        overflow: hidden; 
     }
 
     /* GOOGLE COMPONENT STYLING */
@@ -137,7 +137,7 @@
     .drawer-header { padding: 15px; display: flex; justify-content: center; align-items: center; position: relative; width: 100%; box-sizing: border-box; cursor: grab; }
     .drawer-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; }
     
-    /* DRAWER HEADER BUTTONS */
+    /* DRAWER ACTIONS */
     .drawer-actions { position: absolute; right: 20px; top: 15px; display: flex; gap: 12px; }
     .circle-action-btn {
         width: 40px; height: 40px; border-radius: 50%;
@@ -269,7 +269,7 @@
     <script>
         let allMinyanim = [], searchCenter = null, currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
-        let selectedShul = null; // Store current shul for sharing
+        let selectedShul = null;
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -340,7 +340,8 @@
             list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found matching your filters.</div>';
             results.forEach(m => {
                 let nCls = `nusach-${m.nusach || 'Other'}`;
-                const searchUrl = `https://developers.google.com/maps/documentation/javascript/places-migration-overview7{encodeURIComponent(m.name + ' ' + m.address)}`;
+                // CORRECTED SEARCH URL
+                const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 const card = document.createElement("div");
                 card.className = "minyan-card";
@@ -365,8 +366,9 @@
         }
 
         function openDetails(m) {
-            selectedShul = m; // Save for sharing
-            const searchUrl = `https://developers.google.com/maps/documentation/javascript/places-migration-overview8{encodeURIComponent(m.name + ' ' + m.address)}`;
+            selectedShul = m;
+            // CORRECTED SEARCH URL
+            const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
             const nCls = `nusach-${m.nusach || 'Other'}`;
             const content = document.getElementById("drawer-content");
             content.innerHTML = `
@@ -509,13 +511,17 @@
             const container = document.getElementById("autocomplete-container");
             container.appendChild(autocomplete);
 
-            autocomplete.addEventListener('input', () => { if (!autocomplete.value) clearSearch(); });
+            // AUTO-CLEAR
+            autocomplete.addEventListener('input', () => {
+                if (!autocomplete.value) clearSearch();
+            });
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
-                    // KEYBOARD DISMISSAL FIX
+                    
+                    // DISMISS KEYBOARD FIX
                     if (document.activeElement) document.activeElement.blur();
-                    setTimeout(() => { if (document.activeElement) document.activeElement.blur(); }, 150);
+                    setTimeout(() => { if (document.activeElement) document.activeElement.blur(); }, 200);
 
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
