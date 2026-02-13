@@ -24,11 +24,9 @@
         overflow: hidden; /* Clips internal borders */
     }
 
-    /* --- GOOGLE COMPONENT AGGRESSIVE STYLING --- */
+    /* GOOGLE COMPONENT STYLING */
     gmp-place-autocomplete { 
-        width: 100%; 
-        height: 100%;
-        /* Override Internal Google Material Variables to Transparent */
+        width: 100%; height: 100%;
         --gmp-filled-input-container-color: transparent;
         --gmp-filled-input-container-color-focused: transparent;
         --gmp-filled-input-outline-color: transparent;
@@ -36,29 +34,13 @@
         --gmp-filled-input-outline-width: 0px;
         --gmp-text-color: #111;
     }
-    
     gmp-place-autocomplete::part(input) { 
-        box-shadow: none !important;
-        outline: none !important;
-        border: none !important;
-        background: transparent !important;
-        padding: 0; 
-        font-size: 16px; 
-        height: 100%; 
-        width: 100%;
-        color: #111 !important; 
-        font-weight: 500 !important;
+        box-shadow: none !important; outline: none !important; border: none !important;
+        background: transparent !important; padding: 0; font-size: 16px; 
+        height: 100%; width: 100%; color: #111 !important; font-weight: 500 !important;
         caret-color: var(--primary);
     }
-
-    /* Ensure no outline on focus */
-    gmp-place-autocomplete::part(input):focus,
-    gmp-place-autocomplete::part(input):focus-visible {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-    }
+    gmp-place-autocomplete::part(input):focus { outline: none !important; border: none !important; box-shadow: none !important; }
 
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
@@ -73,7 +55,6 @@
         display: flex; justify-content: center; align-items: center; gap: 8px;
         z-index: 800; pointer-events: none; padding: 0 10px;
     }
-
     #status-pill, #count-pill {
         padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
         display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
@@ -91,18 +72,17 @@
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; min-height: 110px;
     }
-
     .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
     
     .map-zone { 
         width: 115px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; padding: 10px 0;
     }
-    
     .time-val { font-weight: 800; font-size: 16px; color: var(--primary); margin-bottom: 2px; }
     .dist-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #777; margin-bottom: 6px; }
 
+    /* ICONS */
     .map-circle {
         width: 36px; height: 36px; border-radius: 50%; background: #fff;
         display: flex; align-items: center; justify-content: center;
@@ -113,7 +93,6 @@
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         font-size: 22px !important; font-weight: bold;
     }
-
     .map-circle-lg { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
     .google-maps-icon-lg { font-size: 32px !important; }
 
@@ -140,10 +119,8 @@
     .chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
     .chip { padding: 5px 10px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 11px; font-weight: 600; color: #444; cursor: pointer; }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-    
     .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
-    
     .time-inputs-row { display: flex; gap: 6px; }
     .time-input { flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 15px; text-align: center; font-family: inherit; font-size: 11px; font-weight: 600; }
     .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 15px; font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 4px; }
@@ -159,7 +136,17 @@
     #details-drawer.open { bottom: 0; transform: translateY(0); }
     .drawer-header { padding: 15px; display: flex; justify-content: center; align-items: center; position: relative; width: 100%; box-sizing: border-box; cursor: grab; }
     .drawer-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; }
-    .close-drawer-btn { position: absolute; right: 20px; top: 15px; width: 30px; height: 30px; border-radius: 50%; background: #f0f0f0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; }
+    
+    /* DRAWER HEADER BUTTONS */
+    .drawer-actions { position: absolute; right: 20px; top: 15px; display: flex; gap: 12px; }
+    .circle-action-btn {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: #f0f0f0; border: none;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #555; transition: background 0.2s;
+    }
+    .circle-action-btn:active { background: #e0e0e0; }
+
     .drawer-body { flex: 1; overflow-y: auto; padding: 0 25px 25px; }
     .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     
@@ -196,9 +183,14 @@
     <div id="details-drawer">
         <div class="drawer-header" id="drawer-header">
             <div class="drawer-handle"></div>
-            <button class="close-drawer-btn" onclick="closeDetails()">
-                <i class="material-icons" style="font-size:18px;">close</i>
-            </button>
+            <div class="drawer-actions">
+                <button class="circle-action-btn" onclick="shareShul()">
+                    <i class="material-icons" style="font-size:20px;">share</i>
+                </button>
+                <button class="circle-action-btn" onclick="closeDetails()">
+                    <i class="material-icons" style="font-size:20px;">close</i>
+                </button>
+            </div>
         </div>
         <div id="drawer-content" class="drawer-body"></div>
     </div>
@@ -277,6 +269,7 @@
     <script>
         let allMinyanim = [], searchCenter = null, currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
+        let selectedShul = null; // Store current shul for sharing
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -372,11 +365,12 @@
         }
 
         function openDetails(m) {
+            selectedShul = m; // Save for sharing
             const searchUrl = `https://developers.google.com/maps/documentation/javascript/places-migration-overview8{encodeURIComponent(m.name + ' ' + m.address)}`;
             const nCls = `nusach-${m.nusach || 'Other'}`;
             const content = document.getElementById("drawer-content");
             content.innerHTML = `
-                <h2 style="margin:0; color:var(--primary); font-size:20px; padding-right:40px;">${m.name}</h2>
+                <h2 style="margin:0; color:var(--primary); font-size:20px; padding-right:80px;">${m.name}</h2>
                 <p style="color:#666; margin:5px 0 10px; font-size:13px;">${m.address}</p>
                 <div class="nusach-tag ${nCls}">${m.nusach}</div>
                 
@@ -404,6 +398,19 @@
             drawer.classList.add("open");
             drawer.style.transform = "translateY(0)";
             document.getElementById("scrim").style.display = "block";
+        }
+
+        async function shareShul() {
+            if(!selectedShul) return;
+            const text = `${selectedShul.name}\n${selectedShul.address}\n\nNusach: ${selectedShul.nusach}\n\nTimes:\nShacharis: ${selectedShul.shacharis || 'N/A'}\nMincha: ${selectedShul.mincha || 'N/A'}\nMaariv: ${selectedShul.maariv || 'N/A'}`;
+            if(navigator.share) {
+                try {
+                    await navigator.share({ title: selectedShul.name, text: text });
+                } catch(e) { console.log('Share failed', e); }
+            } else {
+                navigator.clipboard.writeText(text);
+                alert("Details copied to clipboard!");
+            }
         }
 
         function closeDetails() {
@@ -502,23 +509,13 @@
             const container = document.getElementById("autocomplete-container");
             container.appendChild(autocomplete);
 
-            // AUTO-CLEAR LOGIC
-            autocomplete.addEventListener('input', () => {
-                if (!autocomplete.value) clearSearch();
-            });
+            autocomplete.addEventListener('input', () => { if (!autocomplete.value) clearSearch(); });
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
-                    
-                    // FORCE KEYBOARD DISMISSAL
-                    if (document.activeElement) {
-                        document.activeElement.blur();
-                    }
-                    // Wait a moment for mobile browsers to catch up
-                    setTimeout(() => {
-                        if (document.activeElement) document.activeElement.blur();
-                        autocomplete.blur(); 
-                    }, 150);
+                    // KEYBOARD DISMISSAL FIX
+                    if (document.activeElement) document.activeElement.blur();
+                    setTimeout(() => { if (document.activeElement) document.activeElement.blur(); }, 150);
 
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
