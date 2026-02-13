@@ -21,9 +21,44 @@
         flex: 1; pointer-events: auto; display: flex; align-items: center;
         background: #fff; height: 50px; border-radius: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 15px;
+        overflow: hidden; /* Clips internal borders */
     }
-    gmp-place-autocomplete { width: 100%; }
-    gmp-place-autocomplete::part(input) { border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%; }
+
+    /* --- GOOGLE COMPONENT AGGRESSIVE STYLING --- */
+    gmp-place-autocomplete { 
+        width: 100%; 
+        height: 100%;
+        /* Override Internal Google Material Variables to Transparent */
+        --gmp-filled-input-container-color: transparent;
+        --gmp-filled-input-container-color-focused: transparent;
+        --gmp-filled-input-outline-color: transparent;
+        --gmp-filled-input-outline-color-focused: transparent;
+        --gmp-filled-input-outline-width: 0px;
+        --gmp-text-color: #111;
+    }
+    
+    gmp-place-autocomplete::part(input) { 
+        box-shadow: none !important;
+        outline: none !important;
+        border: none !important;
+        background: transparent !important;
+        padding: 0; 
+        font-size: 16px; 
+        height: 100%; 
+        width: 100%;
+        color: #111 !important; 
+        font-weight: 500 !important;
+        caret-color: var(--primary);
+    }
+
+    /* Ensure no outline on focus */
+    gmp-place-autocomplete::part(input):focus,
+    gmp-place-autocomplete::part(input):focus-visible {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
 
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
@@ -59,7 +94,6 @@
 
     .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
     
-    /* RIGHT ZONE STACKED */
     .map-zone { 
         width: 115px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; padding: 10px 0;
@@ -80,7 +114,6 @@
         font-size: 22px !important; font-weight: bold;
     }
 
-    /* LARGE ICON FOR DRAWER */
     .map-circle-lg { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
     .google-maps-icon-lg { font-size: 32px !important; }
 
@@ -108,7 +141,6 @@
     .chip { padding: 5px 10px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 11px; font-weight: 600; color: #444; cursor: pointer; }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
     
-    /* RADIUS QUICK PILLS */
     .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
     
@@ -477,9 +509,17 @@
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
-                    // KEYBOARD DISMISSAL FIX
-                    if (document.activeElement) document.activeElement.blur();
                     
+                    // FORCE KEYBOARD DISMISSAL
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+                    // Wait a moment for mobile browsers to catch up
+                    setTimeout(() => {
+                        if (document.activeElement) document.activeElement.blur();
+                        autocomplete.blur(); 
+                    }, 150);
+
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
                     setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
