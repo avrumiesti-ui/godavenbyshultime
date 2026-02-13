@@ -173,6 +173,18 @@
     .drawer-body { flex: 1; overflow-y: auto; padding: 0 25px 25px; }
     .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     
+    /* SCHEDULE GRID */
+    .schedule-section { margin-top: 20px; }
+    .schedule-title { font-weight:800; font-size:14px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
+    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; }
+    .schedule-item { margin-bottom: 5px; }
+    .schedule-day { font-weight: 700; color: #666; font-size: 11px; text-transform: uppercase; }
+    
+    /* CONTACT BUTTONS */
+    .contact-row { display: flex; gap: 10px; margin-top: 15px; }
+    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 12px; font-weight: 600; font-size: 13px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .contact-btn:active { background: #eee; }
+
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
 
     .fab-location {
@@ -296,7 +308,7 @@
     </button>
 
     <script>
-        let map, allMinyanim = [], searchCenter = null, currentRadius = 20;
+        let map, allMinyanim = [], processedMinyanim = [], searchCenter = null, currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
         let selectedShul = null;
         let markers = [];
@@ -313,23 +325,54 @@
             initPullToDismiss();
         });
 
+        function getTodayKey() {
+            const d = new Date().getDay(); // 0=Sun, 1=Mon, ...
+            if (d === 0) return 'sun';
+            if (d === 1 || d === 4) return 'mon_thu';
+            return 'tue_wed_fri';
+        }
+
         function processMinyanim(data){
-            allMinyanim = [];
+            processedMinyanim = [];
+            const todayKey = getTodayKey();
+
             data.forEach(shul => {
-                ["Shacharis","Mincha","Maariv"].forEach(type => {
-                    if(!shul[type.toLowerCase()]) return;
-                    shul[type.toLowerCase()].split(",").forEach(t => {
-                        let raw = t.trim().replace(/[^0-9:]/g,"");
-                        let [h,m] = raw.split(":").map(Number);
-                        let isPM = (type === "Maariv" || (type === "Mincha" && h < 9));
-                        let sortH = (isPM && h < 12) ? h + 12 : ((!isPM && h === 12) ? 0 : h);
-                        allMinyanim.push({
-                            ...shul, tefillah: type,
-                            timeDisplay: `${h}:${String(m).padStart(2,"0")}`,
-                            ampm: isPM ? "PM" : "AM", timeValue: (sortH * 60) + m
-                        });
-                    });
-                });
+                // Process Shacharis
+                if (shul.shacharis && shul.shacharis[todayKey]) {
+                    shul.shacharis[todayKey].forEach(t => addMinyan(shul, 'Shacharis', t));
+                }
+                
+                // Process Mincha (Week)
+                if (shul.mincha && shul.mincha.week) {
+                    shul.mincha.week.forEach(t => addMinyan(shul, 'Mincha', t));
+                }
+
+                // Process Maariv (Week)
+                if (shul.maariv && shul.maariv.week) {
+                    shul.maariv.week.forEach(t => addMinyan(shul, 'Maariv', t));
+                }
+            });
+            allMinyanim = processedMinyanim;
+        }
+
+        function addMinyan(shul, type, tStr) {
+            let raw = tStr.trim().replace(/[^0-9:]/g,"");
+            let [h,m] = raw.split(":").map(Number);
+            
+            // Basic AM/PM logic
+            let isPM = (type === "Maariv" || (type === "Mincha" && h < 9) || (type === "Mincha" && h === 12));
+            let sortH = (isPM && h < 12) ? h + 12 : ((!isPM && h === 12) ? 0 : h);
+            
+            // Formatting
+            let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+            let dispM = String(m).padStart(2,"0");
+            
+            processedMinyanim.push({
+                ...shul, 
+                tefillah: type,
+                timeDisplay: `${dispH}:${dispM}`,
+                ampm: isPM ? "PM" : "AM", 
+                timeValue: (sortH * 60) + m
             });
         }
 
@@ -340,20 +383,16 @@
             const dot = document.getElementById("center-marker");
             
             if (list.style.display === "none") {
-                // Switch to List
                 list.style.display = "block";
                 icon.innerText = "map";
                 btn.classList.remove("active");
                 dot.style.display = "none";
             } else {
-                // Switch to Map
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
                 
-                // CRITICAL FIX: Only center if we have a search BUT map is brand new
-                // If map already exists, we do NOT reset position.
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
@@ -433,12 +472,12 @@
             list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found matching your filters.</div>';
             results.forEach(m => {
                 let nCls = `nusach-${m.nusach || 'Other'}`;
-                const searchUrl = `https://www.google.com/maps/search/?api=1&query=...?q=${encodeURIComponent(m.name + " " + m.address)}`;
+                const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
                         <div style="font-weight:700; font-size:15px; color:#333; line-height:1.2;">${m.name}</div>
                         <div style="font-size:11px; color:#888; margin-top:2px;">${m.address}</div>
                         <div class="nusach-tag ${nCls}">${m.nusach}</div>
@@ -480,7 +519,6 @@
             });
         }
 
-        // MAP IDLE - Sync Radius & List
         function onMapIdle() {
             if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
@@ -494,16 +532,27 @@
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
-            // Just update UI, apply filters, do NOT refit map
             updateRadius(r.toFixed(1)); 
             applyFilters();
         }
 
+        function formatList(list) {
+            if(!list || list.length === 0) return 'None';
+            return list.join(", ");
+        }
+
         function openDetails(m) {
             selectedShul = m;
-            const searchUrl = `https://www.google.com/maps/search/?api=1&query=...?q=${encodeURIComponent(m.name + " " + m.address)}`;
+            const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
             const nCls = `nusach-${m.nusach || 'Other'}`;
             const content = document.getElementById("drawer-content");
+            
+            // Construct Contact Buttons
+            let contacts = [];
+            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
+            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
+            contacts.push(`<a href="${m.godaven_link || '#'}" target="_blank" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
+
             content.innerHTML = `
                 <h2 style="margin:0; color:var(--primary); font-size:20px; padding-right:80px;">${m.name}</h2>
                 <p style="color:#666; margin:5px 0 10px; font-size:13px;">${m.address}</p>
@@ -519,13 +568,28 @@
                     </div>
                 </div>
 
-                <div style="margin-top:20px;">
-                    <h4 style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; font-size:14px;">Full Schedule</h4>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
-                        <div><strong class="tefillah-text tef-Shacharis">Shacharis</strong><br>${m.shacharis || 'N/A'}</div>
-                        <div><strong class="tefillah-text tef-Mincha">Mincha</strong><br>${m.mincha || 'N/A'}</div>
-                        <div><strong class="tefillah-text tef-Maariv">Maariv</strong><br>${m.maariv || 'N/A'}</div>
-                        <div><strong style="color:#666" class="tefillah-text">Rabbi</strong><br>${m.rabbi || 'Not listed'}</div>
+                <div class="contact-row">
+                    ${contacts.join('')}
+                </div>
+
+                <div class="schedule-section">
+                    <div class="schedule-title">Weekday Schedule</div>
+                    <div class="schedule-grid">
+                        <div class="schedule-item"><div class="schedule-day">Shacharis Sun</div>${formatList(m.shacharis?.sun)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Shacharis M/Th</div>${formatList(m.shacharis?.mon_thu)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Shacharis T/W/F</div>${formatList(m.shacharis?.tue_wed_fri)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Rosh Chodesh</div>${formatList(m.shacharis?.rosh_chodesh)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Mincha</div>${formatList(m.mincha?.week)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Maariv</div>${formatList(m.maariv?.week)}</div>
+                    </div>
+                </div>
+
+                <div class="schedule-section">
+                    <div class="schedule-title">Shabbos Schedule</div>
+                    <div class="schedule-grid">
+                        <div class="schedule-item"><div class="schedule-day">Mincha Erev Shab</div>${formatList(m.mincha?.fri)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Mincha Shabbos</div>${formatList(m.mincha?.shabbos)}</div>
+                        <div class="schedule-item"><div class="schedule-day">Maariv Motzei</div>${formatList(m.maariv?.shabbos)}</div>
                     </div>
                 </div>
             `;
@@ -537,7 +601,7 @@
 
         async function shareShul() {
             if(!selectedShul) return;
-            const text = `${selectedShul.name}\n${selectedShul.address}\n\nNusach: ${selectedShul.nusach}\n\nTimes:\nShacharis: ${selectedShul.shacharis || 'N/A'}\nMincha: ${selectedShul.mincha || 'N/A'}\nMaariv: ${selectedShul.maariv || 'N/A'}`;
+            const text = `${selectedShul.name}\n${selectedShul.address}\n\nNusach: ${selectedShul.nusach}`;
             if(navigator.share) {
                 try { await navigator.share({ title: selectedShul.name, text: text }); } 
                 catch(e) { console.log('Share failed', e); }
