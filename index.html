@@ -24,15 +24,15 @@
         overflow: hidden; 
     }
 
-    /* GOOGLE COMPONENT STYLING */
+    /* GOOGLE SEARCH BLACK BOX FIX */
     gmp-place-autocomplete { 
         width: 100%; height: 100%;
-        --gmp-filled-input-container-color: #fff;
-        --gmp-filled-input-container-color-focused: #fff;
-        --gmp-filled-input-outline-color: transparent;
-        --gmp-filled-input-outline-color-focused: transparent;
-        --gmp-filled-input-outline-width: 0px;
-        --gmp-text-color: #111;
+        --gmp-filled-input-container-color: #fff !important;
+        --gmp-filled-input-container-color-focused: #fff !important;
+        --gmp-filled-input-outline-color: transparent !important;
+        --gmp-filled-input-outline-color-focused: transparent !important;
+        --gmp-text-color: #111 !important;
+        background-color: #fff !important;
     }
     gmp-place-autocomplete::part(input) { 
         box-shadow: none !important; outline: none !important; border: none !important;
@@ -40,11 +40,9 @@
         height: 100%; width: 100%; color: #111 !important; font-weight: 500 !important;
         caret-color: var(--primary);
     }
-    gmp-place-autocomplete::part(input):focus { outline: none !important; border: none !important; box-shadow: none !important; background-color: #fff !important; }
-
-    /* DROPDOWN FIX */
-    .pac-container { background-color: #fff !important; border-radius: 12px !important; box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; border: none !important; }
-    .pac-item { background-color: #fff !important; border-top: 1px solid #f0f0f0 !important; padding: 10px !important; font-size: 14px !important; color: #333 !important; }
+    /* Legacy Dropdown Fix */
+    .pac-container { background-color: #fff !important; border: none !important; box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; }
+    .pac-item { background-color: #fff !important; color: #333 !important; }
     .pac-item:hover { background-color: #f2f4f8 !important; }
 
     .circle-btn {
@@ -76,125 +74,147 @@
         overflow-y: auto; background: var(--bg); 
         z-index: 10;
     }
-    #map-view { 
-        position: absolute; inset: 0; 
-        z-index: 5;
-    }
+    #map-view { position: absolute; inset: 0; z-index: 5; }
 
-    /* CENTER DOT (BLUE) */
+    /* CENTER DOT */
     #center-marker {
-        position: fixed; top: 50%; left: 50%;
-        width: 16px; height: 16px;
-        background: #2196F3;
-        border: 3px solid #fff; border-radius: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
+        background: #2196F3; border: 3px solid #fff; border-radius: 50%;
+        transform: translate(-50%, -50%); z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         pointer-events: none; display: none;
     }
 
-    /* CARDS */
+    /* CARDS - TIGHTER & BIGGER FONT */
     .minyan-card {
-        background: #fff; border-radius: 12px; margin-bottom: 10px;
+        background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; min-height: 110px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
+        min-height: 95px; /* Shorter by ~10% */
     }
-    .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
+    .info-zone { 
+        flex: 1; padding: 12px; cursor: pointer; 
+        display: flex; flex-direction: column; justify-content: center; 
+        min-width: 0; /* Enables truncation */
+    }
     .map-zone { 
         width: 115px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; padding: 10px 0;
+        flex-shrink: 0;
     }
-    .time-val { font-weight: 800; font-size: 16px; color: var(--primary); margin-bottom: 2px; }
+    
+    /* Font increases ~10% */
+    .shul-name { 
+        font-weight: 800; font-size: 17px; color: #333; line-height: 1.2;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Cutoff */
+    }
+    .shul-address { font-size: 13px; color: #777; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); margin-bottom: 2px; }
     .dist-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-    .dist-label { font-size: 11px; font-weight: 800; color: #777; margin-bottom: 6px; }
+    .dist-label { font-size: 13px; font-weight: 800; color: #666; margin-bottom: 6px; }
 
-    .map-circle { width: 36px; height: 36px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 22px !important; font-weight: bold; }
-    .map-circle-lg { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
-    .google-maps-icon-lg { font-size: 32px !important; }
+    .map-circle { width: 38px; height: 38px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px !important; font-weight: bold; }
+    
+    .map-circle-lg { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    .google-maps-icon-lg { font-size: 34px !important; }
 
-    .nusach-tag { font-size: 10px; padding: 2px 8px; border-radius: 12px; margin-top: 6px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
+    /* NUSACH COLORS */
+    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; margin-top: 6px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
+    
+    /* Dynamic classes generated in JS, defaults here */
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
     .nusach-Ari { background: #F3E5F5; color: #7B1FA2; }
+    .nusach-Edot-HaMizrach { background: #FFF3E0; color: #E65100; }
+    .nusach-Chabad { background: #FFF8E1; color: #F57F17; }
     .nusach-Other { background: #F5F5F5; color: #616161; }
 
-    .tefillah-text { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .tefillah-text { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
     .tef-Shacharis { color: #34A853; } .tef-Mincha { color: #FBBC05; } .tef-Maariv { color: #4285F4; }
 
     /* CUSTOM MAP MARKER */
     .custom-marker {
-        color: white; padding: 3px 8px; border-radius: 12px;
-        font-size: 12px; font-weight: 800;
+        color: white; padding: 4px 9px; border-radius: 12px;
+        font-size: 13px; font-weight: 800;
         box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff;
         display: flex; align-items: center; justify-content: center;
         position: relative; top: 10px; cursor: pointer; transition: transform 0.1s;
     }
+    /* Markers use same colors as text but as background */
     .marker-Ashkenaz { background: #1565C0; }
     .marker-Sefard { background: #2E7D32; }
     .marker-Ari { background: #7B1FA2; }
+    .marker-Edot-HaMizrach { background: #E65100; }
+    .marker-Chabad { background: #F57F17; }
     .marker-Other { background: #616161; }
+    
     .custom-marker::after {
         content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
         border-width: 5px 5px 0; border-style: solid; border-color: inherit transparent transparent transparent;
     }
-    .custom-marker:active { transform: scale(0.95); }
 
     /* FILTER DRAWER */
     #filter-drawer {
         display: none; position: fixed; top: 80px; left: 12px; right: 12px;
-        background: #fff; border-radius: 20px; padding: 12px 15px;
+        background: #fff; border-radius: 20px; padding: 15px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000;
         max-width: 500px; margin: 0 auto;
     }
-    .filter-section { margin-bottom: 10px; } 
-    .filter-label { font-size: 9px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 4px; display: block; }
-    .chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
-    .chip { padding: 5px 10px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 11px; font-weight: 600; color: #444; cursor: pointer; }
+    .filter-section { margin-bottom: 12px; } 
+    .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-    .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    
+    .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
-    .time-inputs-row { display: flex; gap: 6px; }
-    .time-input { flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 15px; text-align: center; font-family: inherit; font-size: 11px; font-weight: 600; }
-    .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 15px; font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+    .radius-input { width: 50px; padding: 5px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-family: inherit; }
+
+    .time-inputs-row { display: flex; gap: 8px; }
+    .time-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 15px; text-align: center; font-family: inherit; font-size: 12px; font-weight: 600; }
+    .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 10px; border-radius: 15px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 6px; }
     .primary-action { background: var(--primary); color: white; }
 
-    /* DETAILS DRAWER */
+    /* DETAILS DRAWER - ROUNDED BOTTOM */
     #details-drawer {
-        position: fixed; bottom: -100%; left: 0; right: 0; height: 75vh;
-        background: #fff; border-radius: 25px 25px 0 0; z-index: 3000;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: transform 0.3s ease-out;
+        position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh;
+        background: #fff; border-radius: 25px 25px 25px 25px; /* Rounded all around */
+        z-index: 3000; margin-bottom: 15px; /* Floating look */
+        box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out;
         padding: 0; display: flex; flex-direction: column;
     }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
-    .drawer-header { padding: 15px; display: flex; justify-content: center; align-items: center; position: relative; width: 100%; box-sizing: border-box; cursor: grab; }
-    .drawer-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; }
-    .drawer-actions { position: absolute; right: 20px; top: 15px; display: flex; gap: 12px; }
+    .drawer-header { padding: 20px; display: flex; justify-content: flex-end; align-items: center; position: relative; }
+    /* No handle bar */
+    
+    .drawer-actions { display: flex; gap: 12px; }
     .circle-action-btn { width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; }
     .drawer-body { flex: 1; overflow-y: auto; padding: 0 25px 25px; }
-    .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+    .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
     
     /* SCHEDULE GRID */
     .schedule-section { margin-top: 20px; }
-    .schedule-title { font-weight:800; font-size:14px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
-    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; }
-    .schedule-item { margin-bottom: 5px; }
-    .schedule-day { font-weight: 700; color: #666; font-size: 11px; text-transform: uppercase; }
+    .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
+    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
+    .schedule-item { margin-bottom: 6px; }
+    .schedule-day { font-weight: 700; color: #666; font-size: 12px; text-transform: uppercase; }
     
     /* CONTACT BUTTONS */
-    .contact-row { display: flex; gap: 10px; margin-top: 15px; }
-    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 12px; font-weight: 600; font-size: 13px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .contact-row { display: flex; gap: 10px; margin-top: 20px; }
+    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .contact-btn:active { background: #eee; }
 
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
 
     .fab-location {
-        position: fixed; bottom: 25px; right: 20px; width: 56px; height: 56px;
+        position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px;
         background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900;
     }
 
     .empty-state { text-align: center; color: #555; margin-top: 50px; padding: 0 30px; line-height: 1.6; }
-    .empty-state strong { color: var(--primary); font-size: 1.1em; }
+    .empty-state strong { color: var(--primary); font-size: 1.2em; }
 </style>
 </head>
 <body>
@@ -221,7 +241,6 @@
 
     <div id="details-drawer">
         <div class="drawer-header" id="drawer-header">
-            <div class="drawer-handle"></div>
             <div class="drawer-actions">
                 <button class="circle-action-btn" onclick="shareShul()">
                     <i class="material-icons" style="font-size:20px;">share</i>
@@ -236,47 +255,28 @@
 
     <div id="filter-drawer">
         <div class="filter-section">
-            <label class="filter-label">Radius</label>
+            <label class="filter-label">Radius (Miles)</label>
             <div class="radius-row">
                 <input type="range" min="0.1" max="99" step="0.1" value="20" id="radius-slider" oninput="manualRadiusUpdate(this.value)">
-                <div style="font-weight:bold; font-size:12px; width:45px;"><span id="radius-label">20</span>mi</div>
+                <input type="number" id="radius-input" class="radius-input" value="20" onchange="manualRadiusUpdate(this.value)">
             </div>
             <div class="chip-group">
-                <div class="chip" onclick="manualRadiusUpdate(0.5)">0.5</div>
                 <div class="chip" onclick="manualRadiusUpdate(1)">1</div>
                 <div class="chip" onclick="manualRadiusUpdate(2)">2</div>
-                <div class="chip" onclick="manualRadiusUpdate(10)">10</div>
+                <div class="chip" onclick="manualRadiusUpdate(3)">3</div>
+                <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
                 <div class="chip" onclick="manualRadiusUpdate(20)">20</div>
-                <div class="chip" onclick="manualRadiusUpdate(30)">30</div>
-                <div class="chip" onclick="manualRadiusUpdate(40)">40</div>
                 <div class="chip" onclick="manualRadiusUpdate(99)">99</div>
             </div>
         </div>
-        <div class="filter-section">
-            <label class="filter-label">Sort By</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
-                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
-            </div>
-        </div>
-        <div class="filter-section">
-            <label class="filter-label">Tefillah</label>
-            <div class="chip-group" id="tefillah-group">
-                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
-            </div>
-        </div>
+        
         <div class="filter-section">
             <label class="filter-label">Nusach</label>
-            <div class="chip-group">
+            <div class="chip-group" id="nusach-group">
                 <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
-                <div class="chip" onclick="setFilter('nusach', 'Ashkenaz', this)">Ashkenaz</div>
-                <div class="chip" onclick="setFilter('nusach', 'Sefard', this)">Sefard</div>
-                <div class="chip" onclick="setFilter('nusach', 'Ari', this)">Ari</div>
             </div>
         </div>
+
         <div class="filter-section">
             <label class="filter-label">Time Range</label>
             <div class="time-inputs-row">
@@ -295,16 +295,16 @@
         <div class="empty-state">
             <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
             <strong>Welcome to ShulTime</strong><br><br>
-            <b>1. Search</b> for a city or zip code in the bar above.<br>
-            <b>2. Use the Filter icon</b> <i class="material-icons" style="font-size:16px; vertical-align:middle;">tune</i> to narrow by time or Nusach.<br>
-            <b>3. Click the target button</b> below to find Minyanim near your current GPS location.
+            <b>1. Search</b> for a city or zip code.<br>
+            <b>2. Filter</b> by time or Nusach.<br>
+            <b>3. Tap</b> the target to use GPS.
         </div>
     </div>
     
     <div id="map-view"></div>
     
     <button class="fab-location" onclick="useMyLocation()">
-        <i class="material-icons">my_location</i>
+        <i class="material-icons" style="font-size:30px;">my_location</i>
     </button>
 
     <script>
@@ -356,6 +356,7 @@
         let selectedShul = null;
         let markers = [];
         let isProgrammaticMove = false;
+        let allNusachs = new Set();
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -363,12 +364,13 @@
             
             // Process the embedded data immediately
             processMinyanim(RAW_DB);
+            populateNusachFilter(); // Generate Nusach chips
             
             initPullToDismiss();
         });
 
         function getTodayKey() {
-            const d = new Date().getDay(); // 0=Sun, 1=Mon, ...
+            const d = new Date().getDay(); 
             if (d === 0) return 'sun';
             if (d === 1 || d === 4) return 'mon_thu';
             return 'tue_wed_fri';
@@ -376,44 +378,30 @@
 
         function processMinyanim(data){
             processedMinyanim = [];
+            allNusachs = new Set();
             const todayKey = getTodayKey();
 
             data.forEach(shul => {
+                if(!shul.name) return; // Skip nameless locations
+                
+                // Track Nusach
+                if(shul.nusach) allNusachs.add(shul.nusach.trim());
+
                 let hasTimes = false;
                 
-                // Process Shacharis
                 if (shul.shacharis && shul.shacharis[todayKey]) {
-                    shul.shacharis[todayKey].forEach(t => {
-                        addMinyan(shul, 'Shacharis', t);
-                        hasTimes = true;
-                    });
+                    shul.shacharis[todayKey].forEach(t => { addMinyan(shul, 'Shacharis', t); hasTimes = true; });
                 }
-                
-                // Process Mincha (Week)
                 if (shul.mincha && shul.mincha.week) {
-                    shul.mincha.week.forEach(t => {
-                        addMinyan(shul, 'Mincha', t);
-                        hasTimes = true;
-                    });
+                    shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; });
                 }
-
-                // Process Maariv (Week)
                 if (shul.maariv && shul.maariv.week) {
-                    shul.maariv.week.forEach(t => {
-                        addMinyan(shul, 'Maariv', t);
-                        hasTimes = true;
-                    });
+                    shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t); hasTimes = true; });
                 }
 
-                // FALLBACK: If no times for today, still show the shul in the list so it's clickable
                 if (!hasTimes) {
-                    // Create a "dummy" entry with a future time to put it at the bottom
                     processedMinyanim.push({
-                        ...shul,
-                        tefillah: 'Info Only',
-                        timeDisplay: '--:--',
-                        ampm: '',
-                        timeValue: 9999 // Sort last
+                        ...shul, tefillah: 'Info', timeDisplay: '--:--', ampm: '', timeValue: 9999
                     });
                 }
             });
@@ -424,21 +412,29 @@
             if(!tStr) return;
             let raw = tStr.trim().replace(/[^0-9:]/g,"");
             if(!raw) return;
-            
             let [h,m] = raw.split(":").map(Number);
-            
             let isPM = (type === "Maariv" || (type === "Mincha" && h < 9) || (type === "Mincha" && h === 12));
             let sortH = (isPM && h < 12) ? h + 12 : ((!isPM && h === 12) ? 0 : h);
-            
             let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
             let dispM = String(m).padStart(2,"0");
             
             processedMinyanim.push({
-                ...shul, 
-                tefillah: type,
-                timeDisplay: `${dispH}:${dispM}`,
-                ampm: isPM ? "PM" : "AM", 
-                timeValue: (sortH * 60) + m
+                ...shul, tefillah: type, timeDisplay: `${dispH}:${dispM}`, ampm: isPM ? "PM" : "AM", timeValue: (sortH * 60) + m
+            });
+        }
+
+        function populateNusachFilter() {
+            const group = document.getElementById("nusach-group");
+            // Keep "All"
+            group.innerHTML = `<div class="chip active" onclick="setFilter('nusach', '', this)">All</div>`;
+            
+            Array.from(allNusachs).sort().forEach(n => {
+                if(!n) return;
+                const chip = document.createElement("div");
+                chip.className = "chip";
+                chip.innerText = n;
+                chip.onclick = function() { setFilter('nusach', n, this); };
+                group.appendChild(chip);
             });
         }
 
@@ -449,18 +445,15 @@
             const dot = document.getElementById("center-marker");
             
             if (list.style.display === "none") {
-                // Switch to List
                 list.style.display = "block";
                 icon.innerText = "map";
                 btn.classList.remove("active");
                 dot.style.display = "none";
             } else {
-                // Switch to Map
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
-                
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
@@ -493,7 +486,7 @@
 
         function updateRadius(val) {
             currentRadius = parseFloat(val);
-            document.getElementById("radius-label").innerText = currentRadius;
+            document.getElementById("radius-input").value = currentRadius;
             document.getElementById("radius-slider").value = currentRadius;
         }
 
@@ -522,9 +515,8 @@
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
             if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             
-            // Only filter by time if it's a real minyan (not "Info Only" placeholder)
             results = results.filter(m => {
-                if (m.timeValue === 9999) return true; // Always show info-only results
+                if (m.timeValue === 9999) return true; 
                 return m.timeValue >= startVal && m.timeValue <= endVal;
             });
 
@@ -544,7 +536,7 @@
             const list = document.getElementById("list-view");
             list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found matching your filters.</div>';
             results.forEach(m => {
-                let nCls = `nusach-${m.nusach || 'Other'}`;
+                let nCls = `nusach-${(m.nusach || 'Other').replace(/\s+/g, '-')}`; // Safe class name
                 const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 const card = document.createElement("div");
@@ -571,8 +563,8 @@
 
                 card.innerHTML = `
                     <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
-                        <div style="font-weight:700; font-size:15px; color:#333; line-height:1.2;">${m.name}</div>
-                        <div style="font-size:11px; color:#888; margin-top:2px;">${m.address}</div>
+                        <div class="shul-name">${m.name}</div>
+                        <div class="shul-address">${m.address}</div>
                         <div class="nusach-tag ${nCls}">${m.nusach}</div>
                     </div>
                     ${rightSide}`;
@@ -588,23 +580,14 @@
             const groups = {};
             results.forEach(r => {
                 const key = r.lat + "," + r.lng;
-                // If we have an existing group, stick with the earliest valid time
-                if (!groups[key] || r.timeValue < groups[key].timeValue) {
-                    groups[key] = r;
-                }
+                if (!groups[key] || r.timeValue < groups[key].timeValue) groups[key] = r;
             });
 
             Object.values(groups).forEach(m => {
                 const pinDiv = document.createElement("div");
-                let nCls = `marker-${m.nusach || 'Other'}`;
+                let nCls = `marker-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 pinDiv.className = `custom-marker ${nCls}`;
-                
-                // If it's a dummy placeholder with no time, show a generic dot or '?'
-                if (m.timeValue === 9999) {
-                    pinDiv.textContent = "?"; 
-                } else {
-                    pinDiv.textContent = `${m.timeDisplay}`; 
-                }
+                pinDiv.textContent = (m.timeValue === 9999) ? "?" : `${m.timeDisplay}`; 
 
                 const marker = new AdvancedMarkerElement({
                     map: map, position: { lat: m.lat, lng: m.lng },
@@ -628,7 +611,11 @@
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
-            updateRadius(r.toFixed(1)); 
+            // Only update the Input number, DO NOT refit the map
+            document.getElementById("radius-input").value = r.toFixed(1);
+            document.getElementById("radius-slider").value = r.toFixed(1);
+            currentRadius = r;
+            
             applyFilters();
         }
 
@@ -640,18 +627,17 @@
         function openDetails(m) {
             selectedShul = m;
             const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
-            const nCls = `nusach-${m.nusach || 'Other'}`;
+            const nCls = `nusach-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const content = document.getElementById("drawer-content");
             
-            // Construct Contact Buttons
             let contacts = [];
             if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
             if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
-            contacts.push(`<a href="${m.godaven_link || '#'}" target="_blank" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
+            contacts.push(`<a href="${m.godaven_link || '#'}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
 
             content.innerHTML = `
-                <h2 style="margin:0; color:var(--primary); font-size:20px; padding-right:80px;">${m.name}</h2>
-                <p style="color:#666; margin:5px 0 10px; font-size:13px;">${m.address}</p>
+                <h2 style="margin:0; color:var(--primary); font-size:22px; padding-right:20px;">${m.name}</h2>
+                <p style="color:#666; margin:5px 0 10px; font-size:14px;">${m.address}</p>
                 <div class="nusach-tag ${nCls}">${m.nusach}</div>
                 
                 <div class="drawer-nav-row" style="background:#fafafa; padding:15px; border-radius:15px; border:1px solid #f0f0f0;">
@@ -664,9 +650,7 @@
                     </div>
                 </div>
 
-                <div class="contact-row">
-                    ${contacts.join('')}
-                </div>
+                <div class="contact-row">${contacts.join('')}</div>
 
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
@@ -697,7 +681,7 @@
 
         async function shareShul() {
             if(!selectedShul) return;
-            const text = `${selectedShul.name}\n${selectedShul.address}\n\nNusach: ${selectedShul.nusach}`;
+            const text = `${selectedShul.name}\n${selectedShul.address}\n\nNusach: ${selectedShul.nusach}\n\nWEEKDAY TIMES:\nShacharis Sun: ${formatList(selectedShul.shacharis?.sun)}\nShacharis M/Th: ${formatList(selectedShul.shacharis?.mon_thu)}\nMincha: ${formatList(selectedShul.mincha?.week)}\nMaariv: ${formatList(selectedShul.maariv?.week)}`;
             if(navigator.share) {
                 try { await navigator.share({ title: selectedShul.name, text: text }); } 
                 catch(e) { console.log('Share failed', e); }
@@ -774,9 +758,9 @@
                 <div class="empty-state">
                     <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
                     <strong>Welcome to ShulTime</strong><br><br>
-                    <b>1. Search</b> for a city or zip code in the bar above.<br>
-                    <b>2. Use the Filter icon</b> <i class="material-icons" style="font-size:16px; vertical-align:middle;">tune</i> to narrow by time or Nusach.<br>
-                    <b>3. Click the target button</b> below to find Minyanim near your current GPS location.
+                    <b>1. Search</b> for a city or zip code.<br>
+                    <b>2. Filter</b> by time or Nusach.<br>
+                    <b>3. Tap</b> the target to use GPS.
                 </div>`;
             const el = document.querySelector('gmp-place-autocomplete');
             if(el) el.value = null;
@@ -800,18 +784,14 @@
             const container = document.getElementById("autocomplete-container");
             container.appendChild(autocomplete);
 
-            // Init Map (Hidden initially)
             map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 }, // Default to Lakewood
+                center: { lat: 40.091, lng: -74.218 },
                 zoom: 12, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
             });
 
-            // Listen for Map Movement (Sync to list)
             map.addListener('idle', onMapIdle);
 
-            autocomplete.addEventListener('input', () => {
-                if (!autocomplete.value) clearSearch();
-            });
+            autocomplete.addEventListener('input', () => { if (!autocomplete.value) clearSearch(); });
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
