@@ -17,13 +17,36 @@
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: none;
     }
+    
+    /* SEARCH PILL (Container for Google Input) */
     .search-container {
         flex: 1; pointer-events: auto; display: flex; align-items: center;
         background: #fff; height: 50px; border-radius: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+        padding: 0 5px 0 15px; /* Slight padding for text breathing room */
+        overflow: hidden;
     }
-    gmp-place-autocomplete { width: 100%; }
-    gmp-place-autocomplete::part(input) { border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%; }
+
+    /* GOOGLE WEB COMPONENT STYLING */
+    gmp-place-autocomplete { 
+        width: 100%; 
+        height: 100%;
+        /* Force Light Mode Colors */
+        color-scheme: light; 
+    }
+    
+    /* Target the internal input of the web component */
+    gmp-place-autocomplete::part(input) { 
+        border: none; 
+        background: transparent; 
+        padding: 0; 
+        font-size: 16px; 
+        outline: none; 
+        height: 100%; 
+        width: 100%; 
+        color: #111; /* Ensure text is black */
+        font-weight: 500;
+    }
 
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
@@ -56,11 +79,15 @@
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; min-height: 110px;
     }
+
     .info-zone { flex: 1; padding: 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
+    
+    /* RIGHT ZONE STACKED */
     .map-zone { 
         width: 115px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; padding: 10px 0;
     }
+    
     .time-val { font-weight: 800; font-size: 16px; color: var(--primary); margin-bottom: 2px; }
     .dist-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #777; margin-bottom: 6px; }
@@ -75,6 +102,10 @@
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         font-size: 22px !important; font-weight: bold;
     }
+
+    /* LARGE ICON FOR DRAWER */
+    .map-circle-lg { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    .google-maps-icon-lg { font-size: 32px !important; }
 
     .nusach-tag { font-size: 10px; padding: 2px 8px; border-radius: 12px; margin-top: 6px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
@@ -139,9 +170,7 @@
 
     <div class="floating-header">
         <div class="search-container">
-            <i class="material-icons" style="color:#888; margin-right:8px;">search</i>
-            <div id="autocomplete-container" style="flex:1;"></div>
-            <i class="material-icons" style="cursor:pointer; color:#bbb; margin-left:10px;" onclick="clearSearch()">close</i>
+            <div id="autocomplete-container" style="flex:1; height:100%;"></div>
         </div>
         <button class="circle-btn" onclick="toggleFilters()">
             <i class="material-icons">tune</i>
@@ -306,7 +335,7 @@
             list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found matching your filters.</div>';
             results.forEach(m => {
                 let nCls = `nusach-${m.nusach || 'Other'}`;
-                const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.address)}`;
+                const searchUrl = `https://developers.google.com/maps/documentation/javascript/places-migration-overview7{encodeURIComponent(m.name + ' ' + m.address)}`;
                 
                 const card = document.createElement("div");
                 card.className = "minyan-card";
@@ -331,7 +360,7 @@
         }
 
         function openDetails(m) {
-            const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + ' ' + m.address)}`;
+            const searchUrl = `https://developers.google.com/maps/documentation/javascript/places-migration-overview8{encodeURIComponent(m.name + ' ' + m.address)}`;
             const nCls = `nusach-${m.nusach || 'Other'}`;
             const content = document.getElementById("drawer-content");
             content.innerHTML = `
@@ -343,8 +372,8 @@
                     <div class="tefillah-text tef-${m.tefillah}" style="font-size:14px;">${m.tefillah} • ${m.timeDisplay}${m.ampm}</div>
                     <div style="display:flex; align-items:center; gap:12px;">
                         <div style="font-size:18px; font-weight:800; color:#444;">${m.distance.toFixed(1)}mi</div>
-                        <div class="map-circle" onclick="window.open('${searchUrl}','_blank')" style="cursor:pointer; width:44px; height:44px;">
-                            <i class="material-icons google-maps-icon" style="font-size:28px !important;">place</i>
+                        <div class="map-circle-lg" onclick="window.open('${searchUrl}','_blank')" style="cursor:pointer;">
+                            <i class="material-icons google-maps-icon google-maps-icon-lg">place</i>
                         </div>
                     </div>
                 </div>
@@ -458,7 +487,14 @@
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.setAttribute("types", "(cities)");
             autocomplete.placeholder = "Search City...";
-            document.getElementById("autocomplete-container").appendChild(autocomplete);
+            const container = document.getElementById("autocomplete-container");
+            container.appendChild(autocomplete);
+
+            // AUTO-CLEAR LOGIC: Listen for empty input
+            autocomplete.addEventListener('input', () => {
+                if (!autocomplete.value) clearSearch();
+            });
+
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
                     const place = event.placePrediction.toPlace();
