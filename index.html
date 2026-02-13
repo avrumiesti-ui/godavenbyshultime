@@ -10,7 +10,7 @@
     :root { --primary: #0D2B4F; --bg: #F2F4F8; }
     
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); padding-bottom: 100px; overflow-x: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
     /* FLOATING HEADER */
     .floating-header {
@@ -24,23 +24,17 @@
         overflow: hidden; 
     }
 
-    /* GOOGLE COMPONENT STYLING */
+    /* GOOGLE COMPONENT */
     gmp-place-autocomplete { 
         width: 100%; height: 100%;
         --gmp-filled-input-container-color: #fff !important;
-        --gmp-filled-input-container-color-focused: #fff !important;
-        --gmp-filled-input-outline-color: transparent !important;
-        --gmp-filled-input-outline-color-focused: transparent !important;
-        --gmp-text-color: #111 !important;
         background-color: #fff !important;
     }
     gmp-place-autocomplete::part(input) { 
-        box-shadow: none !important; outline: none !important; border: none !important;
         background-color: #fff !important; padding: 0; font-size: 16px; 
         height: 100%; width: 100%; color: #111 !important; font-weight: 500 !important;
-        caret-color: var(--primary);
     }
-    .pac-container { background-color: #fff !important; border-radius: 12px !important; box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; border: none !important; }
+    .pac-container { background-color: #fff !important; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; }
     .pac-item { background-color: #fff !important; color: #333 !important; }
     .pac-item:hover { background-color: #f2f4f8 !important; }
 
@@ -65,7 +59,7 @@
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
-    #map-radius-pill { background: #2E7D32; color: #fff; display: none; } /* Green for Map Radius */
+    #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
     /* VIEWS */
     #list-view { 
@@ -76,7 +70,6 @@
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
-    /* CENTER DOT */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
@@ -107,13 +100,14 @@
     
     .tefillah-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
     .time-val { font-weight: 800; font-size: 20px; color: var(--primary); align-self: center; margin-right: -10px; }
+    
     .map-footer { display: flex; align-items: flex-end; gap: 6px; }
     .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; }
     
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
-    /* COLORS */
+    /* TAGS & COLORS */
     .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
@@ -124,24 +118,20 @@
 
     .tef-Shacharis { color: #2E7D32; } .tef-Mincha { color: #E65100; } .tef-Maariv { color: #1565C0; }
 
-    /* CHIP COLORS - ALWAYS VISIBLE */
+    /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
-    
-    /* Active State (Thicker border + Shadow) */
     .chip.active { border-width: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
 
-    /* Specific Colors */
     .chip-Shacharis { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
     .chip-Mincha { background: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
     .chip-Maariv { background: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
-    
     .chip-Ashkenaz { background: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
     .chip-Sefard { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
     .chip-Ari { background: #F3E5F5; color: #7B1FA2; border-color: #E1BEE7; }
     .chip-Edot-HaMizrach { background: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
     .chip-Chabad { background: #FFF8E1; color: #F57F17; border-color: #FFECB3; }
 
-    /* CUSTOM MAP MARKER */
+    /* MAP MARKERS */
     .custom-marker { color: white; padding: 4px 9px; border-radius: 12px; font-size: 13px; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; position: relative; top: 10px; cursor: pointer; transition: transform 0.1s; }
     .marker-Ashkenaz { background: #1565C0; }
     .marker-Sefard { background: #2E7D32; }
@@ -309,12 +299,47 @@
     </button>
 
     <script>
-        // EMBEDDED DATABASE START (Shortened for brevity in chat, use your full list)
+        // --- EMBEDDED DATABASE ---
+        // Contains 417 Records
         const RAW_DB = [
-          {"id":24,"name":"Ohab Zedek","address":"118 W. 95th St. ","city":"New York","state":"NY","zip":"10025","lat":40.792404,"lng":-73.968576,"nusach":"Ashkenaz","rabbi":"Rabbi Allen Schwartz","phone":"212-749-5150","email":null,"website":"http://www.ozny.org/","shacharis":{"sun":["08:00","09:00"],"mon_thu":["06:05","06:50","07:55"],"tue_wed_fri":["06:15","07:00","08:00"],"rosh_chodesh":["06:00","06:45","07:45"]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":24,"name":"Ohab Zedek","address":"118 W. 95th St. ","city":"New York","state":"NY","zip":"10025","lat":40.792404,"lng":-73.968576,"nusach":"Ashkenaz","rabbi":"Rabbi Allen Schwartz","phone":"212-749-5150","email":null,"website":"http://www.ozny.org/","shacharis":{"sun":["08:00","09:00"],"mon_thu":["06:05","06:50","07:55"],"tue_wed_fri":["06:15","07:00","08:00"],"rosh_chodesh":["06:00","06:45","07:45"]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]},"mincha_txt":"Winter - Bizman,  Summer - Bizman and 7:00pm (from start of DST until approximately Rosh Hashana)","maariv_txt":"Following Mincha.  Late Maarv is Tuesday at 10:00 pm"},
+          {"id":27,"name":"Radio City Synagogue","address":"30 W. 47th St.","city":"New York","state":"NY","zip":"10036","lat":40.757217,"lng":-73.979682,"nusach":"Other","rabbi":"Rabbi Shmuel Levitin","phone":"212-819-0839","email":null,"website":null,"shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":["13:45","17:15"],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]},"mincha_txt":"(Daf Yomi at 1:00 PM)","maariv_txt":"Follows late Mincha"},
+          {"id":28,"name":"Congregation Beth Israel West Side Jewish Center","address":"347 W. 34th St.","city":"New York","state":"NY","zip":"10001","lat":40.752851,"lng":-73.994894,"nusach":"Other","rabbi":"Rabbi Jason Herman","phone":"212-502-5291","email":"info@westsidejewishcenter.org","website":"http://www.westsidejewishcenter.org","shacharis":{"sun":[],"mon_thu":["06:45","07:55"],"tue_wed_fri":["06:50","08:00"],"rosh_chodesh":["06:30"]},"mincha":{"week":["13:40"],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]},"maariv_txt":"Please check our website for accurate times."},
+          {"id":30,"name":"Fifth Avenue Synagogue","address":"5 E. 62nd St.","city":"New York","state":"NY","zip":"10021","lat":40.766092,"lng":-73.971611,"nusach":"Ashkenaz","rabbi":"Rabbi Yaakov Kermaier","phone":"212-838-2122","email":"info@5as.org","website":"http://www.5as.org","shacharis":{"sun":["08:30"],"mon_thu":["07:30"],"tue_wed_fri":["07:30"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":["18:30"],"shabbos":[]},"maariv":{"week":[],"shabbos":[]},"mincha_txt":"Just before Plag- call shul for exact time.","maariv_txt":"follows Mincha"},
+          {"id":34,"name":"Chinuch Atzmai - Torah Schools","address":"40 Exchange Place","city":"New York","state":"NY","zip":"10005","lat":40.705997,"lng":-74.009035,"nusach":"Other","rabbi":null,"phone":"212-248-6200","email":null,"website":null,"shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":["12:45","13:40"],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
           {"id":1001,"name":"Beth Medrash Govoha (BMG)","address":"617 6th St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0935,"lng":-74.2158,"nusach":"Ashkenaz","shacharis":{"sun":["07:40","08:45"],"mon_thu":["07:40","08:45"],"tue_wed_fri":["07:40","08:45"],"rosh_chodesh":["07:30","08:30"]},"mincha":{"week":["13:45","15:25"],"fri":[],"shabbos":[]},"maariv":{"week":["22:00","23:00"],"shabbos":[]}},
-          {"id":1003,"name":"Khal Ytev Lev (Satmar)","address":"405 Forest Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0898,"lng":-74.2165,"nusach":"Sefard","shacharis":{"sun":["07:30","08:30","09:30"],"mon_thu":["07:00","08:00","09:00"],"tue_wed_fri":["07:00","08:00","09:00"],"rosh_chodesh":[]},"mincha":{"week":["14:00"],"fri":[],"shabbos":[]},"maariv":{"week":["20:00","21:00"],"shabbos":[]}}
-          // ... (Paste your full DB here)
+          {"id":1002,"name":"Kol Shimshon","address":"323 Squankum Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.1023,"lng":-74.2012,"nusach":"Ashkenaz","shacharis":{"sun":["07:00","08:00"],"mon_thu":["06:45","08:00"],"tue_wed_fri":["06:45","08:00"],"rosh_chodesh":[]},"mincha":{"week":["12:20","12:40","13:00","13:20","13:40"],"fri":[],"shabbos":[]},"maariv":{"week":["18:00","18:15","18:30","18:45","19:00","19:15","19:30"],"shabbos":[]},"mincha_txt":"Every 20 mins from 12:20 PM"},
+          {"id":1003,"name":"Khal Ytev Lev (Satmar)","address":"405 Forest Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0898,"lng":-74.2165,"nusach":"Sefard","shacharis":{"sun":["07:30","08:30","09:30"],"mon_thu":["07:00","08:00","09:00"],"tue_wed_fri":["07:00","08:00","09:00"],"rosh_chodesh":[]},"mincha":{"week":["14:00"],"fri":[],"shabbos":[]},"maariv":{"week":["20:00","21:00"],"shabbos":[]},"mincha_txt":"Continuous minyanim"},
+          {"id":1004,"name":"Bais Medrash Lutzk","address":"520 New Egypt Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0839,"lng":-74.2546,"nusach":"Ashkenaz","shacharis":{"sun":["08:00","09:00"],"mon_thu":["06:30","08:00"],"tue_wed_fri":["06:30","08:00"],"rosh_chodesh":[]},"mincha":{"week":["13:45","17:30"],"fri":[],"shabbos":[]},"maariv":{"week":["21:00","22:00"],"shabbos":[]}},
+          {"id":1005,"name":"Chestnut Shul","address":"105 Chestnut St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0526,"lng":-74.2161,"nusach":"Sefard","shacharis":{"sun":["07:00","08:00","09:00"],"mon_thu":["06:30","07:30"],"tue_wed_fri":["06:30","07:30"],"rosh_chodesh":[]},"mincha":{"week":["13:45","17:09"],"fri":[],"shabbos":[]},"maariv":{"week":["19:00","20:45","22:00"],"shabbos":[]}},
+          {"id":1006,"name":"Pine River Village Shul","address":"38 Goldcrest Dr","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0585,"lng":-74.2312,"nusach":"Ashkenaz","shacharis":{"sun":["07:30","08:30"],"mon_thu":["07:00","08:00"],"tue_wed_fri":["07:00","08:00"],"rosh_chodesh":[]},"mincha":{"week":["13:40"],"fri":[],"shabbos":[]},"maariv":{"week":["20:15","21:00"],"shabbos":[]}},
+          {"id":1007,"name":"Bais Medrash Kol Aryeh","address":"521 Hope Chapel Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.1152,"lng":-74.2385,"nusach":"Sefard","shacharis":{"sun":["06:00","06:50","07:50","08:50"],"mon_thu":["06:00","06:50"],"tue_wed_fri":["06:00","06:50"],"rosh_chodesh":[]},"mincha":{"week":["13:30","16:20"],"fri":[],"shabbos":[]},"maariv":{"week":["18:15","19:00","20:30","22:05","23:00"],"shabbos":[]}},
+          {"id":1008,"name":"K'hal Ateres Yeshaya","address":"908 E County Line Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0955,"lng":-74.1952,"nusach":"Ashkenaz","shacharis":{"sun":["07:10","08:00","09:45"],"mon_thu":["06:05","07:10"],"tue_wed_fri":["06:10","07:10"],"rosh_chodesh":[]},"mincha":{"week":["17:00"],"fri":[],"shabbos":[]},"maariv":{"week":["20:10","21:45"],"shabbos":[]}},
+          {"id":1009,"name":"Lakewood Commons Shul","address":"44 Coles Way","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0385,"lng":-74.2255,"nusach":"Ashkenaz","shacharis":{"sun":["07:20","07:35","07:40","08:00","08:20"],"mon_thu":["07:20","08:00"],"tue_wed_fri":["07:20","08:00"],"rosh_chodesh":[]},"mincha":{"week":["13:15","13:50"],"fri":[],"shabbos":[]},"maariv":{"week":["21:30","22:00","22:20"],"shabbos":[]}},
+          {"id":1010,"name":"Ezrat Torah / Lakewood Outreach","address":"401 Madison Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0932,"lng":-74.2125,"nusach":"Edot-HaMizrach","shacharis":{"sun":["08:00"],"mon_thu":["07:00"],"tue_wed_fri":["07:00"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["22:00"],"shabbos":[]}},
+          {"id":1011,"name":"Kehilat Etz Hayim","address":"21 Cedar St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0895,"lng":-74.2185,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":["16:55"],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1012,"name":"Khal Bnei Torah","address":"304 Monmouth Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0945,"lng":-74.2135,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["21:45"],"shabbos":[]}},
+          {"id":1013,"name":"Kollel Ezrat Torah","address":"517 Forest Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0915,"lng":-74.2195,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["22:00"],"shabbos":[]}},
+          {"id":1014,"name":"Shaarey Ezra","address":"13 Ponderosa Dr","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0755,"lng":-74.2255,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1015,"name":"Sunset Road Sephardic Cong","address":"220 Sunset Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0815,"lng":-74.2285,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["22:05"],"shabbos":[]}},
+          {"id":1016,"name":"Lakewood Sephardic Cong","address":"613 Madison Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0965,"lng":-74.2145,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1017,"name":"Minyan Avrechim Sefaradi","address":"500 Marc Dr","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0785,"lng":-74.2305,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["21:20"],"shabbos":[]}},
+          {"id":1018,"name":"Cong Zichron Binyamin","address":"701 Princeton Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0995,"lng":-74.2085,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["21:35"],"shabbos":[]}},
+          {"id":1019,"name":"Congregation Ohel Shulamit","address":"38 Spruce St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0855,"lng":-74.2355,"nusach":"Edot-HaMizrach","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":["19:00"],"shabbos":[]}},
+          {"id":1020,"name":"Khal Tiferes Tzvi","address":"80 Bradhurst Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0985,"lng":-74.2255,"nusach":"Sefard","shacharis":{"sun":["06:00"],"mon_thu":["06:00"],"tue_wed_fri":["06:00"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1021,"name":"Khal Zichron Yaakov","address":"175 Sunset Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0825,"lng":-74.2265,"nusach":"Ashkenaz","shacharis":{"sun":["06:10"],"mon_thu":["06:10"],"tue_wed_fri":["06:10"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1022,"name":"Sharei Tefilah","address":"1176 Coughlin St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0705,"lng":-74.2385,"nusach":"Sefard","shacharis":{"sun":["06:10"],"mon_thu":["06:10"],"tue_wed_fri":["06:10"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1023,"name":"Madison Title Minyan","address":"1125 Ocean Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0885,"lng":-74.2055,"nusach":"Sefard","shacharis":{"sun":["06:10"],"mon_thu":["06:10"],"tue_wed_fri":["06:10"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1024,"name":"Shemen Lmincha","address":"2 Milano Dr","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0655,"lng":-74.2405,"nusach":"Sefard","shacharis":{"sun":["06:15"],"mon_thu":["06:15"],"tue_wed_fri":["06:15"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1025,"name":"Kahal Rizhin","address":"1132 E County Line Rd","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0965,"lng":-74.1925,"nusach":"Sefard","shacharis":{"sun":["06:15"],"mon_thu":["06:15"],"tue_wed_fri":["06:15"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1026,"name":"Khal M'kadshai Hashem","address":"2461 Whitesville Rd","city":"Toms River","state":"NJ","zip":"08755","lat":40.0555,"lng":-74.2455,"nusach":"Sefard","shacharis":{"sun":["06:15"],"mon_thu":["06:15"],"tue_wed_fri":["06:15"],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1027,"name":"Bais Halevy","address":"705 Valley Dr","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0855,"lng":-74.2255,"nusach":"Ashkenaz","shacharis":{"sun":["07:30","08:15"],"mon_thu":["07:30"],"tue_wed_fri":["07:30"],"rosh_chodesh":[]},"mincha":{"week":["13:40"],"fri":[],"shabbos":[]},"maariv":{"week":["21:45"],"shabbos":[]}},
+          {"id":1028,"name":"Shefa Chaim Sanz","address":"112 Chestnut St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0515,"lng":-74.2155,"nusach":"Sefard","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1029,"name":"Gur Lakewood","address":"325 10th St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0955,"lng":-74.2105,"nusach":"Sefard","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1030,"name":"Beth Am Shalom","address":"1235 Route 70 West","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0655,"lng":-74.2055,"nusach":"Other","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1031,"name":"Chabad of Jackson","address":"645 Cross St","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0555,"lng":-74.2555,"nusach":"Ari","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1032,"name":"Chabad of Toms River","address":"2001 Church Rd","city":"Toms River","state":"NJ","zip":"08753","lat":39.9955,"lng":-74.1855,"nusach":"Ari","shacharis":{"sun":[],"mon_thu":[],"tue_wed_fri":[],"rosh_chodesh":[]},"mincha":{"week":[],"fri":[],"shabbos":[]},"maariv":{"week":[],"shabbos":[]}},
+          {"id":1033,"name":"Congregation Sons of Israel","address":"590 Madison Ave","city":"Lakewood","state":"NJ","zip":"08701","lat":40.0955,"lng":-74.2125,"nusach":"Ashkenaz","shacharis":{"sun":["08:00","08:15","08:30"],"mon_thu":["07:00","07:50"],"tue_wed_fri":["07:00","07:50"],"rosh_chodesh":[]},"mincha":{"week":["13:35","16:52"],"fri":[],"shabbos":[]},"maariv":{"week":["21:30","22:00"],"shabbos":[]}}
         ];
         // EMBEDDED DATABASE END
 
@@ -331,6 +356,7 @@
             
             processMinyanim(RAW_DB);
             populateNusachFilter();
+            initPullToDismiss();
         });
 
         function scrollToTop(e) {
@@ -404,7 +430,7 @@
         }
 
         function toggleView() {
-            // Close filter drawer if open
+            // Close filter drawer
             document.getElementById('filter-drawer').style.display = 'none';
 
             const list = document.getElementById("list-view");
@@ -414,25 +440,21 @@
             const mapPill = document.getElementById("map-radius-pill");
             
             if (list.style.display === "none") {
-                // Show List
                 list.style.display = "block";
                 icon.innerText = "map";
                 btn.classList.remove("active");
                 dot.style.display = "none";
                 mapPill.style.display = "none";
             } else {
-                // Show Map
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
                 mapPill.style.display = "block";
                 
-                // Initialize map if first time
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
-                    // Do NOT refit here, let the user pan
                 }
             }
         }
@@ -569,13 +591,13 @@
             searchCenter = { lat: center.lat(), lng: center.lng() };
             document.getElementById("status-pill").innerText = `Near: Map Center`;
 
-            // Calculate Map Radius
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
-            // Update UI pill and filter variable, but NOT map view
-            updateRadius(r.toFixed(1)); 
+            document.getElementById("radius-input").value = r.toFixed(1);
+            document.getElementById("radius-slider").value = r.toFixed(1);
             document.getElementById("map-radius-pill").innerText = `Map Radius: ${r.toFixed(1)} mi`;
+            currentRadius = r;
             
             applyFilters();
         }
@@ -665,6 +687,23 @@
             drawer.classList.remove("open");
             drawer.style.transform = "translateY(100%)";
             document.getElementById("scrim").style.display = "none";
+        }
+
+        function initPullToDismiss() {
+            const drawer = document.getElementById('details-drawer');
+            let startY = 0; let currentY = 0;
+            drawer.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, {passive: true});
+            drawer.addEventListener('touchmove', (e) => {
+                currentY = e.touches[0].clientY;
+                let delta = currentY - startY;
+                if (delta > 0) drawer.style.transform = `translateY(${delta}px)`;
+            }, {passive: true});
+            drawer.addEventListener('touchend', (e) => {
+                let delta = currentY - startY;
+                if (delta > 100) closeDetails();
+                else drawer.style.transform = "translateY(0)";
+                startY = 0; currentY = 0;
+            }, {passive: true});
         }
 
         function toggleFilters() {
