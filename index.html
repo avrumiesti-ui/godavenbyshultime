@@ -477,7 +477,7 @@
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
                         <div style="font-weight:700; font-size:15px; color:#333; line-height:1.2;">${m.name}</div>
                         <div style="font-size:11px; color:#888; margin-top:2px;">${m.address}</div>
                         <div class="nusach-tag ${nCls}">${m.nusach}</div>
