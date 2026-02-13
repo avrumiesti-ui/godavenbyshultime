@@ -85,14 +85,11 @@
     #center-marker {
         position: fixed; top: 50%; left: 50%;
         width: 16px; height: 16px;
-        background: #2196F3; /* Bright Blue */
-        border: 3px solid #fff;
-        border-radius: 50%;
+        background: #2196F3;
+        border: 3px solid #fff; border-radius: 50%;
         transform: translate(-50%, -50%);
-        z-index: 20; /* Above Map */
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        pointer-events: none; /* Let clicks pass to map */
-        display: none; /* Only show in map view */
+        z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        pointer-events: none; display: none;
     }
 
     /* CARDS */
@@ -124,7 +121,7 @@
     .tefillah-text { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
     .tef-Shacharis { color: #34A853; } .tef-Mincha { color: #FBBC05; } .tef-Maariv { color: #4285F4; }
 
-    /* MAP MARKERS */
+    /* CUSTOM MAP MARKER */
     .custom-marker {
         color: white; padding: 3px 8px; border-radius: 12px;
         font-size: 12px; font-weight: 800;
@@ -208,7 +205,6 @@
     </div>
 
     <div id="center-marker"></div>
-
     <div id="scrim" onclick="closeDetails()"></div>
 
     <div id="details-drawer">
@@ -344,21 +340,21 @@
             const dot = document.getElementById("center-marker");
             
             if (list.style.display === "none") {
-                // To List
+                // Switch to List
                 list.style.display = "block";
                 icon.innerText = "map";
                 btn.classList.remove("active");
                 dot.style.display = "none";
             } else {
-                // To Map
+                // Switch to Map
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
-                // Only center if we have a search but map isn't set up
-                if(map && searchCenter && !map.getCenter().equals(new google.maps.LatLng(searchCenter.lat, searchCenter.lng))) {
-                    // Do not reset center if already viewed
-                } else if (map && searchCenter) {
+                
+                // CRITICAL FIX: Only center if we have a search BUT map is brand new
+                // If map already exists, we do NOT reset position.
+                if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
                     fitMapToRadius(currentRadius);
@@ -437,7 +433,7 @@
             list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found matching your filters.</div>';
             results.forEach(m => {
                 let nCls = `nusach-${m.nusach || 'Other'}`;
-                const searchUrl = `https://www.google.com/maps/search/?api=1&query=...{encodeURIComponent(m.name + " " + m.address)}`;
+                const searchUrl = `https://www.google.com/maps/search/?api=1&query=...?q=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 const card = document.createElement("div");
                 card.className = "minyan-card";
@@ -484,6 +480,7 @@
             });
         }
 
+        // MAP IDLE - Sync Radius & List
         function onMapIdle() {
             if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
@@ -497,13 +494,14 @@
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
+            // Just update UI, apply filters, do NOT refit map
             updateRadius(r.toFixed(1)); 
             applyFilters();
         }
 
         function openDetails(m) {
             selectedShul = m;
-            const searchUrl = `https://www.google.com/maps/search/?api=1&query=...{encodeURIComponent(m.name + " " + m.address)}`;
+            const searchUrl = `https://www.google.com/maps/search/?api=1&query=...?q=${encodeURIComponent(m.name + " " + m.address)}`;
             const nCls = `nusach-${m.nusach || 'Other'}`;
             const content = document.getElementById("drawer-content");
             content.innerHTML = `
