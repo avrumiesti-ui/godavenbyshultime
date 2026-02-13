@@ -21,39 +21,9 @@
         flex: 1; pointer-events: auto; display: flex; align-items: center;
         background: #fff; height: 50px; border-radius: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 15px;
-        overflow: hidden; /* Ensures no internal borders spill out */
     }
-
-    /* GOOGLE COMPONENT STYLING FIXES */
-    gmp-place-autocomplete { 
-        width: 100%; 
-        height: 100%;
-        border: none !important;
-        outline: none !important;
-    }
-    
-    gmp-place-autocomplete::part(input) { 
-        border: none !important; 
-        outline: none !important; 
-        background: transparent; 
-        padding: 0; 
-        font-size: 16px; 
-        height: 100%; 
-        width: 100%;
-        color: #111 !important; /* Force Black Text */
-        font-weight: 500 !important; /* Prevent Bold Shift */
-        caret-color: var(--primary); /* Navy Cursor */
-        box-shadow: none !important;
-    }
-
-    /* Force style even when clicked/focused */
-    gmp-place-autocomplete::part(input):focus,
-    gmp-place-autocomplete::part(input):active {
-        outline: none !important;
-        border: none !important;
-        color: #111 !important;
-        box-shadow: none !important;
-    }
+    gmp-place-autocomplete { width: 100%; }
+    gmp-place-autocomplete::part(input) { border: none; background: transparent; padding: 0; font-size: 16px; outline: none; height: 100%; width: 100%; }
 
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
@@ -138,6 +108,7 @@
     .chip { padding: 5px 10px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 11px; font-weight: 600; color: #444; cursor: pointer; }
     .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
     
+    /* RADIUS QUICK PILLS */
     .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
     
@@ -212,6 +183,9 @@
                 <div class="chip" onclick="updateRadius(1)">1</div>
                 <div class="chip" onclick="updateRadius(2)">2</div>
                 <div class="chip" onclick="updateRadius(10)">10</div>
+                <div class="chip" onclick="updateRadius(20)">20</div>
+                <div class="chip" onclick="updateRadius(30)">30</div>
+                <div class="chip" onclick="updateRadius(40)">40</div>
                 <div class="chip" onclick="updateRadius(99)">99</div>
             </div>
         </div>
@@ -496,13 +470,16 @@
             const container = document.getElementById("autocomplete-container");
             container.appendChild(autocomplete);
 
-            // AUTO-CLEAR LOGIC: Listen for empty input
+            // AUTO-CLEAR LOGIC
             autocomplete.addEventListener('input', () => {
                 if (!autocomplete.value) clearSearch();
             });
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
+                    // KEYBOARD DISMISSAL FIX
+                    if (document.activeElement) document.activeElement.blur();
+                    
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
                     setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
