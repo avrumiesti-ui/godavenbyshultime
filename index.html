@@ -81,6 +81,20 @@
         z-index: 5;
     }
 
+    /* CENTER DOT (BLUE) */
+    #center-marker {
+        position: fixed; top: 50%; left: 50%;
+        width: 16px; height: 16px;
+        background: #2196F3; /* Bright Blue */
+        border: 3px solid #fff;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20; /* Above Map */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        pointer-events: none; /* Let clicks pass to map */
+        display: none; /* Only show in map view */
+    }
+
     /* CARDS */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 10px;
@@ -101,7 +115,6 @@
     .map-circle-lg { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
     .google-maps-icon-lg { font-size: 32px !important; }
 
-    /* TAGS */
     .nusach-tag { font-size: 10px; padding: 2px 8px; border-radius: 12px; margin-top: 6px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
@@ -111,7 +124,7 @@
     .tefillah-text { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
     .tef-Shacharis { color: #34A853; } .tef-Mincha { color: #FBBC05; } .tef-Maariv { color: #4285F4; }
 
-    /* CUSTOM MAP MARKER STYLE - COLOR CODED & SHORT */
+    /* MAP MARKERS */
     .custom-marker {
         color: white; padding: 3px 8px; border-radius: 12px;
         font-size: 12px; font-weight: 800;
@@ -123,7 +136,6 @@
     .marker-Sefard { background: #2E7D32; }
     .marker-Ari { background: #7B1FA2; }
     .marker-Other { background: #616161; }
-
     .custom-marker::after {
         content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
         border-width: 5px 5px 0; border-style: solid; border-color: inherit transparent transparent transparent;
@@ -194,6 +206,8 @@
         <div id="status-pill"></div>
         <div id="count-pill"></div>
     </div>
+
+    <div id="center-marker"></div>
 
     <div id="scrim" onclick="closeDetails()"></div>
 
@@ -290,7 +304,7 @@
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
         let selectedShul = null;
         let markers = [];
-        let isProgrammaticMove = false; // Flag to prevent loops
+        let isProgrammaticMove = false;
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -327,16 +341,24 @@
             const list = document.getElementById("list-view");
             const btn = document.getElementById("view-toggle-btn");
             const icon = document.getElementById("view-icon");
+            const dot = document.getElementById("center-marker");
+            
             if (list.style.display === "none") {
+                // To List
                 list.style.display = "block";
                 icon.innerText = "map";
                 btn.classList.remove("active");
+                dot.style.display = "none";
             } else {
+                // To Map
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
-                // Sync map view if needed
-                if(map && searchCenter) {
+                dot.style.display = "block";
+                // Only center if we have a search but map isn't set up
+                if(map && searchCenter && !map.getCenter().equals(new google.maps.LatLng(searchCenter.lat, searchCenter.lng))) {
+                    // Do not reset center if already viewed
+                } else if (map && searchCenter) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
                     fitMapToRadius(currentRadius);
@@ -357,13 +379,12 @@
             applyFilters();
         }
 
-        // Called when user moves slider or clicks radius chips
         function manualRadiusUpdate(val) {
-            updateRadius(val); // Update var and UI
-            applyFilters(); // Filter list
+            updateRadius(val);
+            applyFilters();
             if (map && searchCenter) {
                 isProgrammaticMove = true;
-                fitMapToRadius(currentRadius); // Zoom map
+                fitMapToRadius(currentRadius);
             }
         }
 
@@ -373,18 +394,14 @@
             document.getElementById("radius-slider").value = currentRadius;
         }
 
-        // Adjust map zoom to fit the current radius miles
         function fitMapToRadius(miles) {
             if(!map || !searchCenter) return;
             const circle = new google.maps.Circle({
                 center: searchCenter,
-                radius: miles * 1609.34, // miles to meters
-                strokeOpacity: 0,
-                fillOpacity: 0,
-                map: map
+                radius: miles * 1609.34,
+                strokeOpacity: 0, fillOpacity: 0, map: map
             });
             map.fitBounds(circle.getBounds());
-            // Cleanup invisible circle immediately after getting bounds
             circle.setMap(null); 
         }
 
@@ -447,61 +464,39 @@
         async function updateMapMarkers(results) {
             if (!map) return;
             const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-
-            // Clear old markers
-            markers.forEach(m => m.map = null);
-            markers = [];
-
-            // Group by location to find earliest time per shul
+            markers.forEach(m => m.map = null); markers = [];
             const groups = {};
             results.forEach(r => {
                 const key = r.lat + "," + r.lng;
-                if (!groups[key] || r.timeValue < groups[key].timeValue) {
-                    groups[key] = r;
-                }
+                if (!groups[key] || r.timeValue < groups[key].timeValue) groups[key] = r;
             });
-
-            // Create markers
             Object.values(groups).forEach(m => {
                 const pinDiv = document.createElement("div");
-                // Color Code by Nusach
                 let nCls = `marker-${m.nusach || 'Other'}`;
                 pinDiv.className = `custom-marker ${nCls}`;
                 pinDiv.textContent = `${m.timeDisplay}`; 
-
                 const marker = new AdvancedMarkerElement({
-                    map: map,
-                    position: { lat: m.lat, lng: m.lng },
-                    content: pinDiv,
-                    title: m.name
+                    map: map, position: { lat: m.lat, lng: m.lng },
+                    content: pinDiv, title: m.name
                 });
-
                 marker.element.addEventListener("click", () => openDetails(m));
                 markers.push(marker);
             });
         }
 
-        // MAP IDLE LISTENER - Updates List/Radius when user moves map
         function onMapIdle() {
-            if (isProgrammaticMove) {
-                isProgrammaticMove = false;
-                return; // Ignore if we moved it via slider/search
-            }
+            if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
-
             const center = map.getCenter();
             const bounds = map.getBounds();
             if(!center || !bounds) return;
 
-            // Update Search Center
             searchCenter = { lat: center.lat(), lng: center.lng() };
             document.getElementById("status-pill").innerText = `Near: Map Center`;
 
-            // Calculate Approximate Radius from Center to NE Corner
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
-            // Update Slider/UI without triggering infinite loop
             updateRadius(r.toFixed(1)); 
             applyFilters();
         }
@@ -656,7 +651,9 @@
             // Listen for Map Movement (Sync to list)
             map.addListener('idle', onMapIdle);
 
-            autocomplete.addEventListener('input', () => { if (!autocomplete.value) clearSearch(); });
+            autocomplete.addEventListener('input', () => {
+                if (!autocomplete.value) clearSearch();
+            });
 
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
