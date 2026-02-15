@@ -61,6 +61,7 @@
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
+    /* CENTER DOT */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
@@ -335,7 +336,7 @@
             updateDateDisplay();
             
             try {
-                // FETCH EXTERNAL DATABASE FILE
+                // Fetch external DB
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
@@ -367,6 +368,7 @@
         }
 
         function formatTime(h, m) {
+            if (isNaN(h) || isNaN(m)) return '';
             let suffix = h >= 12 ? 'p' : 'a';
             let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
             let dispM = String(m).padStart(2,"0");
@@ -416,10 +418,13 @@
 
         function addMinyan(shul, type, tStr) {
             if(!tStr) return;
-            let raw = tStr.trim().replace(/[^0-9:]/g,"");
+            // Clean time string
+            let raw = tStr.trim().split(' ')[0].replace(/[^0-9:]/g,"");
             if(!raw) return;
             let [h,m] = raw.split(":").map(Number);
-            
+            if (isNaN(h)) return; 
+            if (isNaN(m)) m = 0;
+
             let sortH = h; 
             if (type === 'Mincha' && h < 9) sortH += 12;
             if (type === 'Maariv' && h < 12) sortH += 12; 
@@ -612,10 +617,10 @@
         function formatList(list) {
             if(!list || list.length === 0) return 'None';
             return list.map(t => {
-                let [h, m] = t.split(':').map(Number);
-                let suffix = h >= 12 ? 'p' : 'a';
-                let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-                return `${dispH}:${String(m).padStart(2,'0')}${suffix}`;
+                let clean = t.split(' ')[0];
+                let [h, m] = clean.split(':').map(Number);
+                if(isNaN(h)) return t;
+                return formatTime(h, m || 0);
             }).join(", ");
         }
 
@@ -678,7 +683,7 @@
         }
 
         function initPullToDismiss() {
-            // Disabled as requested
+            // Disabled
         }
 
         function toggleFilters() {
