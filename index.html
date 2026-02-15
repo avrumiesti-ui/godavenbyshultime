@@ -68,40 +68,38 @@
         pointer-events: none; display: none;
     }
 
-    /* CARDS */
+    /* CARDS - 75/25 SPLIT - CENTERED RIGHT */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
-        min-height: 85px; 
+        min-height: 90px; 
     }
     .info-zone { 
         width: 75%; flex-basis: 75%; flex-shrink: 0;
-        padding: 10px 12px; cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 12px; cursor: pointer; 
+        display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 25%; flex-basis: 25%; flex-shrink: 0;
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        cursor: pointer; background: #fafafa; padding: 10px 5px;
-        text-align: center;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; /* Centered Vertically */
+        cursor: pointer; background: #fafafa; padding: 5px;
+        text-align: center; gap: 4px;
     }
     
-    .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
     .shul-address { font-size: 15px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .tefillah-label { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; text-align: center; } 
-    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); align-self: center; }
+    /* Right Side Elements */
+    .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; } 
+    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); line-height: 1.2; }
     
-    .map-footer { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; }
-    .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
-    
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
-    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
+    .dist-row { display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .dist-label { font-size: 11px; font-weight: 800; color: #666; }
     
     /* COLORS */
-    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
+    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
     .nusach-Ari { background: #F3E5F5; color: #7B1FA2; }
@@ -182,17 +180,30 @@
     .address-info { font-size: 14px; color: #777; margin-bottom: 15px; margin-top: 5px; }
     .drawer-tag { margin-bottom: 15px; }
 
-    .schedule-section { margin-top: 15px; }
+    .schedule-section { margin-top: 20px; }
     .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
     .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
     .schedule-item { margin-bottom: 6px; }
     .schedule-day { font-weight: 700; color: #666; font-size: 12px; text-transform: uppercase; }
     
-    .contact-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 80px; }
+    /* PILL BUTTONS */
+    .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; }
+    .contact-btn { 
+        flex: 1; background: #f5f5f5; border: 1px solid #ddd; 
+        padding: 10px 16px; border-radius: 50px; /* PILL SHAPE */
+        font-weight: 600; font-size: 13px; text-align: center; 
+        text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; 
+        white-space: nowrap;
+    }
     .contact-btn:active { background: #eee; }
     .contact-btn.disabled { opacity: 0.5; cursor: default; background: #eee; color: #aaa; pointer-events: none; }
     .missing-info-text { font-size: 11px; color: #999; text-align: center; margin-top: 8px; font-style: italic; width: 100%; }
+
+    /* DRAWER MAP CIRCLE */
+    .map-circle-lg { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
+    .google-maps-icon-lg { font-size: 26px !important; }
+
+    .drawer-nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: #fafafa; padding: 15px; border-radius: 15px; border: 1px solid #f0f0f0; }
 
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
 
@@ -344,7 +355,6 @@
             updateDateDisplay();
             
             try {
-                // FETCH EXTERNAL DATABASE FILE
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
@@ -550,18 +560,20 @@
                 
                 let rightSide = '';
                 if(m.timeValue === 9999) {
-                    rightSide = `<div class="map-zone" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
-                        <div class="map-footer">
-                            <div class="dist-label">${m.distance.toFixed(1)}mi</div>
+                    rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                        <div class="tefillah-label tef-${m.tefillah}">${m.tefillah}</div>
+                        <div class="time-val">${m.timeDisplay}</div>
+                        <div class="dist-row">
+                            <span class="dist-label">${m.distance.toFixed(1)}mi</span>
                             <div class="map-circle"><i class="material-icons google-maps-icon">place</i></div>
                         </div>
                     </div>`;
                 } else {
-                    rightSide = `<div class="map-zone" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
+                    rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
                         <div class="tefillah-label tef-${m.tefillah}">${m.tefillah}</div>
                         <div class="time-val">${m.timeDisplay}</div>
-                        <div class="map-footer">
-                            <div class="dist-label">${m.distance.toFixed(1)}mi</div>
+                        <div class="dist-row">
+                            <span class="dist-label">${m.distance.toFixed(1)}mi</span>
                             <div class="map-circle"><i class="material-icons google-maps-icon">place</i></div>
                         </div>
                     </div>`;
@@ -646,7 +658,7 @@
                 ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`
                 : `<div class="contact-btn disabled"><i class="material-icons">email</i> Email</div>`;
 
-            let goDavenBtn = `<a href="${link}" target="_blank" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`;
+            let goDavenBtn = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`;
 
             let missingInfoText = (!m.phone || !m.email) 
                 ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` 
@@ -654,13 +666,22 @@
 
             document.getElementById("drawer-content").innerHTML = `
                 <p class="address-info">${m.address}</p>
+                <div class="drawer-nav-row">
+                    <div class="tefillah-text tef-${m.tefillah}" style="font-size:14px;">${m.tefillah} • ${m.timeDisplay}</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="font-size:18px; font-weight:800; color:#444;">${m.distance.toFixed(1)}mi</div>
+                        <div class="map-circle-lg" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
+                            <i class="material-icons google-maps-icon google-maps-icon-lg">place</i>
+                        </div>
+                    </div>
+                </div>
                 <div class="drawer-tag"><span class="nusach-tag ${nCls}">${m.nusach}</span></div>
                 <div class="contact-row">
                     ${phoneBtn}
                     ${emailBtn}
                     ${goDavenBtn}
-                    ${missingInfoText}
                 </div>
+                ${missingInfoText}
                 
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
