@@ -13,12 +13,12 @@
         --ad-bg: #FFF8E1; 
         --ad-border: #FBC02D; 
 
-        /* TEFILLAH COLORS (Only for Filters) */
+        /* TEFILLAH COLORS (Filters) */
         --color-Shacharis: #2E7D32; 
         --color-Mincha: #E65100;    
         --color-Maariv: #1565C0;    
 
-        /* NUSACH BACKGROUND COLORS (For Results) */
+        /* NUSACH BACKGROUNDS */
         --bg-Ashkenaz: #E3F2FD;       
         --bg-Sefard: #E8F5E9;         
         --bg-Ari: #F3E5F5;            
@@ -26,7 +26,7 @@
         --bg-Chabad: #FFF8E1;         
         --bg-Other: #F5F5F5;          
         
-        /* TEXT COLORS FOR NUSACH (For Contrast) */
+        /* NUSACH TEXT */
         --text-Ashkenaz: #1565C0;
         --text-Sefard: #2E7D32;
         --text-Ari: #7B1FA2;
@@ -108,23 +108,72 @@
         display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
+    
+    /* RIGHT SIDE LAYOUT - ABSOLUTE POSITIONING */
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        position: relative; /* Enables absolute children */
         cursor: pointer; background: #fafafa; 
-        padding: 5px 20px 5px 5px; 
-        text-align: center; gap: 4px;
+        /* The buffer from the right edge */
+        padding-right: 5px; 
+        box-sizing: border-box; 
+    }
+    
+    /* 1. TOP ELEMENT (5px from top) */
+    .tefillah-label { 
+        position: absolute; 
+        top: 5px; 
+        left: 0; 
+        width: 100%; 
+        text-align: center;
+        font-size: 11px; 
+        font-weight: 900; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px; 
+        line-height: 1; 
+        color: #555; 
+        margin: 0;
+        padding-right: 5px; /* Match container buffer */
+        box-sizing: border-box;
+    } 
+    
+    /* 2. MIDDLE ELEMENT (Centered at 42.5px) */
+    .time-val-card { 
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 4px 8px; 
+        border-radius: 8px; 
+        background: #E8EAF6; 
+        color: var(--primary); 
+        font-weight: 800; 
+        font-size: 16px; 
+        white-space: nowrap;
+        margin-right: 2.5px; /* Adjust for padding shift */
+    }
+    
+    /* 3. BOTTOM ELEMENT (5px from bottom) */
+    .dist-row { 
+        position: absolute;
+        bottom: 5px;
+        left: 0; 
+        width: 100%;
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 4px; 
+        margin: 0;
+        padding-right: 5px; /* Match container buffer */
+        box-sizing: border-box;
     }
     
     .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
     .shul-address { font-size: 15px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px; color: #555; } 
-    
-    .dist-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 3px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
     /* AD CARD */
@@ -169,6 +218,8 @@
     .nusach-bg-Edot-HaMizrach { background-color: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; }
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; }
+
+    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
 
     /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
@@ -250,14 +301,9 @@
     
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     
-    /* SCROLLING HEADER INFO */
-    .drawer-scroll-info { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .rabbi-info { font-size: 15px; color: #555; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-    
-    /* SMALL NUSACH TAG FOR DRAWER */
-    .nusach-tag-drawer { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-
-    .address-info { font-size: 14px; color: #777; margin-bottom: 15px; }
+    .rabbi-info { font-size: 15px; color: #555; margin-top: 5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .address-info { font-size: 14px; color: #777; margin-bottom: 15px; margin-top: 5px; }
+    .drawer-tag { margin-bottom: 15px; }
 
     .schedule-section { margin-top: 15px; }
     .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
@@ -514,6 +560,7 @@
             const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
             document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
             
+            // Hebrew Date Support via built-in Intl
             try {
                 const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
                 document.getElementById('hebrew-date').innerText = hDate;
@@ -548,14 +595,16 @@
                 if(shul.nusach) allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
-                let minyanimForThisShul = []; 
+                let minyanimForThisShul = []; // Local list for counting
                 
+                // SHACHARIS
                 if (!isSat && shul.shacharis && shul.shacharis[dayKey]) {
                     shul.shacharis[dayKey].forEach(t => { 
                         addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; 
                     });
                 }
                 
+                // MINCHA
                 if (isFri) {
                     if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 } else if (isSat) {
@@ -564,6 +613,7 @@
                     if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 }
 
+                // MAARIV
                 if (isSat) {
                     if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
                 } else {
@@ -573,6 +623,7 @@
                 if (!hasTimes) {
                     processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
                 } else {
+                    // Push all minyanim for this shul to global list
                     processedMinyanim.push(...minyanimForThisShul);
                 }
             });
@@ -627,6 +678,7 @@
                 dot.style.display = "none";
                 mapPill.style.display = "none";
                 countPill.style.display = "block";
+                // Update text to include minyan count
                 applyFilters(); 
             } else {
                 list.style.display = "none";
@@ -634,7 +686,8 @@
                 btn.classList.add("active");
                 dot.style.display = "block";
                 mapPill.style.display = "block";
-                countPill.style.display = "block"; 
+                countPill.style.display = "block"; // Keep count on map but filtered text
+                // Update text to shul count only
                 applyFilters(); 
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
@@ -698,7 +751,7 @@
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
-            // MINYAN COUNT LOGIC
+            // MINYAN COUNT LOGIC (Updated to switch based on view)
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
             const totalMinyanim = results.length;
             const isListMode = document.getElementById("list-view").style.display !== 'none';
@@ -750,6 +803,7 @@
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 
+                // Only Nusach color on pill, border neutral
                 let rightSide = '';
                 if(m.timeValue === 9999) {
                     rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
@@ -761,7 +815,7 @@
                 } else {
                     rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
                         <div class="tefillah-label">${m.tefillah}</div>
-                        <div class="time-pill ${nCls}">${m.timeDisplay}</div>
+                        <div class="time-val-card">${m.timeDisplay}</div>
                         <div class="dist-row">
                             <span class="dist-label">${m.distance.toFixed(1)}mi</span>
                             <div class="map-circle"><i class="material-icons google-maps-icon">place</i></div>
@@ -793,6 +847,7 @@
             });
             Object.values(groups).forEach(m => {
                 const pinDiv = document.createElement("div");
+                // Only Nusach Color
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 
                 pinDiv.className = `custom-marker ${nCls}`;
@@ -810,6 +865,7 @@
             if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
             
+            // Initial load protection
             if (isFirstIdle) {
                 isFirstIdle = false;
                 return; 
@@ -911,6 +967,7 @@
         // AD DETAILS DRAWER
         function openAdDetails(ad) {
             document.getElementById("drawer-title").innerText = ad.name;
+            document.getElementById("drawer-rabbi").innerHTML = ""; 
             
             const shareBtn = document.getElementById("share-btn");
             shareBtn.onclick = () => {
@@ -918,12 +975,12 @@
             };
 
             let phoneBtn = ad.phone 
-                ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`
+                ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`
                 : '';
             let webBtn = ad.website
-                ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` 
+                ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons">public</i> Website</a>` 
                 : '';
-            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
+            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`;
 
             document.getElementById("drawer-content").innerHTML = `
                 <div class="ad-hero">
