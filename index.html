@@ -13,12 +13,12 @@
         --ad-bg: #FFF8E1; 
         --ad-border: #FBC02D; 
 
-        /* TEFILLAH COLORS */
+        /* TEFILLAH COLORS (Filters & Drawer Borders) */
         --color-Shacharis: #2E7D32; 
         --color-Mincha: #E65100;    
         --color-Maariv: #1565C0;    
 
-        /* NUSACH BACKGROUNDS */
+        /* NUSACH BACKGROUND COLORS (For Results) */
         --bg-Ashkenaz: #E3F2FD;       
         --bg-Sefard: #E8F5E9;         
         --bg-Ari: #F3E5F5;            
@@ -26,7 +26,7 @@
         --bg-Chabad: #FFF8E1;         
         --bg-Other: #F5F5F5;          
         
-        /* NUSACH TEXT */
+        /* TEXT COLORS FOR NUSACH (For Contrast) */
         --text-Ashkenaz: #1565C0;
         --text-Sefard: #2E7D32;
         --text-Ari: #7B1FA2;
@@ -100,50 +100,43 @@
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
         height: 85px; 
-        box-sizing: border-box;
     }
     .info-zone { 
         width: 60%; flex-basis: 60%; flex-shrink: 0;
-        padding: 8px 12px; /* Tighter padding for 4 lines */
+        padding: 10px 12px; 
         cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: flex-start; /* Align top */
+        display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        position: relative; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; /* Horizontally Centered */
+        justify-content: center; /* Vertically Centered */
         cursor: pointer; background: #fafafa; 
-        box-sizing: border-box; 
+        padding: 5px; 
+        gap: 4px; /* Space between elements */
     }
     
-    /* 4-LINE INFO LAYOUT */
     .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
     .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - RIGHT ANCHORED (15px padding for Safari) */
-    
-    /* 1. TEFILLAH (Top Right) */
+    /* RIGHT SIDE ELEMENTS */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 15px; text-align: right;
-        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
-        margin: 0;
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; 
+        line-height: 1; color: #555; text-align: center; width: 100%;
     } 
     
-    /* 2. TIME PILL (Vertically Centered 42.5px - 10px raise = 32.5px from top) */
     .time-val-card { 
-        position: absolute;
-        top: calc(50% - 10px); /* Raised 10px */
-        right: 15px; /* Safari safety buffer */
-        transform: translateY(-50%);
-        padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
+        padding: 4px 8px; border-radius: 8px; background: #E8EAF6; 
+        color: var(--primary); font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     
-    /* 3. MAP/DISTANCE (Bottom Right) */
     .dist-row { 
-        position: absolute; bottom: 8px; right: 15px;
-        display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
+        display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
@@ -188,7 +181,7 @@
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; }
 
-    .nusach-tag-drawer { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
+    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
 
     /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
@@ -301,6 +294,8 @@
     .static-chip {
         padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #fff; display: inline-block;
     }
+    
+    .nusach-tag-drawer { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
 
     .map-circle-lg { width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
     .google-maps-icon-lg { font-size: 20px !important; }
@@ -772,7 +767,7 @@
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 
-                // Only Nusach color on pill, border neutral
+                // RIGHT SIDE IS NOW FLEXBOX CENTERED
                 let rightSide = '';
                 if(m.timeValue === 9999) {
                     rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
