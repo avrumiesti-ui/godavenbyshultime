@@ -24,9 +24,9 @@
         overflow: hidden; 
     }
 
-    /* GOOGLE COMPONENT */
+    /* GOOGLE SEARCH STYLING */
     gmp-place-autocomplete { width: 100%; height: 100%; background-color: #fff !important; }
-    gmp-place-autocomplete::part(input) { background-color: #fff !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; }
+    gmp-place-autocomplete::part(input) { background-color: #fff !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; }
     .pac-container { background-color: #fff !important; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; }
 
     .circle-btn {
@@ -61,6 +61,7 @@
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
+    /* CENTER DOT */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
@@ -91,6 +92,7 @@
     
     .tefillah-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
     .time-val { font-weight: 800; font-size: 20px; color: var(--primary); align-self: center; margin-right: -10px; }
+    
     .map-footer { display: flex; align-items: flex-end; gap: 6px; }
     .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; }
     
@@ -108,7 +110,7 @@
 
     .tef-Shacharis { color: #2E7D32; } .tef-Mincha { color: #E65100; } .tef-Maariv { color: #1565C0; }
 
-    /* FILTER CHIPS */
+    /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
     .chip.active { border-width: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
     
@@ -145,8 +147,8 @@
     
     /* DATE NAVIGATOR */
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
-    .date-btn { background: none; border: none; font-size: 18px; color: var(--primary); cursor: pointer; padding: 0 10px; }
-    .date-display { font-weight: 700; color: #333; font-size: 14px; }
+    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
+    .date-display { font-weight: 700; color: #333; font-size: 15px; }
 
     .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
@@ -167,17 +169,19 @@
     }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
     
-    .drawer-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
-    .drawer-title { font-size: 20px; font-weight: 800; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
-    .drawer-actions { display: flex; gap: 12px; }
+    .drawer-header { padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f0f0f0; }
+    .drawer-title-container { flex: 1; padding-right: 10px; }
+    .drawer-title { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+    .drawer-actions { display: flex; gap: 12px; flex-shrink: 0; }
     .circle-action-btn { width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; }
     
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     
-    .rabbi-info { font-size: 14px; color: #555; margin-bottom: 5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-    .address-info { font-size: 14px; color: #777; margin-bottom: 15px; }
-    
-    .schedule-section { margin-top: 20px; }
+    .rabbi-info { font-size: 15px; color: #555; margin-top: 5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .address-info { font-size: 14px; color: #777; margin-bottom: 15px; margin-top: 5px; }
+    .drawer-tag { margin-bottom: 15px; }
+
+    .schedule-section { margin-top: 15px; }
     .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
     .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
     .schedule-item { margin-bottom: 6px; }
@@ -224,7 +228,10 @@
 
     <div id="details-drawer">
         <div class="drawer-header">
-            <div class="drawer-title" id="drawer-title"></div>
+            <div class="drawer-title-container">
+                <div class="drawer-title" id="drawer-title"></div>
+                <div class="rabbi-info" id="drawer-rabbi"></div>
+            </div>
             <div class="drawer-actions">
                 <button class="circle-action-btn" onclick="shareShul()">
                     <i class="material-icons" style="font-size:20px;">ios_share</i>
@@ -280,6 +287,17 @@
             </div>
         </div>
 
+        <div class="filter-section">
+            <label class="filter-label">Time Range</label>
+            <div class="time-inputs-row">
+                <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
+                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button class="action-btn" onclick="setAllDay()">All Day</button>
+                <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
+            </div>
+        </div>
         <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:10px;">Done</button>
     </div>
 
@@ -307,18 +325,23 @@
         let isProgrammaticMove = false;
         let allNusachs = new Set();
         let fullDbData = [];
-        let currentFilterDate = new Date(); // Tracks selected date
+        let currentFilterDate = new Date();
 
         document.addEventListener("DOMContentLoaded", async () => {
+            document.getElementById('time-start').value = "00:00";
+            document.getElementById('time-end').value = "23:59";
             updateDateDisplay();
+            
             try {
+                // FETCH EXTERNAL DATABASE FILE
                 const res = await fetch("database.json");
+                if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
                 processMinyanim(fullDbData);
                 populateNusachFilter();
             } catch(e) { console.error("DB Error", e); }
             
-            // Drawer lock (no pull to dismiss) requires no special JS, just CSS fixed
+            initPullToDismiss();
         });
 
         // DATE LOGIC
@@ -330,7 +353,7 @@
         }
 
         function updateDateDisplay() {
-            const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
             document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
         }
 
@@ -396,10 +419,9 @@
             let [h,m] = raw.split(":").map(Number);
             
             let sortH = h; 
-            // Mincha logic: < 9am is likely PM (e.g. 1:00 Mincha)
             if (type === 'Mincha' && h < 9) sortH += 12;
             if (type === 'Maariv' && h < 12) sortH += 12; 
-            if (type === 'Mincha' && h === 12) sortH = 12; // 12pm stays 12
+            if (type === 'Mincha' && h === 12) sortH = 12;
 
             let formatted = formatTime(h, m);
             
@@ -474,6 +496,10 @@
 
         function applyFilters(){
             if(!searchCenter || !allMinyanim.length) return;
+            const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
+            const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
+            const startVal = (sH*60)+sM, endVal = (eH*60)+eM;
+
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
@@ -482,6 +508,11 @@
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
             if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             
+            results = results.filter(m => {
+                if (m.timeValue === 9999) return true; 
+                return m.timeValue >= startVal && m.timeValue <= endVal;
+            });
+
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
@@ -496,7 +527,7 @@
 
         function renderList(results){
             const list = document.getElementById("list-view");
-            list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found.</div>';
+            list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found matching your filters.</div>';
             results.forEach(m => {
                 let nCls = `nusach-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
@@ -578,7 +609,13 @@
 
         function formatList(list) {
             if(!list || list.length === 0) return 'None';
-            return list.join(", ");
+            // Simple logic to format basic times to 7:00a/p
+            return list.map(t => {
+                let [h, m] = t.split(':').map(Number);
+                let suffix = h >= 12 ? 'p' : 'a';
+                let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+                return `${dispH}:${String(m).padStart(2,'0')}${suffix}`;
+            }).join(", ");
         }
 
         function openDetails(m) {
@@ -588,18 +625,16 @@
             const nCls = `nusach-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             
             document.getElementById("drawer-title").innerText = m.name;
+            document.getElementById("drawer-rabbi").innerHTML = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
             
             let contacts = [];
             if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
             if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
             contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
 
-            let rabbiInfo = m.rabbi ? `<div class="rabbi-info"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}</div>` : '';
-
             document.getElementById("drawer-content").innerHTML = `
-                ${rabbiInfo}
                 <p class="address-info">${m.address}</p>
-                <div class="nusach-tag ${nCls}">${m.nusach}</div>
+                <div class="drawer-tag"><span class="nusach-tag ${nCls}">${m.nusach}</span></div>
                 <div class="contact-row">${contacts.join('')}</div>
                 
                 <div class="schedule-section">
@@ -641,6 +676,10 @@
             document.getElementById("scrim").style.display = "none";
         }
 
+        function initPullToDismiss() {
+            // Disabled as requested
+        }
+
         function toggleFilters() {
             const d = document.getElementById('filter-drawer');
             d.style.display = (d.style.display==='block') ? 'none' : 'block';
@@ -654,9 +693,45 @@
             applyFilters();
         }
 
-        function scrollToTop(e) {
-            if(e) e.stopPropagation();
-            document.getElementById('list-view').scrollTo({ top: 0, behavior: 'smooth' });
+        function setAllDay() { document.getElementById('time-start').value = "00:00"; document.getElementById('time-end').value = "23:59"; applyFilters(); }
+        
+        function setNextHour() {
+            const now = new Date(); const pad = n => String(n).padStart(2,'0');
+            document.getElementById('time-start').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const next = new Date(now.getTime() + 60*60*1000);
+            document.getElementById('time-end').value = `${pad(next.getHours())}:${pad(next.getMinutes())}`;
+            applyFilters();
+        }
+
+        function onStartTimeChange() {
+            const [h,m] = document.getElementById('time-start').value.split(':').map(Number);
+            let endH = h + 1; if(endH > 23) endH = 23;
+            document.getElementById('time-end').value = `${String(endH).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            applyFilters();
+        }
+
+        function useMyLocation() {
+            navigator.geolocation.getCurrentPosition(pos => {
+                setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
+            }, e => alert("Please enable GPS/Location services."));
+        }
+
+        function clearSearch(){
+            searchCenter = null;
+            document.getElementById("status-pill").style.display = "none";
+            document.getElementById("count-pill").style.display = "none";
+            document.getElementById("map-radius-pill").style.display = "none";
+            document.getElementById("list-view").innerHTML = `
+                <div class="empty-state">
+                    <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
+                    <strong>Welcome to ShulTime</strong><br><br>
+                    <b>1. Search</b> for a city or zip code.<br>
+                    <b>2. Filter</b> by time or Nusach.<br>
+                    <b>3. Tap</b> the target to use GPS.
+                </div>`;
+            const el = document.querySelector('gmp-place-autocomplete');
+            if(el) el.value = null;
+            if(map) { markers.forEach(m => m.map = null); }
         }
 
         function getDistance(lat1, lon1, lat2, lon2){
@@ -695,13 +770,6 @@
                     setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
                 }
             });
-        }
-        
-        function clearSearch() {
-            searchCenter = null;
-            document.getElementById("status-pill").style.display = "none";
-            document.getElementById("count-pill").style.display = "none";
-            document.getElementById("list-view").innerHTML = '';
         }
     </script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
