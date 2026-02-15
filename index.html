@@ -77,6 +77,20 @@
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
+    /* STICKY LIQUID HEADER (For Recent/Saved) */
+    .sticky-header {
+        position: fixed; top: 0; left: 0; right: 0; height: 60px;
+        background: rgba(242, 244, 248, 0.85);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        z-index: 900; 
+        display: flex; align-items: flex-end; justify-content: center;
+        padding-bottom: 12px;
+        font-weight: 800; font-size: 17px; color: var(--primary);
+        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
+    }
+    .sticky-header.visible { opacity: 1; pointer-events: auto; }
+
     /* VIEWS */
     #list-view, #settings-view, #zmanim-view { 
         position: absolute; inset: 0; 
@@ -86,13 +100,13 @@
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
-    /* PAGE HEADERS */
+    /* PAGE HEADERS (Big Titles) */
     .list-page-header {
         font-size: 34px; font-weight: 800; color: var(--primary);
         margin-top: 40px; margin-bottom: 15px; padding-left: 12px;
     }
 
-    /* ZMANIM STYLES (Full App) */
+    /* ZMANIM STYLES */
     .zman-header-section {
         background: #fff; padding: 15px 15px 10px 15px;
         border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20;
@@ -107,12 +121,12 @@
 
     .zmanim-list { list-style: none; padding: 15px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
     .zman-card { 
-        background: #fff; border-radius: 12px; padding: 12px 15px; 
+        background: #fff; border-radius: 12px; padding: 14px 15px; 
         box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
         display: flex; justify-content: space-between; align-items: center; 
     }
     .zman-left { display: flex; flex-direction: column; gap: 2px; }
-    .zman-label { font-size: 14px; font-weight: 700; color: #333; }
+    .zman-label { font-size: 15px; font-weight: 700; color: #333; }
     .zman-desc { font-size: 11px; color: #999; }
     .zman-right { text-align: right; display:flex; flex-direction:column; align-items:flex-end; }
     .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
@@ -125,20 +139,6 @@
     summary { padding: 12px; font-size: 14px; font-weight: 600; background: #fafafa; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; outline: none; }
     .glossary-content { padding: 15px; font-size: 13px; line-height: 1.5; color: #555; border-top: 1px solid #eee; }
     .glossary-content strong { color: var(--primary); display: block; margin-top: 8px; }
-
-    /* STICKY LIQUID HEADER (For Recent/Saved) */
-    .sticky-header {
-        position: fixed; top: 0; left: 0; right: 0; height: 60px;
-        background: rgba(242, 244, 248, 0.85);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        z-index: 900; 
-        display: flex; align-items: flex-end; justify-content: center;
-        padding-bottom: 12px;
-        font-weight: 800; font-size: 17px; color: var(--primary);
-        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
-    }
-    .sticky-header.visible { opacity: 1; pointer-events: auto; }
 
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
@@ -631,6 +631,7 @@
             const sticky = document.getElementById('sticky-header');
             sticky.classList.remove('visible');
             
+            // Padding & Header Management
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
                 document.getElementById('filter-header').style.display = 'none'; 
