@@ -49,19 +49,18 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 15px;
         overflow: hidden; 
     }
-    /* Filter Button Only - Toggle moved to bottom */
+
+    gmp-place-autocomplete { width: 100%; height: 100%; background-color: #fff !important; }
+    gmp-place-autocomplete::part(input) { background-color: #fff !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; }
+    .pac-container { background-color: #fff !important; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; }
+
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
         border-radius: 50%; background: #fff; border: none;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
         cursor: pointer; color: var(--primary); transition: all 0.2s;
     }
-    .circle-btn:active { transform: scale(0.95); }
-
-    /* GOOGLE COMPONENT */
-    gmp-place-autocomplete { width: 100%; height: 100%; background-color: #fff !important; }
-    gmp-place-autocomplete::part(input) { background-color: #fff !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; }
-    .pac-container { background-color: #fff !important; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; }
+    .circle-btn.active { background: var(--primary); color: #fff; }
 
     /* STATUS PILLS */
     .status-area {
@@ -81,11 +80,27 @@
     /* VIEWS */
     #list-view { 
         position: absolute; inset: 0; 
-        padding: 110px 12px 100px; /* Bottom padding for Toolbar */
+        padding: 110px 12px 100px; 
         overflow-y: auto; background: var(--bg); 
         z-index: 10; 
     }
     #map-view { position: absolute; inset: 0; z-index: 5; padding-bottom: 80px; }
+    
+    /* ZMANIM VIEW */
+    #zmanim-view {
+        position: absolute; inset: 0; 
+        padding: 110px 20px 100px;
+        background: #fff; z-index: 15;
+        overflow-y: auto; display: none;
+    }
+    .zmanim-card {
+        background: #f9f9f9; border-radius: 15px; padding: 15px; margin-bottom: 10px;
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 1px solid #eee;
+    }
+    .zman-name { font-weight: 700; color: #555; font-size: 16px; }
+    .zman-time { font-weight: 800; color: var(--primary); font-size: 18px; }
+    .zman-location { text-align: center; margin-bottom: 20px; color: #777; font-size: 14px; }
 
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
@@ -94,30 +109,25 @@
         pointer-events: none; display: none;
     }
 
-    /* BOTTOM TOOLBAR (iOS 26 Liquid Style) */
+    /* BOTTOM TOOLBAR */
     .bottom-nav {
         position: fixed; bottom: 0; left: 0; right: 0;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid rgba(0,0,0,0.05);
         display: flex; justify-content: space-around;
         padding: 12px 10px calc(12px + env(safe-area-inset-bottom)) 10px;
-        z-index: 1500;
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        z-index: 1500; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
         border-radius: 20px 20px 0 0;
     }
     .nav-item {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         border: none; background: none; color: #999;
         font-size: 10px; font-weight: 600; gap: 4px;
-        flex: 1; cursor: pointer; transition: all 0.2s;
-        position: relative;
+        flex: 1; cursor: pointer; transition: all 0.2s; position: relative;
     }
     .nav-item.active { color: var(--primary); }
-    .nav-item i { font-size: 26px; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .nav-item:active i { transform: scale(0.85); }
-    /* Liquid touch */
+    .nav-item i { font-size: 26px; }
     .nav-item.active::after {
         content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         width: 50px; height: 50px; background: var(--primary); opacity: 0.08;
@@ -136,41 +146,34 @@
         width: 60%; flex-basis: 60%; flex-shrink: 0;
         padding: 8px 12px; 
         cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: center;
+        display: flex; flex-direction: column; justify-content: flex-start;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        position: relative; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
         cursor: pointer; background: #fafafa; 
-        box-sizing: border-box; 
+        padding: 5px; gap: 4px;
     }
     
-    /* 4-LINE INFO LAYOUT */
     .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
     .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT */
+    /* RIGHT SIDE ELEMENTS */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 15px; text-align: right;
-        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
-        margin: 0;
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; 
+        line-height: 1; color: #555; text-align: center; width: 100%;
     } 
     .time-val-card { 
-        position: absolute;
-        top: calc(50% - 10px); 
-        right: 15px; 
-        transform: translateY(-50%);
-        padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
+        padding: 4px 8px; border-radius: 8px; background: #E8EAF6; 
+        color: var(--primary); font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
-        position: absolute; bottom: 8px; right: 15px;
-        display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
+        display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
-    
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
@@ -179,14 +182,11 @@
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; align-items: center; justify-content: space-between;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden;
-        min-height: 45px; 
-        padding: 0 15px; cursor: pointer;
-        border-left: 5px solid var(--ad-border);
+        min-height: 45px; padding: 0 15px; cursor: pointer; border-left: 5px solid var(--ad-border);
     }
     .ad-badge { 
-        font-size: 10px; font-weight: 900; color: var(--ad-border); 
-        text-transform: uppercase; letter-spacing: 1px; margin-right: 12px;
-        background: var(--ad-bg); padding: 2px 6px; border-radius: 4px;
+        font-size: 10px; font-weight: 900; color: var(--ad-border); text-transform: uppercase; 
+        letter-spacing: 1px; margin-right: 12px; background: var(--ad-bg); padding: 2px 6px; border-radius: 4px;
     }
     .ad-content { flex: 1; font-weight: 700; color: #444; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ad-arrow { color: #ccc; }
@@ -292,7 +292,6 @@
     .schedule-item { margin-bottom: 6px; }
     .schedule-day { font-weight: 700; color: #666; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;}
     
-    /* SMALL CONTACT PILLS */
     .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
     .contact-btn { 
         background: #f5f5f5; border: 1px solid #ddd; 
@@ -306,7 +305,6 @@
     .contact-btn.disabled { opacity: 0.5; cursor: default; background: #eee; color: #aaa; pointer-events: none; }
     .missing-info-text { font-size: 11px; color: #999; text-align: center; margin-top: 8px; font-style: italic; width: 100%; }
 
-    /* COMPACT SELECTED TEFILLAH ROW */
     .drawer-nav-row { 
         display: flex; justify-content: space-between; align-items: center; 
         margin-top: 5px; background: #fafafa; 
@@ -451,59 +449,35 @@
 
     <div id="list-view"></div>
     <div id="map-view"></div>
+    <div id="zmanim-view"></div>
     
     <button class="fab-location" onclick="useMyLocation()">
         <i class="material-icons" style="font-size:24px;">my_location</i>
     </button>
 
     <div class="bottom-nav">
-        <button class="nav-item" onclick="showComingSoon()">
+        <button class="nav-item" id="nav-recent" onclick="switchTab('recent')">
             <i class="material-icons">history</i>Recent
         </button>
-        <button class="nav-item" onclick="showComingSoon()">
+        <button class="nav-item" id="nav-zmanim" onclick="switchTab('zmanim')">
             <i class="material-icons">access_time</i>Zmanim
         </button>
-        <button class="nav-item active" id="nav-view-btn" onclick="toggleView()">
-            <i class="material-icons" id="nav-view-icon">map</i>Map
+        <button class="nav-item active" id="nav-map" onclick="switchTab('map')">
+            <i class="material-icons">map</i>Map
         </button>
-        <button class="nav-item" onclick="showComingSoon()">
+        <button class="nav-item" id="nav-saved" onclick="switchTab('saved')">
             <i class="material-icons">bookmark_border</i>Saved
         </button>
-        <button class="nav-item" onclick="showComingSoon()">
+        <button class="nav-item" id="nav-settings" onclick="showComingSoon()">
             <i class="material-icons">settings</i>Settings
         </button>
     </div>
 
     <script>
-        // HARDCODED ADS
         const ADS_DB = [
-          {
-            "id": 1,
-            "name": "The Hat Box",
-            "address": "470 Oberlin Ave South, Lakewood, NJ 08701",
-            "phone": "732-961-2262",
-            "website": "https://hatboxmenswear.com",
-            "description": "The finest selection of hats and menswear in Lakewood. Visit us for the perfect fit!",
-            "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box"
-          },
-          {
-            "id": 2,
-            "name": "Seasons Supermarket",
-            "address": "711 Cedarbridge Ave, Lakewood, NJ 08701",
-            "phone": "732-813-7700",
-            "website": "https://www.seasonskosher.com",
-            "description": "Premium kosher supermarket with fresh produce, bakery, and prepared foods.",
-            "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket"
-          },
-          {
-            "id": 3,
-            "name": "Aurum Jewelers USA",
-            "address": "Lakewood, NJ (Online & Appt Only)",
-            "phone": "1-323-316-8676",
-            "website": "https://aurumjewelersusa.com",
-            "description": "Exquisite jewelry for every occasion. Custom designs, repairs, and wholesale diamonds.",
-            "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers"
-          }
+          { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "description": "The finest selection of hats and menswear.", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
+          { "id": 2, "name": "Seasons Supermarket", "address": "711 Cedarbridge Ave, Lakewood, NJ 08701", "phone": "732-813-7700", "website": "https://www.seasonskosher.com", "description": "Premium kosher supermarket.", "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket" },
+          { "id": 3, "name": "Aurum Jewelers USA", "address": "Lakewood, NJ (Online & Appt Only)", "phone": "1-323-316-8676", "website": "https://aurumjewelersusa.com", "description": "Exquisite jewelry for every occasion.", "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers" }
         ];
 
         let map, allMinyanim = [], processedMinyanim = [], ads = ADS_DB, searchCenter = null, currentRadius = 20;
@@ -515,6 +489,7 @@
         let fullDbData = [];
         let currentFilterDate = new Date();
         let isFirstIdle = true; 
+        let currentTab = 'map';
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -533,13 +508,102 @@
             initPullToDismiss();
         });
 
-        // --- LOCAL STORAGE LOGIC ---
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${tab}`).classList.add('active');
+
+            // Reset Views
+            document.getElementById('map-view').style.display = 'none';
+            document.getElementById('list-view').style.display = 'none';
+            document.getElementById('zmanim-view').style.display = 'none';
+            document.getElementById('center-marker').style.display = 'none'; // Ensure hidden unless map
+            
+            // Map/List Mode
+            if(tab === 'map') {
+                document.getElementById('map-view').style.display = 'block';
+                document.getElementById('center-marker').style.display = 'block';
+                document.querySelector('.search-container').style.display = 'flex';
+                document.querySelector('.fab-location').style.display = 'flex';
+                // Trigger filters to potentially show list if user left in list mode, 
+                // but standard is map. Let's default to map mode when clicking map tab.
+                applyFilters(); 
+            } 
+            else if(tab === 'recent') {
+                document.getElementById('list-view').style.display = 'block';
+                renderRecents();
+            }
+            else if(tab === 'saved') {
+                document.getElementById('list-view').style.display = 'block';
+                renderFavorites();
+            }
+            else if(tab === 'zmanim') {
+                document.getElementById('zmanim-view').style.display = 'block';
+                fetchZmanim();
+            }
+        }
+
+        // --- ZMANIM FEATURE ---
+        async function fetchZmanim() {
+            const zDiv = document.getElementById("zmanim-view");
+            zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
+            
+            // Default to Lakewood if no search center
+            const lat = searchCenter ? searchCenter.lat : 40.091;
+            const lng = searchCenter ? searchCenter.lng : -74.218;
+            
+            try {
+                const dateStr = currentFilterDate.toISOString().split('T')[0];
+                const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                let html = `<div class="zman-location">Zmanim for ${data.location.title || "Location"} <br> ${dateStr}</div>`;
+                const times = data.times;
+                
+                const formatZman = (iso) => {
+                    const d = new Date(iso);
+                    let h = d.getHours();
+                    let m = String(d.getMinutes()).padStart(2, '0');
+                    let ampm = h >= 12 ? 'pm' : 'am';
+                    h = h % 12 || 12;
+                    return `${h}:${m}${ampm}`;
+                };
+
+                const zmanimList = [
+                    { k: 'alotHaShachar', l: 'Alot Hashachar' },
+                    { k: 'sunrise', l: 'Sunrise (Netz)' },
+                    { k: 'sofZmanShma', l: 'Sof Zman Shma (Gra)' },
+                    { k: 'sofZmanTfila', l: 'Sof Zman Tefila' },
+                    { k: 'chatzot', l: 'Chatzot' },
+                    { k: 'minchaGedola', l: 'Mincha Gedola' },
+                    { k: 'minchaKetana', l: 'Mincha Ketana' },
+                    { k: 'sunset', l: 'Sunset (Shkia)' },
+                    { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' }
+                ];
+
+                zmanimList.forEach(item => {
+                    if(times[item.k]) {
+                        html += `
+                        <div class="zmanim-card">
+                            <span class="zman-name">${item.l}</span>
+                            <span class="zman-time">${formatZman(times[item.k])}</span>
+                        </div>`;
+                    }
+                });
+                zDiv.innerHTML = html;
+            } catch(e) {
+                zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Error loading Zmanim. Please check connection.</div>';
+            }
+        }
+
+        // --- LOCAL STORAGE & LISTS ---
         function addToRecents(m) {
             let recents = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
-            // Remove if exists (to move to top)
             recents = recents.filter(id => id !== m.id);
             recents.unshift(m.id);
-            if(recents.length > 10) recents.pop(); // Keep max 10
+            if(recents.length > 20) recents.pop(); 
             localStorage.setItem("shultime_recents", JSON.stringify(recents));
         }
 
@@ -565,16 +629,53 @@
             icon.innerText = favs.includes(id) ? "bookmark" : "bookmark_border";
         }
 
+        function renderFavorites() {
+            let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
+            // Need to find full objects from fullDbData using IDs
+            // Since processedMinyanim flattens data, let's use a lookup on fullDbData for info, 
+            // but we need the specific minyan info. Actually, Favorites usually just show the Shul details.
+            // For now, let's just filter unique Shuls from processedMinyanim that match IDs.
+            
+            const results = processedMinyanim.filter(m => favs.includes(m.id));
+            // De-duplicate by ID for list
+            const uniqueResults = [];
+            const seen = new Set();
+            results.forEach(r => { if(!seen.has(r.id)){ uniqueResults.push(r); seen.add(r.id); }});
+            
+            if(uniqueResults.length === 0) {
+                document.getElementById('list-view').innerHTML = '<div class="empty-state">No saved shuls yet. Tap the bookmark icon on any shul to save it.</div>';
+            } else {
+                renderList(uniqueResults);
+            }
+        }
+
+        function renderRecents() {
+            let recents = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
+            const results = processedMinyanim.filter(m => recents.includes(m.id));
+            const uniqueResults = [];
+            const seen = new Set();
+            // Preserve order of recents
+            recents.forEach(id => {
+                const match = results.find(r => r.id === id);
+                if(match && !seen.has(id)) { uniqueResults.push(match); seen.add(id); }
+            });
+
+            if(uniqueResults.length === 0) {
+                document.getElementById('list-view').innerHTML = '<div class="empty-state">No recent activity.</div>';
+            } else {
+                renderList(uniqueResults);
+            }
+        }
+
         function showComingSoon() {
             const toast = document.getElementById("coming-soon-toast");
             toast.style.display = "block";
-            // Reset animation
             toast.style.animation = 'none';
-            toast.offsetHeight; /* trigger reflow */
+            toast.offsetHeight; 
             toast.style.animation = 'fadeInOut 2s forwards';
         }
-        // ---------------------------
 
+        // --- EXISTING LOGIC ---
         function renderWelcome() {
             const list = document.getElementById("list-view");
             list.innerHTML = `
@@ -587,17 +688,10 @@
                     <div style="margin-top: 30px; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; margin-bottom: 10px;">Sponsored</div>
                 </div>
             `;
-            
             ADS_DB.forEach(ad => {
                 const adCard = document.createElement("div");
                 adCard.className = "ad-card";
-                adCard.innerHTML = `
-                    <div style="display:flex; align-items:center;">
-                        <span class="ad-badge">AD</span>
-                        <span class="ad-content">${ad.name}</span>
-                    </div>
-                    <i class="material-icons ad-arrow">chevron_right</i>
-                `;
+                adCard.innerHTML = `<div style="display:flex; align-items:center;"><span class="ad-badge">AD</span><span class="ad-content">${ad.name}</span></div><i class="material-icons ad-arrow">chevron_right</i>`;
                 adCard.onclick = () => openAdDetails(ad);
                 list.appendChild(adCard);
             });
@@ -616,9 +710,7 @@
             try {
                 const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
                 document.getElementById('hebrew-date').innerText = hDate;
-            } catch(e) {
-                document.getElementById('hebrew-date').innerText = "";
-            }
+            } catch(e) { document.getElementById('hebrew-date').innerText = ""; }
         }
 
         function getDayKey(date) {
@@ -645,35 +737,19 @@
             data.forEach(shul => {
                 if(!shul.name) return;
                 if(shul.nusach) allNusachs.add(shul.nusach.trim());
-
                 let hasTimes = false;
                 let minyanimForThisShul = []; 
                 
-                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) {
-                    shul.shacharis[dayKey].forEach(t => { 
-                        addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; 
-                    });
-                }
-                
-                if (isFri) {
-                    if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
-                } else if (isSat) {
-                    if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
-                } else {
-                    if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
-                }
+                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
+                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
+                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
+                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); }
 
-                if (isSat) {
-                    if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
-                } else {
-                    if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
-                }
+                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); } 
+                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); }
 
-                if (!hasTimes) {
-                    processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
-                } else {
-                    processedMinyanim.push(...minyanimForThisShul);
-                }
+                if (!hasTimes) processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
+                else processedMinyanim.push(...minyanimForThisShul);
             });
             allMinyanim = processedMinyanim;
         }
@@ -687,8 +763,7 @@
             if (type === 'Mincha' && h < 9) sortH += 12;
             if (type === 'Maariv' && h < 12) sortH += 12; 
             if (type === 'Mincha' && h === 12) sortH = 12;
-            let formatted = formatTime(h, m);
-            list.push({ ...shul, tefillah: type, timeDisplay: formatted, timeValue: (sortH * 60) + m });
+            list.push({ ...shul, tefillah: type, timeDisplay: formatTime(h, m), timeValue: (sortH * 60) + m });
         }
 
         function populateNusachFilter() {
@@ -706,38 +781,17 @@
         }
 
         function toggleView() {
-            document.getElementById('filter-drawer').style.display = 'none';
+            // This function is now mainly for the floating button or double-tapping map tab
+            // But with new nav bar, we just switch to list mode if on map
             const list = document.getElementById("list-view");
-            const icon = document.getElementById("nav-view-icon");
-            const btnLabel = document.getElementById("nav-view-btn");
-            const dot = document.getElementById("center-marker");
-            const mapPill = document.getElementById("map-radius-pill");
-            const countPill = document.getElementById("count-pill");
-            
             if (list.style.display === "none") {
-                // SWITCH TO LIST
                 list.style.display = "block";
-                icon.innerText = "map";
-                btnLabel.innerHTML = `<i class="material-icons">map</i>Map`;
-                btnLabel.classList.remove("active");
-                dot.style.display = "none";
-                mapPill.style.display = "none";
-                countPill.style.display = "block";
-                applyFilters(); 
+                document.getElementById("center-marker").style.display = "none";
+                applyFilters();
             } else {
-                // SWITCH TO MAP
                 list.style.display = "none";
-                icon.innerText = "list";
-                btnLabel.innerHTML = `<i class="material-icons">list</i>List`;
-                btnLabel.classList.add("active");
-                dot.style.display = "block";
-                mapPill.style.display = "block";
-                countPill.style.display = "block"; 
-                applyFilters(); 
-                if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
-                    isProgrammaticMove = true;
-                    map.panTo(searchCenter);
-                }
+                document.getElementById("center-marker").style.display = "block";
+                applyFilters();
             }
         }
 
@@ -750,6 +804,8 @@
                 map.setCenter({ lat, lng });
                 map.setZoom(13);
             }
+            // Switch to Map tab on search
+            switchTab('map');
             applyFilters();
         }
 
@@ -772,7 +828,11 @@
                 return m;
             });
 
-            if (document.getElementById("list-view").style.display !== 'none') {
+            // Map Bounds Logic (Only applies if on Map Tab and List is hidden, OR if List is shown we rely on bounds too if synced? 
+            // Previous logic: If list open -> Radius. If Map open -> Bounds.
+            const isMapMode = (currentTab === 'map' && document.getElementById("list-view").style.display === 'none');
+            
+            if (!isMapMode) {
                 results = results.filter(m => m.distance <= currentRadius);
             } else if (map) {
                 const bounds = map.getBounds();
@@ -791,17 +851,19 @@
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            const totalMinyanim = results.length;
-            const isListMode = document.getElementById("list-view").style.display !== 'none';
             
-            if(isListMode) {
-                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${totalMinyanim} Minyanim`;
-            } else {
+            if(isMapMode) {
                 document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            } else {
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
             }
 
-            renderList(results);
-            updateMapMarkers(results);
+            if(currentTab === 'map' || currentTab === 'recent' || currentTab === 'saved') {
+                renderList(results);
+            }
+            if(currentTab === 'map') {
+                updateMapMarkers(results);
+            }
         }
 
         function renderList(results){
@@ -911,7 +973,6 @@
 
         function openDetails(m) {
             selectedShul = m;
-            // SAVE TO RECENTS
             addToRecents(m);
             checkFavoriteStatus(m.id);
             
@@ -951,7 +1012,6 @@
                     ${nusachTag}
                     ${rabbiText}
                 </div>
-                
                 <div class="drawer-nav-row">
                     <div class="drawer-nav-left">
                          <span class="static-chip ${tefillahChipClass}">${m.tefillah}</span>
@@ -964,14 +1024,8 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="contact-row">
-                    ${phoneBtn}
-                    ${emailBtn}
-                    ${goDavenBtn}
-                </div>
+                <div class="contact-row">${phoneBtn}${emailBtn}${goDavenBtn}</div>
                 ${missingInfoText}
-                
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
                     <div class="schedule-grid">
@@ -983,7 +1037,6 @@
                     </div>
                 </div>
             `;
-
             const drawer = document.getElementById("details-drawer");
             drawer.classList.add("open");
             drawer.style.transform = "translateY(0)";
@@ -994,32 +1047,12 @@
             document.getElementById("drawer-title").innerText = ad.name;
             document.getElementById("drawer-address-line1").innerText = ""; 
             document.getElementById("drawer-address-line2").innerText = ""; 
-            
             const shareBtn = document.getElementById("share-btn");
-            shareBtn.onclick = () => {
-                if(navigator.share) navigator.share({title: ad.name, text: `Check out ${ad.name} on ShulTime!`, url: ad.website});
-            };
-
-            let phoneBtn = ad.phone 
-                ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`
-                : '';
-            let webBtn = ad.website
-                ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` 
-                : '';
+            shareBtn.onclick = () => { if(navigator.share) navigator.share({title: ad.name, text: `Check out ${ad.name} on ShulTime!`, url: ad.website}); };
+            let phoneBtn = ad.phone ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>` : '';
+            let webBtn = ad.website ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` : '';
             let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
-
-            document.getElementById("drawer-content").innerHTML = `
-                <div class="ad-hero">
-                    <img src="${ad.image_url}" alt="${ad.name}">
-                </div>
-                <div class="ad-desc">${ad.description}</div>
-                <p class="address-info" style="margin-top:0;">${ad.address}</p>
-                <div class="contact-row">
-                    ${phoneBtn}
-                    ${webBtn}
-                    ${mapBtn}
-                </div>
-            `;
+            document.getElementById("drawer-content").innerHTML = `<div class="ad-hero"><img src="${ad.image_url}" alt="${ad.name}"></div><div class="ad-desc">${ad.description}</div><p class="address-info" style="margin-top:0;">${ad.address}</p><div class="contact-row">${phoneBtn}${webBtn}${mapBtn}</div>`;
             const drawer = document.getElementById("details-drawer");
             drawer.classList.add("open");
             drawer.style.transform = "translateY(0)";
@@ -1031,14 +1064,7 @@
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const link = `https://www.godaven.com/shul-details/${godavenId}`;
             const text = `Shared by ShulTime:\n\n${m.name}\n${m.address}\n\nNusach: ${m.nusach}\nLink: ${link}`;
-            
-            if(navigator.share) {
-                try { await navigator.share({ title: m.name, text: text, url: link }); } 
-                catch(e) { console.log('Share failed', e); }
-            } else {
-                navigator.clipboard.writeText(text + "\n" + link);
-                alert("Copied to clipboard!");
-            }
+            if(navigator.share) { try { await navigator.share({ title: m.name, text: text, url: link }); } catch(e) { console.log('Share failed', e); } } else { navigator.clipboard.writeText(text + "\n" + link); alert("Copied to clipboard!"); }
         }
 
         function closeDetails() {
@@ -1048,9 +1074,7 @@
             document.getElementById("scrim").style.display = "none";
         }
 
-        function initPullToDismiss() {
-            // Disabled
-        }
+        function initPullToDismiss() {}
 
         function toggleFilters() {
             const d = document.getElementById('filter-drawer');
@@ -1094,7 +1118,6 @@
             document.getElementById("count-pill").style.display = "none";
             document.getElementById("map-radius-pill").style.display = "none";
             renderWelcome();
-            
             const el = document.querySelector('gmp-place-autocomplete');
             if(el) el.value = null;
             if(map) { markers.forEach(m => m.map = null); }
@@ -1120,9 +1143,7 @@
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 },
                 zoom: 12, disableDefaultUI: true, clickableIcons: false, mapId: "DEMO_MAP_ID",
-                styles: [
-                  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-                ]
+                styles: [ { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] } ]
             });
 
             map.addListener('idle', onMapIdle);
@@ -1133,7 +1154,6 @@
                 if (event.placePrediction) {
                     if (document.activeElement) document.activeElement.blur();
                     setTimeout(() => { if (document.activeElement) document.activeElement.blur(); }, 200);
-
                     const place = event.placePrediction.toPlace();
                     await place.fetchFields({ fields: ["displayName", "location"] });
                     setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
