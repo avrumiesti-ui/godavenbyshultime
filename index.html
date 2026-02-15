@@ -78,29 +78,13 @@
     #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
     /* VIEWS */
-    #list-view { 
+    #list-view, #zmanim-view, #settings-view { 
         position: absolute; inset: 0; 
-        padding: 110px 12px 100px; 
+        padding: 110px 12px 120px; /* Bottom padding for Floating Toolbar */
         overflow-y: auto; background: var(--bg); 
-        z-index: 10; 
+        z-index: 10; display: none;
     }
-    #map-view { position: absolute; inset: 0; z-index: 5; padding-bottom: 80px; }
-    
-    /* ZMANIM VIEW */
-    #zmanim-view {
-        position: absolute; inset: 0; 
-        padding: 110px 20px 100px;
-        background: #fff; z-index: 15;
-        overflow-y: auto; display: none;
-    }
-    .zmanim-card {
-        background: #f9f9f9; border-radius: 15px; padding: 15px; margin-bottom: 10px;
-        display: flex; justify-content: space-between; align-items: center;
-        border-bottom: 1px solid #eee;
-    }
-    .zman-name { font-weight: 700; color: #555; font-size: 16px; }
-    .zman-time { font-weight: 800; color: var(--primary); font-size: 18px; }
-    .zman-location { text-align: center; margin-bottom: 20px; color: #777; font-size: 14px; }
+    #map-view { position: absolute; inset: 0; z-index: 5; }
 
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
@@ -109,33 +93,47 @@
         pointer-events: none; display: none;
     }
 
-    /* BOTTOM TOOLBAR */
-    .bottom-nav {
-        position: fixed; bottom: 0; left: 0; right: 0;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid rgba(0,0,0,0.05);
-        display: flex; justify-content: space-around;
-        padding: 12px 10px calc(12px + env(safe-area-inset-bottom)) 10px;
-        z-index: 1500; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-        border-radius: 20px 20px 0 0;
+    /* FLOATING PILL TOOLBAR (iOS Liquid Style) */
+    .floating-toolbar {
+        position: fixed; bottom: 30px; left: 20px; right: 20px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255,255,255,0.3);
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 15px;
+        z-index: 1500;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border-radius: 40px; /* Pill Shape */
     }
     .nav-item {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         border: none; background: none; color: #999;
-        font-size: 10px; font-weight: 600; gap: 4px;
+        font-size: 10px; font-weight: 600; gap: 3px;
         flex: 1; cursor: pointer; transition: all 0.2s; position: relative;
     }
-    .nav-item.active { color: var(--primary); }
-    .nav-item i { font-size: 26px; }
-    .nav-item.active::after {
-        content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 50px; height: 50px; background: var(--primary); opacity: 0.08;
-        border-radius: 50%; z-index: -1; animation: pulse 0.3s ease-out;
-    }
-    @keyframes pulse { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 0.08; } }
+    .nav-item.active { color: var(--primary); transform: translateY(-2px); }
+    .nav-item i { font-size: 24px; }
+    
+    /* SETTINGS STYLES */
+    .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .settings-header { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+    .input-group { margin-bottom: 15px; }
+    .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+    .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
+    .settings-input:focus { outline: none; border-color: var(--primary); background: #fff; }
+    
+    .settings-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; color: #333; text-decoration: none; cursor: pointer; }
+    .settings-link:last-child { border-bottom: none; }
+    .settings-link i { color: #ccc; }
+    .settings-link-text { font-size: 16px; font-weight: 600; }
 
-    /* CARDS */
+    /* ZMANIM STYLES */
+    .zmanim-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .zman-name { font-weight: 700; color: #555; font-size: 15px; }
+    .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; }
+    .zman-location { text-align: center; margin-bottom: 20px; color: #777; font-size: 14px; font-weight: 500; }
+
+    /* CARD STYLES */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -144,16 +142,16 @@
     }
     .info-zone { 
         width: 60%; flex-basis: 60%; flex-shrink: 0;
-        padding: 8px 12px; 
+        padding: 10px 12px; 
         cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: flex-start;
+        display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         cursor: pointer; background: #fafafa; 
-        padding: 5px; gap: 4px;
+        padding: 5px; gap: 4px; /* Centered Layout */
     }
     
     .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
@@ -162,17 +160,9 @@
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
     /* RIGHT SIDE ELEMENTS */
-    .tefillah-label { 
-        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; 
-        line-height: 1; color: #555; text-align: center; width: 100%;
-    } 
-    .time-val-card { 
-        padding: 4px 8px; border-radius: 8px; background: #E8EAF6; 
-        color: var(--primary); font-weight: 800; font-size: 16px; white-space: nowrap;
-    }
-    .dist-row { 
-        display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
-    }
+    .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; } 
+    .time-val-card { padding: 4px 8px; border-radius: 8px; background: #E8EAF6; color: var(--primary); font-weight: 800; font-size: 16px; white-space: nowrap; }
+    .dist-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
@@ -318,21 +308,28 @@
 
     /* COMING SOON OVERLAY */
     .coming-soon-overlay {
-        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+        position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
         background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 30px;
         font-weight: 700; font-size: 14px; z-index: 2000;
         display: none; animation: fadeInOut 2s forwards; pointer-events: none;
     }
-    @keyframes fadeInOut { 0% {opacity:0; bottom:80px;} 20% {opacity:1; bottom:90px;} 80% {opacity:1; bottom:90px;} 100% {opacity:0; bottom:100px;} }
+    @keyframes fadeInOut { 0% {opacity:0; bottom:110px;} 20% {opacity:1; bottom:120px;} 80% {opacity:1; bottom:120px;} 100% {opacity:0; bottom:130px;} }
 
     .fab-location {
-        position: fixed; bottom: 90px; right: 20px; width: 50px; height: 50px;
+        position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px;
         background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900;
     }
 
     .empty-state { text-align: center; color: #555; margin-top: 50px; padding: 0 30px; line-height: 1.6; }
     .empty-state strong { color: var(--primary); font-size: 1.2em; }
+    
+    /* TIME PILLS (NUSACH COLORED) */
+    .time-pill {
+        display: inline-block; padding: 4px 12px; border-radius: 14px;
+        font-weight: 800; font-size: 16px; white-space: nowrap; margin: 2px;
+        border: 1px solid rgba(0,0,0,0.08); 
+    }
 </style>
 </head>
 <body>
@@ -355,7 +352,7 @@
     <div id="center-marker"></div>
     <div id="scrim" onclick="closeDetails()"></div>
 
-    <div id="coming-soon-toast" class="coming-soon-overlay">Feature Coming Soon</div>
+    <div id="coming-soon-toast" class="coming-soon-overlay">Coming Soon</div>
 
     <div id="details-drawer">
         <div class="drawer-header">
@@ -451,24 +448,62 @@
     <div id="map-view"></div>
     <div id="zmanim-view"></div>
     
+    <div id="settings-view">
+        <div class="settings-header">Settings</div>
+        
+        <div class="settings-card">
+            <div class="input-group">
+                <label class="input-label">Name</label>
+                <input type="text" class="settings-input" id="profile-name" placeholder="Your Name" oninput="saveProfile()">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Phone</label>
+                <input type="tel" class="settings-input" id="profile-phone" placeholder="Phone Number" oninput="saveProfile()">
+            </div>
+        </div>
+
+        <div class="settings-card" style="padding: 0 20px;">
+            <a class="settings-link" onclick="showComingSoon()">
+                <span class="settings-link-text">Privacy Policy</span>
+                <i class="material-icons">chevron_right</i>
+            </a>
+            <a class="settings-link" onclick="showComingSoon()">
+                <span class="settings-link-text">Rate App</span>
+                <i class="material-icons">star_rate</i>
+            </a>
+            <a class="settings-link" onclick="shareApp()">
+                <span class="settings-link-text">Share App</span>
+                <i class="material-icons">ios_share</i>
+            </a>
+            <a class="settings-link" href="mailto:support@shultime.com">
+                <span class="settings-link-text">Contact Us</span>
+                <i class="material-icons">email</i>
+            </a>
+            <a class="settings-link" href="mailto:support@shultime.com?subject=Support">
+                <span class="settings-link-text">Support</span>
+                <i class="material-icons">help_outline</i>
+            </a>
+        </div>
+    </div>
+    
     <button class="fab-location" onclick="useMyLocation()">
         <i class="material-icons" style="font-size:24px;">my_location</i>
     </button>
 
-    <div class="bottom-nav">
+    <div class="floating-toolbar">
         <button class="nav-item" id="nav-recent" onclick="switchTab('recent')">
             <i class="material-icons">history</i>Recent
         </button>
         <button class="nav-item" id="nav-zmanim" onclick="switchTab('zmanim')">
             <i class="material-icons">access_time</i>Zmanim
         </button>
-        <button class="nav-item active" id="nav-map" onclick="switchTab('map')">
-            <i class="material-icons">map</i>Map
+        <button class="nav-item active" id="nav-toggle" onclick="toggleView()">
+            <i class="material-icons" id="nav-toggle-icon">list</i><span id="nav-toggle-text">List</span>
         </button>
         <button class="nav-item" id="nav-saved" onclick="switchTab('saved')">
             <i class="material-icons">bookmark_border</i>Saved
         </button>
-        <button class="nav-item" id="nav-settings" onclick="showComingSoon()">
+        <button class="nav-item" id="nav-settings" onclick="switchTab('settings')">
             <i class="material-icons">settings</i>Settings
         </button>
     </div>
@@ -496,6 +531,7 @@
             document.getElementById('time-end').value = "23:59";
             updateDateDisplay();
             renderWelcome();
+            loadProfile();
 
             try {
                 const res = await fetch("database.json");
@@ -512,44 +548,75 @@
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            document.getElementById(`nav-${tab}`).classList.add('active');
+            // Highlight button (toggle button logic handled separately)
+            if(tab !== 'map' && tab !== 'list') {
+                document.getElementById(`nav-${tab}`).classList.add('active');
+            } else {
+                document.getElementById('nav-toggle').classList.add('active');
+            }
 
-            // Reset Views
+            // Hide All
             document.getElementById('map-view').style.display = 'none';
             document.getElementById('list-view').style.display = 'none';
             document.getElementById('zmanim-view').style.display = 'none';
-            document.getElementById('center-marker').style.display = 'none'; // Ensure hidden unless map
-            
-            // Map/List Mode
+            document.getElementById('settings-view').style.display = 'none';
+            document.getElementById('center-marker').style.display = 'none';
+            document.querySelector('.search-container').style.display = 'none'; // Hide search on other tabs?
+            document.querySelector('.fab-location').style.display = 'none'; 
+
             if(tab === 'map') {
                 document.getElementById('map-view').style.display = 'block';
                 document.getElementById('center-marker').style.display = 'block';
                 document.querySelector('.search-container').style.display = 'flex';
                 document.querySelector('.fab-location').style.display = 'flex';
-                // Trigger filters to potentially show list if user left in list mode, 
-                // but standard is map. Let's default to map mode when clicking map tab.
+                updateToggleButton('List', 'list');
                 applyFilters(); 
-            } 
+            }
+            else if(tab === 'list') {
+                document.getElementById('list-view').style.display = 'block';
+                document.querySelector('.search-container').style.display = 'flex';
+                document.querySelector('.fab-location').style.display = 'flex';
+                updateToggleButton('Map', 'map');
+                applyFilters();
+            }
             else if(tab === 'recent') {
                 document.getElementById('list-view').style.display = 'block';
+                updateToggleButton('Map', 'map'); // If user clicks toggle while here, go to map
                 renderRecents();
             }
             else if(tab === 'saved') {
                 document.getElementById('list-view').style.display = 'block';
+                updateToggleButton('Map', 'map');
                 renderFavorites();
             }
             else if(tab === 'zmanim') {
                 document.getElementById('zmanim-view').style.display = 'block';
                 fetchZmanim();
             }
+            else if(tab === 'settings') {
+                document.getElementById('settings-view').style.display = 'block';
+            }
         }
 
-        // --- ZMANIM FEATURE ---
+        function toggleView() {
+            // If current view is map, switch to list. If list, switch to map.
+            const mapVisible = document.getElementById('map-view').style.display === 'block';
+            if (mapVisible) {
+                switchTab('list');
+            } else {
+                switchTab('map');
+            }
+        }
+
+        function updateToggleButton(text, iconName) {
+            document.getElementById('nav-toggle-icon').innerText = iconName;
+            document.getElementById('nav-toggle-text').innerText = text;
+        }
+
+        // --- ZMANIM ---
         async function fetchZmanim() {
             const zDiv = document.getElementById("zmanim-view");
             zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
-            
-            // Default to Lakewood if no search center
             const lat = searchCenter ? searchCenter.lat : 40.091;
             const lng = searchCenter ? searchCenter.lng : -74.218;
             
@@ -558,44 +625,34 @@
                 const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                
                 let html = `<div class="zman-location">Zmanim for ${data.location.title || "Location"} <br> ${dateStr}</div>`;
                 const times = data.times;
-                
                 const formatZman = (iso) => {
                     const d = new Date(iso);
-                    let h = d.getHours();
-                    let m = String(d.getMinutes()).padStart(2, '0');
-                    let ampm = h >= 12 ? 'pm' : 'am';
-                    h = h % 12 || 12;
+                    let h = d.getHours(); let m = String(d.getMinutes()).padStart(2, '0');
+                    let ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
                     return `${h}:${m}${ampm}`;
                 };
-
-                const zmanimList = [
-                    { k: 'alotHaShachar', l: 'Alot Hashachar' },
-                    { k: 'sunrise', l: 'Sunrise (Netz)' },
-                    { k: 'sofZmanShma', l: 'Sof Zman Shma (Gra)' },
-                    { k: 'sofZmanTfila', l: 'Sof Zman Tefila' },
-                    { k: 'chatzot', l: 'Chatzot' },
-                    { k: 'minchaGedola', l: 'Mincha Gedola' },
-                    { k: 'minchaKetana', l: 'Mincha Ketana' },
-                    { k: 'sunset', l: 'Sunset (Shkia)' },
-                    { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' }
-                ];
-
-                zmanimList.forEach(item => {
-                    if(times[item.k]) {
-                        html += `
-                        <div class="zmanim-card">
-                            <span class="zman-name">${item.l}</span>
-                            <span class="zman-time">${formatZman(times[item.k])}</span>
-                        </div>`;
-                    }
-                });
+                const zList = [ { k: 'alotHaShachar', l: 'Alot Hashachar' }, { k: 'sunrise', l: 'Sunrise' }, { k: 'sofZmanShma', l: 'Sof Zman Shma' }, { k: 'sofZmanTfila', l: 'Sof Zman Tefila' }, { k: 'chatzot', l: 'Chatzot' }, { k: 'minchaGedola', l: 'Mincha Gedola' }, { k: 'sunset', l: 'Sunset' }, { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' } ];
+                zList.forEach(i => { if(times[i.k]) html += `<div class="zmanim-card"><span class="zman-name">${i.l}</span><span class="zman-time">${formatZman(times[i.k])}</span></div>`; });
                 zDiv.innerHTML = html;
-            } catch(e) {
-                zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Error loading Zmanim. Please check connection.</div>';
-            }
+            } catch(e) { zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Error loading Zmanim.</div>'; }
+        }
+
+        // --- SETTINGS & PROFILE ---
+        function saveProfile() {
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+            localStorage.setItem('shultime_profile', JSON.stringify({ name, phone }));
+        }
+        function loadProfile() {
+            const p = JSON.parse(localStorage.getItem('shultime_profile') || "{}");
+            if(p.name) document.getElementById('profile-name').value = p.name;
+            if(p.phone) document.getElementById('profile-phone').value = p.phone;
+        }
+        function shareApp() {
+            if(navigator.share) navigator.share({title: 'ShulTime', text: 'Find Minyanim near you!', url: window.location.href});
+            else alert("Share feature not supported on this browser.");
         }
 
         // --- LOCAL STORAGE & LISTS ---
@@ -612,14 +669,8 @@
             let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
             const index = favs.indexOf(selectedShul.id);
             const icon = document.getElementById("bookmark-icon");
-
-            if (index > -1) {
-                favs.splice(index, 1);
-                icon.innerText = "bookmark_border";
-            } else {
-                favs.push(selectedShul.id);
-                icon.innerText = "bookmark";
-            }
+            if (index > -1) { favs.splice(index, 1); icon.innerText = "bookmark_border"; } 
+            else { favs.push(selectedShul.id); icon.innerText = "bookmark"; }
             localStorage.setItem("shultime_favs", JSON.stringify(favs));
         }
 
@@ -631,48 +682,30 @@
 
         function renderFavorites() {
             let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
-            // Need to find full objects from fullDbData using IDs
-            // Since processedMinyanim flattens data, let's use a lookup on fullDbData for info, 
-            // but we need the specific minyan info. Actually, Favorites usually just show the Shul details.
-            // For now, let's just filter unique Shuls from processedMinyanim that match IDs.
-            
-            const results = processedMinyanim.filter(m => favs.includes(m.id));
-            // De-duplicate by ID for list
-            const uniqueResults = [];
-            const seen = new Set();
-            results.forEach(r => { if(!seen.has(r.id)){ uniqueResults.push(r); seen.add(r.id); }});
-            
-            if(uniqueResults.length === 0) {
-                document.getElementById('list-view').innerHTML = '<div class="empty-state">No saved shuls yet. Tap the bookmark icon on any shul to save it.</div>';
-            } else {
-                renderList(uniqueResults);
-            }
+            const uniqueResults = []; const seen = new Set();
+            // Filter unique shuls from processedMinyanim based on ID
+            processedMinyanim.forEach(m => {
+                if(favs.includes(m.id) && !seen.has(m.id)) { uniqueResults.push(m); seen.add(m.id); }
+            });
+            if(uniqueResults.length === 0) document.getElementById('list-view').innerHTML = '<div class="empty-state">No saved shuls.</div>';
+            else renderList(uniqueResults);
         }
 
         function renderRecents() {
             let recents = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
-            const results = processedMinyanim.filter(m => recents.includes(m.id));
-            const uniqueResults = [];
-            const seen = new Set();
-            // Preserve order of recents
+            const uniqueResults = []; const seen = new Set();
             recents.forEach(id => {
-                const match = results.find(r => r.id === id);
+                const match = processedMinyanim.find(r => r.id === id);
                 if(match && !seen.has(id)) { uniqueResults.push(match); seen.add(id); }
             });
-
-            if(uniqueResults.length === 0) {
-                document.getElementById('list-view').innerHTML = '<div class="empty-state">No recent activity.</div>';
-            } else {
-                renderList(uniqueResults);
-            }
+            if(uniqueResults.length === 0) document.getElementById('list-view').innerHTML = '<div class="empty-state">No recent activity.</div>';
+            else renderList(uniqueResults);
         }
 
         function showComingSoon() {
             const toast = document.getElementById("coming-soon-toast");
             toast.style.display = "block";
-            toast.style.animation = 'none';
-            toast.offsetHeight; 
-            toast.style.animation = 'fadeInOut 2s forwards';
+            toast.style.animation = 'none'; toast.offsetHeight; toast.style.animation = 'fadeInOut 2s forwards';
         }
 
         // --- EXISTING LOGIC ---
@@ -780,21 +813,6 @@
             });
         }
 
-        function toggleView() {
-            // This function is now mainly for the floating button or double-tapping map tab
-            // But with new nav bar, we just switch to list mode if on map
-            const list = document.getElementById("list-view");
-            if (list.style.display === "none") {
-                list.style.display = "block";
-                document.getElementById("center-marker").style.display = "none";
-                applyFilters();
-            } else {
-                list.style.display = "none";
-                document.getElementById("center-marker").style.display = "block";
-                applyFilters();
-            }
-        }
-
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
             document.getElementById("status-pill").style.display = "block";
@@ -804,9 +822,9 @@
                 map.setCenter({ lat, lng });
                 map.setZoom(13);
             }
-            // Switch to Map tab on search
             switchTab('map');
-            applyFilters();
+            // If switchTab sets to map, we might need to wait for idle, or applyFilters directly
+            // applyFilters is called in switchTab > map block
         }
 
         function manualRadiusUpdate(val) { updateRadius(val); applyFilters(); }
@@ -828,8 +846,7 @@
                 return m;
             });
 
-            // Map Bounds Logic (Only applies if on Map Tab and List is hidden, OR if List is shown we rely on bounds too if synced? 
-            // Previous logic: If list open -> Radius. If Map open -> Bounds.
+            // Filtering based on active view
             const isMapMode = (currentTab === 'map' && document.getElementById("list-view").style.display === 'none');
             
             if (!isMapMode) {
@@ -858,7 +875,7 @@
                 document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
             }
 
-            if(currentTab === 'map' || currentTab === 'recent' || currentTab === 'saved') {
+            if(currentTab === 'map' || currentTab === 'list' || currentTab === 'recent' || currentTab === 'saved') {
                 renderList(results);
             }
             if(currentTab === 'map') {
@@ -975,11 +992,9 @@
             selectedShul = m;
             addToRecents(m);
             checkFavoriteStatus(m.id);
-            
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const link = `https://www.godaven.com/shul-details/${godavenId}`;
             const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-            
             document.getElementById("drawer-title").innerText = m.name;
             document.getElementById("drawer-address-line1").innerText = m.address; 
             document.getElementById("drawer-address-line2").innerText = `${m.city}, ${m.state} ${m.zip}`; 
@@ -993,39 +1008,18 @@
             const shareBtn = document.getElementById("share-btn");
             shareBtn.onclick = () => shareShul(m);
 
-            let phoneBtn = m.phone 
-                ? `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`
-                : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">call</i> Call</div>`;
-
-            let emailBtn = m.email 
-                ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:14px">email</i> Email</a>`
-                : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">email</i> Email</div>`;
-
+            let phoneBtn = m.phone ? `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>` : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">call</i> Call</div>`;
+            let emailBtn = m.email ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:14px">email</i> Email</a>` : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">email</i> Email</div>`;
             let goDavenBtn = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>`;
-
-            let missingInfoText = (!m.phone || !m.email) 
-                ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` 
-                : '';
+            let missingInfoText = (!m.phone || !m.email) ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` : '';
 
             document.getElementById("drawer-content").innerHTML = `
-                <div class="drawer-top-info">
-                    ${nusachTag}
-                    ${rabbiText}
-                </div>
+                <div class="drawer-top-info">${nusachTag}${rabbiText}</div>
                 <div class="drawer-nav-row">
-                    <div class="drawer-nav-left">
-                         <span class="static-chip ${tefillahChipClass}">${m.tefillah}</span>
-                         <span class="time-pill ${timePillClass}">${m.timeDisplay}</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <div style="font-size:14px; font-weight:700; color:#666;">${m.distance.toFixed(1)}mi</div>
-                        <div class="map-circle-lg" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
-                            <i class="material-icons google-maps-icon google-maps-icon-lg">place</i>
-                        </div>
-                    </div>
+                    <div class="drawer-nav-left"><span class="static-chip ${tefillahChipClass}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
+                    <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${m.distance.toFixed(1)}mi</div><div class="map-circle-lg" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')"><i class="material-icons google-maps-icon google-maps-icon-lg">place</i></div></div>
                 </div>
-                <div class="contact-row">${phoneBtn}${emailBtn}${goDavenBtn}</div>
-                ${missingInfoText}
+                <div class="contact-row">${phoneBtn}${emailBtn}${goDavenBtn}</div>${missingInfoText}
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
                     <div class="schedule-grid">
@@ -1035,8 +1029,7 @@
                         <div class="schedule-item"><div class="schedule-day">Mincha</div>${formatListPills(m.mincha?.week, m.nusach)}</div>
                         <div class="schedule-item"><div class="schedule-day">Maariv</div>${formatListPills(m.maariv?.week, m.nusach)}</div>
                     </div>
-                </div>
-            `;
+                </div>`;
             const drawer = document.getElementById("details-drawer");
             drawer.classList.add("open");
             drawer.style.transform = "translateY(0)";
