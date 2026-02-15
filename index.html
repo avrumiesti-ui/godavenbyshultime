@@ -38,7 +38,7 @@
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
-    /* FLOATING HEADER (Search) */
+    /* FLOATING HEADER (Search) - Only visible on Map/List tab */
     .floating-header {
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
@@ -62,20 +62,6 @@
     }
     .circle-btn.active { background: var(--primary); color: #fff; }
 
-    /* STICKY LIQUID HEADER (For Recent/Saved) */
-    .sticky-header {
-        position: fixed; top: 0; left: 0; right: 0; height: 60px;
-        background: rgba(242, 244, 248, 0.85); /* Matches BG with transparency */
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        z-index: 900; 
-        display: flex; align-items: flex-end; justify-content: center;
-        padding-bottom: 12px;
-        font-weight: 800; font-size: 17px; color: var(--primary);
-        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
-    }
-    .sticky-header.visible { opacity: 1; pointer-events: auto; }
-
     /* STATUS PILLS */
     .status-area {
         position: fixed; top: 75px; left: 0; right: 0;
@@ -91,19 +77,19 @@
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
-    /* VIEWS */
+    /* VIEWS - Padding managed by JS switchTab */
     #list-view, #settings-view { 
         position: absolute; inset: 0; 
-        padding: 110px 12px 120px; 
+        padding-bottom: 120px; /* Space for toolbar */
         overflow-y: auto; background: var(--bg); 
         z-index: 10; display: none;
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
-    /* PAGE HEADERS (Big Titles in List) */
+    /* PAGE HEADERS (Big Titles) */
     .list-page-header {
         font-size: 34px; font-weight: 800; color: var(--primary);
-        margin-top: 20px; margin-bottom: 15px; padding-left: 5px;
+        margin-top: 10px; margin-bottom: 15px; padding-left: 5px;
     }
 
     /* ZMANIM VIEW */
@@ -159,7 +145,7 @@
     
     /* SETTINGS STYLES */
     .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .settings-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 20px; margin-bottom: 20px; padding-left: 5px; }
+    .settings-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 10px; margin-bottom: 20px; padding-left: 5px; }
     .input-group { margin-bottom: 15px; }
     .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
     .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
@@ -197,18 +183,18 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - STRICT 15px BUFFER */
+    /* RIGHT SIDE LAYOUT - 35px BUFFER */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 15px; text-align: right;
+        position: absolute; top: 8px; right: 35px; text-align: right;
         font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
         margin: 0;
     } 
     .time-val-card { 
-        position: absolute; top: calc(50% - 10px); right: 15px; transform: translateY(-50%);
+        position: absolute; top: calc(50% - 10px); right: 35px; transform: translateY(-50%);
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
-        position: absolute; bottom: 8px; right: 15px;
+        position: absolute; bottom: 8px; right: 35px;
         display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
@@ -381,8 +367,6 @@
 </style>
 </head>
 <body>
-
-    <div id="sticky-header" class="sticky-header"></div>
 
     <div class="floating-header" id="filter-header">
         <div class="search-container" onclick="event.stopPropagation()">
@@ -596,21 +580,6 @@
             renderWelcome();
             loadProfile();
 
-            // SCROLL LISTENER FOR STICKY HEADER
-            document.getElementById('list-view').addEventListener('scroll', function() {
-                const header = document.getElementById('sticky-header');
-                // Threshold: ~40px scroll
-                if(this.scrollTop > 40) {
-                    header.classList.add('visible');
-                    // Set title based on current tab
-                    if(currentTab === 'recent') header.innerText = "Recent";
-                    else if(currentTab === 'saved') header.innerText = "Saved";
-                    else header.classList.remove('visible'); // Don't show on search results
-                } else {
-                    header.classList.remove('visible');
-                }
-            });
-
             try {
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
@@ -628,8 +597,8 @@
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             
             const list = document.getElementById('list-view');
-            const sticky = document.getElementById('sticky-header');
-            sticky.classList.remove('visible'); // Reset on switch
+            const zmanim = document.getElementById('zmanim-view');
+            const settings = document.getElementById('settings-view');
             
             // Highlight logic
             if(tab !== 'map' && tab !== 'list') {
@@ -639,24 +608,22 @@
                 document.getElementById('count-pill').style.display = 'none';
                 document.getElementById('map-radius-pill').style.display = 'none';
                 
-                // ADJUST TOP PADDING
-                if(tab === 'recent' || tab === 'saved' || tab === 'settings') {
-                    list.style.paddingTop = '60px'; // Shorter padding
-                } else {
-                    list.style.paddingTop = '110px';
-                }
+                // ADJUST TOP PADDING (Remove dead space)
+                list.style.paddingTop = '20px';
+                zmanim.style.paddingTop = '20px';
+                settings.style.paddingTop = '20px';
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
                 document.getElementById('filter-header').style.display = 'flex';
-                // Reset padding for search
+                // Reset padding for search to clear header
                 list.style.paddingTop = '110px';
             }
 
             // Hide All
             document.getElementById('map-view').style.display = 'none';
-            document.getElementById('list-view').style.display = 'none';
-            document.getElementById('zmanim-view').style.display = 'none';
-            document.getElementById('settings-view').style.display = 'none';
+            list.style.display = 'none';
+            zmanim.style.display = 'none';
+            settings.style.display = 'none';
             document.getElementById('center-marker').style.display = 'none';
             document.querySelector('.fab-location').style.display = 'none'; 
 
@@ -668,27 +635,27 @@
                 applyFilters(); 
             }
             else if(tab === 'list') {
-                document.getElementById('list-view').style.display = 'block';
+                list.style.display = 'block';
                 document.querySelector('.fab-location').style.display = 'flex';
                 updateToggleButton('Map', 'map');
                 applyFilters();
             }
             else if(tab === 'recent') {
-                document.getElementById('list-view').style.display = 'block';
+                list.style.display = 'block';
                 updateToggleButton('Map', 'map'); 
                 renderRecents();
             }
             else if(tab === 'saved') {
-                document.getElementById('list-view').style.display = 'block';
+                list.style.display = 'block';
                 updateToggleButton('Map', 'map');
                 renderFavorites();
             }
             else if(tab === 'zmanim') {
-                document.getElementById('zmanim-view').style.display = 'block';
+                zmanim.style.display = 'block';
                 fetchZmanim();
             }
             else if(tab === 'settings') {
-                document.getElementById('settings-view').style.display = 'block';
+                settings.style.display = 'block';
             }
         }
 
@@ -703,23 +670,32 @@
             document.getElementById('nav-toggle-text').innerText = text;
         }
 
-        // --- ZMANIM (FIXED 2.0) ---
+        // --- ZMANIM (FIXED 3.0) ---
         async function fetchZmanim() {
             const zDiv = document.getElementById("zmanim-content");
             zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
             
-            // Default to Lakewood if no search center
-            const lat = (searchCenter && searchCenter.lat) ? searchCenter.lat : 40.091;
-            const lng = (searchCenter && searchCenter.lng) ? searchCenter.lng : -74.218;
+            // Safe lat/lng parsing with defaults
+            let lat = 40.091;
+            let lng = -74.218;
+            if (searchCenter && typeof searchCenter.lat === 'number') {
+                lat = searchCenter.lat;
+                lng = searchCenter.lng;
+            } else if (searchCenter && typeof searchCenter.lat === 'function') {
+                 lat = searchCenter.lat();
+                 lng = searchCenter.lng();
+            }
             
             try {
-                // FIXED DATE FORMATTING (YYYY-MM-DD local)
-                const year = currentFilterDate.getFullYear();
-                const month = String(currentFilterDate.getMonth() + 1).padStart(2, '0');
-                const day = String(currentFilterDate.getDate()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${day}`;
+                // Formatting Date strictly as YYYY-MM-DD
+                const y = currentFilterDate.getFullYear();
+                const m = String(currentFilterDate.getMonth() + 1).padStart(2, '0');
+                const d = String(currentFilterDate.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${d}`;
 
                 const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
+                // console.log("Fetching Zmanim:", url); // Debugging
+                
                 const res = await fetch(url);
                 if(!res.ok) throw new Error("API Error");
                 const data = await res.json();
@@ -809,8 +785,8 @@
             if(uniqueResults.length === 0) {
                 list.innerHTML = '<div class="list-page-header">Saved</div><div class="empty-state">No saved shuls.</div>';
             } else {
-                list.innerHTML = '<div class="list-page-header">Saved</div>'; // Header
-                renderListCards(uniqueResults, list); // Helper to append
+                list.innerHTML = '<div class="list-page-header">Saved</div>'; 
+                renderListCards(uniqueResults, list); 
             }
         }
 
@@ -826,8 +802,8 @@
             if(uniqueResults.length === 0) {
                 list.innerHTML = '<div class="list-page-header">Recent</div><div class="empty-state">No recent activity.</div>';
             } else {
-                list.innerHTML = '<div class="list-page-header">Recent</div>'; // Header
-                renderListCards(uniqueResults, list); // Helper to append
+                list.innerHTML = '<div class="list-page-header">Recent</div>'; 
+                renderListCards(uniqueResults, list); 
             }
         }
 
@@ -859,255 +835,6 @@
                     </div>
                     ${rightSide}`;
                 container.appendChild(card);
-            });
-        }
-
-        function showComingSoon() {
-            const toast = document.getElementById("coming-soon-toast");
-            toast.style.display = "block";
-            toast.style.animation = 'none'; toast.offsetHeight; toast.style.animation = 'fadeInOut 2s forwards';
-        }
-
-        // --- EXISTING LOGIC ---
-        function renderWelcome() {
-            const list = document.getElementById("list-view");
-            list.innerHTML = `
-                <div class="empty-state">
-                    <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
-                    <strong>Welcome to ShulTime</strong><br><br>
-                    <b>1. Search</b> for a city or zip code.<br>
-                    <b>2. Filter</b> by time or Nusach.<br>
-                    <b>3. Tap</b> the target to use GPS.
-                    <div style="margin-top: 30px; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; margin-bottom: 10px;">Sponsored</div>
-                </div>
-            `;
-            ADS_DB.forEach(ad => {
-                const adCard = document.createElement("div");
-                adCard.className = "ad-card";
-                adCard.innerHTML = `<div style="display:flex; align-items:center;"><span class="ad-badge">AD</span><span class="ad-content">${ad.name}</span></div><i class="material-icons ad-arrow">chevron_right</i>`;
-                adCard.onclick = () => openAdDetails(ad);
-                list.appendChild(adCard);
-            });
-        }
-
-        function changeDate(days) {
-            currentFilterDate.setDate(currentFilterDate.getDate() + days);
-            updateDateDisplay();
-            
-            // If on Zmanim, refresh it
-            if(currentTab === 'zmanim') {
-                fetchZmanim();
-            } else {
-                processMinyanim(fullDbData);
-                applyFilters();
-            }
-        }
-
-        function updateDateDisplay() {
-            const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-            document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
-            const shortOptions = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-            document.getElementById('zman-date-display').innerText = currentFilterDate.toLocaleDateString('en-US', shortOptions);
-            
-            try {
-                const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
-                document.getElementById('hebrew-date').innerText = hDate;
-                document.getElementById('zman-hebrew-date').innerText = hDate;
-            } catch(e) { 
-                document.getElementById('hebrew-date').innerText = ""; 
-                document.getElementById('zman-hebrew-date').innerText = "";
-            }
-        }
-
-        function getDayKey(date) {
-            const d = date.getDay(); 
-            if (d === 0) return 'sun';
-            if (d === 1 || d === 4) return 'mon_thu';
-            return 'tue_wed_fri';
-        }
-
-        function formatTime(h, m) {
-            let suffix = h >= 12 ? 'p' : 'a';
-            let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-            let dispM = String(m).padStart(2,"0");
-            return `${dispH}:${dispM}${suffix}`;
-        }
-
-        function processMinyanim(data){
-            processedMinyanim = [];
-            allNusachs = new Set();
-            const dayKey = getDayKey(currentFilterDate);
-            const isFri = currentFilterDate.getDay() === 5;
-            const isSat = currentFilterDate.getDay() === 6;
-
-            data.forEach(shul => {
-                if(!shul.name) return;
-                if(shul.nusach) allNusachs.add(shul.nusach.trim());
-                let hasTimes = false;
-                let minyanimForThisShul = []; 
-                
-                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
-                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); }
-
-                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); }
-
-                if (!hasTimes) processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
-                else processedMinyanim.push(...minyanimForThisShul);
-            });
-            allMinyanim = processedMinyanim;
-        }
-
-        function addMinyan(shul, type, tStr, list) {
-            if(!tStr) return;
-            let raw = tStr.trim().replace(/[^0-9:]/g,"");
-            if(!raw) return;
-            let [h,m] = raw.split(":").map(Number);
-            let sortH = h; 
-            if (type === 'Mincha' && h < 9) sortH += 12;
-            if (type === 'Maariv' && h < 12) sortH += 12; 
-            if (type === 'Mincha' && h === 12) sortH = 12;
-            list.push({ ...shul, tefillah: type, timeDisplay: formatTime(h, m), timeValue: (sortH * 60) + m });
-        }
-
-        function populateNusachFilter() {
-            const group = document.getElementById("nusach-group");
-            group.innerHTML = `<div class="chip active" onclick="setFilter('nusach', '', this)">All</div>`;
-            Array.from(allNusachs).sort().forEach(n => {
-                if(!n) return;
-                const safeClass = `chip-${n.replace(/\s+/g, '-')}`;
-                const chip = document.createElement("div");
-                chip.className = `chip ${safeClass}`;
-                chip.innerText = n;
-                chip.onclick = function() { setFilter('nusach', n, this); };
-                group.appendChild(chip);
-            });
-        }
-
-        function setSearchLocation(lat, lng, name){
-            searchCenter = { lat, lng };
-            document.getElementById("status-pill").innerText = `Near: ${name}`;
-            if(map) {
-                isProgrammaticMove = true;
-                map.setCenter({ lat, lng });
-                map.setZoom(13);
-            }
-            switchTab('map');
-        }
-
-        function manualRadiusUpdate(val) { updateRadius(val); applyFilters(); }
-        function updateRadius(val) {
-            currentRadius = parseFloat(val);
-            document.getElementById("radius-input").value = currentRadius;
-            document.getElementById("radius-slider").value = currentRadius;
-            document.getElementById("map-radius-pill").innerText = `Radius: ${currentRadius} mi`;
-        }
-
-        function applyFilters(){
-            if(!searchCenter || !allMinyanim.length) return;
-            const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
-            const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
-            const startVal = (sH*60)+sM, endVal = (eH*60)+eM;
-
-            let results = allMinyanim.map(m => {
-                m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
-                return m;
-            });
-
-            // Filtering based on active view
-            const isMapMode = (currentTab === 'map' && document.getElementById("list-view").style.display === 'none');
-            
-            if (!isMapMode) {
-                results = results.filter(m => m.distance <= currentRadius);
-            } else if (map) {
-                const bounds = map.getBounds();
-                if(bounds) results = results.filter(m => bounds.contains({lat: m.lat, lng: m.lng}));
-            }
-
-            if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
-            if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
-            
-            results = results.filter(m => {
-                if (m.timeValue === 9999) return true; 
-                return m.timeValue >= startVal && m.timeValue <= endVal;
-            });
-
-            if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
-            else results.sort((a,b) => a.timeValue - b.timeValue);
-            
-            const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            
-            // PILL VISIBILITY & LOGIC
-            if(currentTab === 'map') {
-                document.getElementById('status-pill').style.display = 'block';
-                document.getElementById('map-radius-pill').style.display = 'block';
-                document.getElementById('count-pill').style.display = 'block';
-                document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls`;
-            } else if (currentTab === 'list') {
-                document.getElementById('status-pill').style.display = 'none';
-                document.getElementById('map-radius-pill').style.display = 'none';
-                document.getElementById('count-pill').style.display = 'block';
-                document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
-            }
-
-            if(currentTab === 'map' || currentTab === 'list') {
-                renderList(results);
-            }
-            if(currentTab === 'map') {
-                updateMapMarkers(results);
-            }
-        }
-
-        function renderList(results){
-            const list = document.getElementById("list-view");
-            list.innerHTML = "";
-            if (results.length === 0) {
-                list.innerHTML = '<div class="empty-state">No minyanim found.</div>';
-                return;
-            }
-
-            let minyanCount = 0;
-            results.forEach((m, index) => {
-                minyanCount++;
-                if (minyanCount % 4 === 0 && ads.length > 0) {
-                    const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ads.length;
-                    const adData = ads[safeAdIndex];
-                    if(adData) {
-                        const adCard = document.createElement("div");
-                        adCard.className = "ad-card";
-                        adCard.innerHTML = `<div style="display:flex; align-items:center;"><span class="ad-badge">AD</span><span class="ad-content">${adData.name}</span></div><i class="material-icons ad-arrow">chevron_right</i>`;
-                        adCard.onclick = () => openAdDetails(adData);
-                        list.appendChild(adCard);
-                    }
-                }
-
-                let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                let nusachTagClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
-                
-                const card = document.createElement("div");
-                card.className = "minyan-card";
-                
-                let rightSide = (m.timeValue === 9999) 
-                    ? `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="map-footer"><div class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
-                    : `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="tefillah-label">${m.tefillah}</div>
-                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
-                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
-                    </div>`;
-
-                card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
-                        <div class="shul-name">${m.name}</div>
-                        <div class="shul-address">${m.address}</div>
-                        <div class="shul-city">${m.city || ''}, ${m.state || ''} ${m.zip || ''}</div>
-                        <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
-                    </div>
-                    ${rightSide}`;
-                list.appendChild(card);
             });
         }
 
