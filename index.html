@@ -61,7 +61,6 @@
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
-    /* CENTER DOT */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
@@ -77,31 +76,30 @@
         min-height: 85px; 
     }
     .info-zone { 
-        flex: 1; padding: 10px 12px; cursor: pointer; 
+        width: 75%; flex-basis: 75%; flex-shrink: 0;
+        padding: 10px 12px; cursor: pointer; 
         display: flex; flex-direction: column; justify-content: space-between;
-        min-width: 0; 
+        min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
-        width: 120px; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;
-        border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; padding: 10px 12px;
-        flex-shrink: 0; text-align: right;
+        width: 25%; flex-basis: 25%; flex-shrink: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+        cursor: pointer; background: #fafafa; padding: 10px 5px;
+        text-align: center;
     }
     
     .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .shul-address { font-size: 15px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .tefillah-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
-    .time-val { font-weight: 800; font-size: 20px; color: var(--primary); align-self: center; margin-right: -10px; }
+    .tefillah-label { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; text-align: center; } 
+    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); align-self: center; }
     
-    .map-footer { display: flex; align-items: flex-end; gap: 6px; }
-    .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; }
+    .map-footer { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; }
+    .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
-    .map-circle-lg { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
-    .google-maps-icon-lg { font-size: 34px !important; }
-
     /* COLORS */
     .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
@@ -111,7 +109,7 @@
     .nusach-Chabad { background: #FFF8E1; color: #F57F17; }
     .nusach-Other { background: #F5F5F5; color: #616161; }
 
-    .tef-Shacharis { color: #2E7D32; } .tef-Mincha { color: #E65100; } .tef-Maariv { color: #1565C0; }
+    .tef-Shacharis { color: #2E7D32; } .tef-Mincha { color: #E65100; } .tef-Maariv { color: #1565C0; } .tef-None { color: #999; }
 
     /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
@@ -190,9 +188,11 @@
     .schedule-item { margin-bottom: 6px; }
     .schedule-day { font-weight: 700; color: #666; font-size: 12px; text-transform: uppercase; }
     
-    .contact-row { display: flex; gap: 10px; margin-top: 20px; }
-    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .contact-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 80px; }
     .contact-btn:active { background: #eee; }
+    .contact-btn.disabled { opacity: 0.5; cursor: default; background: #eee; color: #aaa; pointer-events: none; }
+    .missing-info-text { font-size: 11px; color: #999; text-align: center; margin-top: 8px; font-style: italic; width: 100%; }
 
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
 
@@ -274,6 +274,14 @@
         </div>
         
         <div class="filter-section">
+            <label class="filter-label">Sort By</label>
+            <div class="chip-group">
+                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
+                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
             <label class="filter-label">Tefillah</label>
             <div class="chip-group">
                 <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
@@ -336,7 +344,7 @@
             updateDateDisplay();
             
             try {
-                // Fetch external DB
+                // FETCH EXTERNAL DATABASE FILE
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
@@ -368,7 +376,6 @@
         }
 
         function formatTime(h, m) {
-            if (isNaN(h) || isNaN(m)) return '';
             let suffix = h >= 12 ? 'p' : 'a';
             let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
             let dispM = String(m).padStart(2,"0");
@@ -410,7 +417,7 @@
                 }
 
                 if (!hasTimes) {
-                    processedMinyanim.push({ ...shul, tefillah: 'Info', timeDisplay: '--', ampm: '', timeValue: 9999 });
+                    processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
                 }
             });
             allMinyanim = processedMinyanim;
@@ -418,13 +425,10 @@
 
         function addMinyan(shul, type, tStr) {
             if(!tStr) return;
-            // Clean time string
-            let raw = tStr.trim().split(' ')[0].replace(/[^0-9:]/g,"");
+            let raw = tStr.trim().replace(/[^0-9:]/g,"");
             if(!raw) return;
             let [h,m] = raw.split(":").map(Number);
-            if (isNaN(h)) return; 
-            if (isNaN(m)) m = 0;
-
+            
             let sortH = h; 
             if (type === 'Mincha' && h < 9) sortH += 12;
             if (type === 'Maariv' && h < 12) sortH += 12; 
@@ -499,6 +503,7 @@
             currentRadius = parseFloat(val);
             document.getElementById("radius-input").value = currentRadius;
             document.getElementById("radius-slider").value = currentRadius;
+            document.getElementById("map-radius-pill").innerText = `Radius: ${currentRadius} mi`;
         }
 
         function applyFilters(){
@@ -545,14 +550,14 @@
                 
                 let rightSide = '';
                 if(m.timeValue === 9999) {
-                    rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                    rightSide = `<div class="map-zone" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
                         <div class="map-footer">
                             <div class="dist-label">${m.distance.toFixed(1)}mi</div>
                             <div class="map-circle"><i class="material-icons google-maps-icon">place</i></div>
                         </div>
                     </div>`;
                 } else {
-                    rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                    rightSide = `<div class="map-zone" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
                         <div class="tefillah-label tef-${m.tefillah}">${m.tefillah}</div>
                         <div class="time-val">${m.timeDisplay}</div>
                         <div class="map-footer">
@@ -586,7 +591,7 @@
                 const pinDiv = document.createElement("div");
                 let nCls = `marker-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 pinDiv.className = `custom-marker ${nCls}`;
-                pinDiv.textContent = (m.timeValue === 9999) ? "?" : `${m.timeDisplay}`; 
+                pinDiv.textContent = (m.timeValue === 9999) ? "None" : `${m.timeDisplay}`; 
                 const marker = new AdvancedMarkerElement({
                     map: map, position: { lat: m.lat, lng: m.lng },
                     content: pinDiv, title: m.name
@@ -609,7 +614,7 @@
             
             document.getElementById("radius-input").value = r.toFixed(1);
             document.getElementById("radius-slider").value = r.toFixed(1);
-            document.getElementById("map-radius-pill").innerText = `Map Radius: ${r.toFixed(1)} mi`;
+            document.getElementById("map-radius-pill").innerText = `Radius: ${r.toFixed(1)} mi`;
             currentRadius = r;
             applyFilters();
         }
@@ -633,15 +638,29 @@
             document.getElementById("drawer-title").innerText = m.name;
             document.getElementById("drawer-rabbi").innerHTML = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
             
-            let contacts = [];
-            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
-            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
-            contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
+            let phoneBtn = m.phone 
+                ? `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`
+                : `<div class="contact-btn disabled"><i class="material-icons">call</i> Call</div>`;
+
+            let emailBtn = m.email 
+                ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`
+                : `<div class="contact-btn disabled"><i class="material-icons">email</i> Email</div>`;
+
+            let goDavenBtn = `<a href="${link}" target="_blank" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`;
+
+            let missingInfoText = (!m.phone || !m.email) 
+                ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` 
+                : '';
 
             document.getElementById("drawer-content").innerHTML = `
                 <p class="address-info">${m.address}</p>
                 <div class="drawer-tag"><span class="nusach-tag ${nCls}">${m.nusach}</span></div>
-                <div class="contact-row">${contacts.join('')}</div>
+                <div class="contact-row">
+                    ${phoneBtn}
+                    ${emailBtn}
+                    ${goDavenBtn}
+                    ${missingInfoText}
+                </div>
                 
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
@@ -759,7 +778,7 @@
 
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 },
-                zoom: 12, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+                zoom: 12, disableDefaultUI: true, clickableIcons: false, mapId: "DEMO_MAP_ID"
             });
 
             map.addListener('idle', onMapIdle);
