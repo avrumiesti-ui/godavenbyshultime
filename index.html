@@ -77,41 +77,52 @@
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
-    /* VIEWS - Padding managed by JS switchTab */
-    #list-view, #settings-view { 
-        position: absolute; inset: 0; 
-        padding-bottom: 120px; /* Space for toolbar */
-        overflow-y: auto; background: var(--bg); 
-        z-index: 10; display: none;
-    }
-    #map-view { position: absolute; inset: 0; z-index: 5; }
-
-    /* PAGE HEADERS (Big Titles) */
-    .list-page-header {
-        font-size: 34px; font-weight: 800; color: var(--primary);
-        margin-top: 10px; margin-bottom: 15px; padding-left: 5px;
-    }
-
-    /* ZMANIM VIEW */
-    #zmanim-view {
-        position: absolute; inset: 0; 
-        background: var(--bg); z-index: 15;
-        overflow-y: auto; display: none;
-        padding-bottom: 120px;
-    }
-    .zmanim-header-container {
-        position: sticky; top: 0; background: var(--bg);
-        padding: 15px 12px; z-index: 20;
+    /* STICKY LIQUID HEADER (For Recent/Saved) */
+    .sticky-header {
+        position: fixed; top: 0; left: 0; right: 0; height: 60px;
+        background: rgba(242, 244, 248, 0.85);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(0,0,0,0.05);
+        z-index: 900; 
+        display: flex; align-items: flex-end; justify-content: center;
+        padding-bottom: 12px;
+        font-weight: 800; font-size: 17px; color: var(--primary);
+        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
     }
-    .zmanim-location-title { font-size: 18px; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 10px; }
-    .zmanim-card { 
-        background: #fff; border-radius: 15px; padding: 15px; margin: 0 12px 10px 12px; 
-        display: flex; justify-content: space-between; align-items: center; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-    }
-    .zman-name { font-weight: 700; color: #555; font-size: 15px; }
-    .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; }
+    .sticky-header.visible { opacity: 1; pointer-events: auto; }
+
+    /* VIEWS */
+    #list-view { position: absolute; inset: 0; padding-bottom: 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none; }
+    #map-view { position: absolute; inset: 0; z-index: 5; }
+    #zmanim-view { position: absolute; inset: 0; background: var(--bg); z-index: 15; overflow-y: auto; display: none; padding-bottom: 120px; }
+    #settings-view { position: absolute; inset: 0; padding: 20px 12px 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none; }
+
+    /* PAGE HEADERS */
+    .list-page-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 10px; margin-bottom: 15px; padding-left: 5px; }
+
+    /* --- ZMANIM SPECIFIC STYLES (From your code) --- */
+    .zman-sticky-header { background: #fff; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 10px 15px; border-bottom: 1px solid #e2e8f0; }
+    .zman-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .zman-app-title { font-size: 18px; font-weight: 800; color: #2c5282; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .zman-loc-btn { font-size: 11px; color: #4a5568; background: #edf2f7; padding: 6px 12px; border-radius: 20px; border: 1px solid #e2e8f0; font-weight: 600; cursor: pointer; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px; }
+    .zman-date-nav { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; border-radius: 8px; padding: 4px; }
+    .zman-nav-btn { width: 36px; height: 36px; border: none; background: #fff; border-radius: 6px; font-size: 18px; color: #2c5282; box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; }
+    .zman-date-display { text-align: center; line-height: 1.2; flex-grow: 1; }
+    .zman-civ-date { font-size: 14px; font-weight: 700; display: block; }
+    .zman-heb-date { font-size: 12px; color: #718096; display: block; }
+    .zman-info-bar { display: flex; gap: 10px; padding: 15px 15px 0 15px; }
+    .zman-info-pill { flex: 1; background: #fff; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px; text-align: center; font-size: 12px; font-weight: 600; color: #4a5568; }
+    .zman-info-pill span { display: block; font-size: 10px; color: #a0aec0; text-transform: uppercase; margin-bottom: 2px; }
+    .zmanim-list { list-style: none; padding: 15px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .zman-card { background: #fff; border-radius: 12px; padding: 12px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .zman-left { display: flex; flex-direction: column; gap: 2px; }
+    .zman-label { font-size: 14px; font-weight: 700; color: #2d3748; }
+    .zman-desc { font-size: 11px; color: #718096; }
+    .zman-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+    .zman-time { font-size: 20px; font-weight: 700; color: #2c5282; font-family: "SF Mono", monospace; letter-spacing: -0.5px; line-height: 1; }
+    .zman-time .sec { font-size: 12px; color: #a0aec0; }
+    .zman-card-select { display: block; margin-top: 4px; font-size: 10px; background: #edf2f7; border: none; padding: 2px 6px; border-radius: 4px; color: #4a5568; font-weight: 600; appearance: none; }
+    /* ------------------------------------------- */
 
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
@@ -150,10 +161,8 @@
     .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
     .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
     .settings-input:focus { outline: none; border-color: var(--primary); background: #fff; }
-    
     .settings-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; color: #333; text-decoration: none; cursor: pointer; }
     .settings-link:last-child { border-bottom: none; }
-    .settings-link i { color: #ccc; }
     .settings-link-text { font-size: 16px; font-weight: 600; }
 
     /* CARDS */
@@ -183,18 +192,18 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - 35px BUFFER */
+    /* RIGHT SIDE LAYOUT - 40px BUFFER (To fix cutoff) */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 35px; text-align: right;
+        position: absolute; top: 8px; right: 40px; text-align: right;
         font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
         margin: 0;
     } 
     .time-val-card { 
-        position: absolute; top: calc(50% - 10px); right: 35px; transform: translateY(-50%);
+        position: absolute; top: calc(50% - 10px); right: 40px; transform: translateY(-50%);
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
-        position: absolute; bottom: 8px; right: 35px;
+        position: absolute; bottom: 8px; right: 40px;
         display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
@@ -368,6 +377,8 @@
 </head>
 <body>
 
+    <div id="sticky-header" class="sticky-header"></div>
+
     <div class="floating-header" id="filter-header">
         <div class="search-container" onclick="event.stopPropagation()">
             <div id="autocomplete-container" style="flex:1; height:100%;"></div>
@@ -482,17 +493,25 @@
     <div id="map-view"></div>
     
     <div id="zmanim-view">
-        <div class="zmanim-header-container">
-            <div class="date-nav">
-                <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
-                <div class="date-display-container">
-                    <div class="date-display" id="zman-date-display">Today</div>
-                    <div class="hebrew-date" id="zman-hebrew-date"></div>
+        <div class="zman-sticky-header">
+            <div class="zman-top-row">
+                <h1 class="zman-app-title">Zmanim</h1>
+                <div class="zman-loc-btn" id="zman-loc-label">Lakewood, NJ</div>
+            </div>
+            <div class="zman-date-nav">
+                <button class="zman-nav-btn" onclick="changeDate(-1)">&#8249;</button>
+                <div class="zman-date-display">
+                    <span class="zman-civ-date" id="zman-civ-date"></span>
+                    <span class="zman-heb-date" id="zman-heb-date"></span>
                 </div>
-                <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
+                <button class="zman-nav-btn" onclick="changeDate(1)">&#8250;</button>
             </div>
         </div>
-        <div id="zmanim-content" style="padding-top: 15px;"></div>
+        <div class="zman-info-bar">
+            <div class="zman-info-pill"><span>Day</span><div id="zman-day-name"></div></div>
+            <div class="zman-info-pill"><span>Daf Yomi</span><div id="zman-daf-name"></div></div>
+        </div>
+        <ul class="zmanim-list" id="zmanimList" style="margin-bottom:100px;"></ul>
     </div>
     
     <div id="settings-view">
@@ -572,6 +591,54 @@
         let currentFilterDate = new Date();
         let isFirstIdle = true; 
         let currentTab = 'map';
+        // Zmanim Location Defaults
+        let zmanLoc = { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' };
+
+        // --- DAF ENGINE ---
+        const DafEngine = {
+            masechtot: [{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],
+            get: (date) => {
+                const start = new Date(2020, 0, 5); const diff = Math.floor((date - start) / 86400000); if(diff < 0) return "";
+                let count = diff; for(let m of DafEngine.masechtot) { if(count < m.p) return `${m.n} ${count + 2}`; count -= m.p; } return "";
+            }
+        };
+
+        // --- SOLAR MATH (NOAA) ---
+        const Solar = {
+            rad: d => d * (Math.PI/180), deg: r => r * (180/Math.PI),
+            calc: (date, lat, lng, elev) => {
+                // Approximate solar Calc
+                const n = (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - 946728000000) / 86400000.0;
+                const L = (280.460 + 0.9856474 * n) % 360;
+                const g = (357.528 + 0.9856003 * n) % 360;
+                const lambda = L + 1.915 * Math.sin(Solar.rad(g)) + 0.020 * Math.sin(Solar.rad(2 * g));
+                const epsilon = 23.439 - 0.0000004 * n;
+                const sinDelta = Math.sin(Solar.rad(epsilon)) * Math.sin(Solar.rad(lambda));
+                const cosDelta = Math.sqrt(1 - sinDelta * sinDelta);
+                const y = Math.tan(Solar.rad(epsilon/2)) * Math.tan(Solar.rad(epsilon/2));
+                const E_rad = y * Math.sin(2 * Solar.rad(L)) - 2 * 0.0167 * Math.sin(Solar.rad(g)) + 4 * 0.0167 * y * Math.sin(Solar.rad(g)) * Math.cos(2 * Solar.rad(L)) - 0.5 * y * y * Math.sin(4 * Solar.rad(L)) - 1.25 * 0.0167 * 0.0167 * Math.sin(2 * Solar.rad(g));
+                const E_min = Solar.deg(E_rad) * 4;
+                const noonUTC = 720 - (4 * lng) - E_min;
+                const noonMs = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) + (noonUTC * 60000);
+                
+                const getEvent = (zenithDeg, rise) => {
+                    const alt = 90 - zenithDeg;
+                    const top = Math.sin(Solar.rad(alt)) - Math.sin(Solar.rad(lat)) * sinDelta;
+                    const bot = Math.cos(Solar.rad(lat)) * cosDelta;
+                    const cosH = top / bot;
+                    if(cosH > 1 || cosH < -1) return null;
+                    const H_min = Solar.deg(Math.acos(cosH)) * 4; 
+                    return rise ? noonMs - (H_min * 60000) : noonMs + (H_min * 60000);
+                };
+                return {
+                    noon: noonMs,
+                    alot: getEvent(90+16.1, true),
+                    sunrise: getEvent(90.833, true),
+                    sunset: getEvent(90.833, false),
+                    tzais: getEvent(90+8.5, false)
+                };
+            }
+        };
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -579,6 +646,17 @@
             updateDateDisplay();
             renderWelcome();
             loadProfile();
+
+            // SCROLL LISTENER FOR STICKY HEADER
+            document.getElementById('list-view').addEventListener('scroll', function() {
+                const header = document.getElementById('sticky-header');
+                if(this.scrollTop > 40 && (currentTab === 'recent' || currentTab === 'saved')) {
+                    header.classList.add('visible');
+                    header.innerText = currentTab === 'recent' ? "Recent" : "Saved";
+                } else {
+                    header.classList.remove('visible');
+                }
+            });
 
             try {
                 const res = await fetch("database.json");
@@ -595,12 +673,12 @@
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            
             const list = document.getElementById('list-view');
             const zmanim = document.getElementById('zmanim-view');
             const settings = document.getElementById('settings-view');
+            const sticky = document.getElementById('sticky-header');
+            sticky.classList.remove('visible'); // Reset
             
-            // Highlight logic
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
                 document.getElementById('filter-header').style.display = 'none'; 
@@ -608,14 +686,14 @@
                 document.getElementById('count-pill').style.display = 'none';
                 document.getElementById('map-radius-pill').style.display = 'none';
                 
-                // ADJUST TOP PADDING (Remove dead space)
+                // Remove dead space padding
                 list.style.paddingTop = '20px';
-                zmanim.style.paddingTop = '20px';
+                zmanim.style.paddingTop = '0px'; // Zmanim handles its own header
                 settings.style.paddingTop = '20px';
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
                 document.getElementById('filter-header').style.display = 'flex';
-                // Reset padding for search to clear header
+                // Add search padding
                 list.style.paddingTop = '110px';
             }
 
@@ -652,7 +730,7 @@
             }
             else if(tab === 'zmanim') {
                 zmanim.style.display = 'block';
-                fetchZmanim();
+                renderZmanim();
             }
             else if(tab === 'settings') {
                 settings.style.display = 'block';
@@ -670,67 +748,47 @@
             document.getElementById('nav-toggle-text').innerText = text;
         }
 
-        // --- ZMANIM (FIXED 3.0) ---
-        async function fetchZmanim() {
-            const zDiv = document.getElementById("zmanim-content");
-            zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
+        // --- ZMANIM (LOCAL CALCULATION) ---
+        function renderZmanim() {
+            // Update Zmanim Header
+            document.getElementById('zman-loc-label').innerText = zmanLoc.name;
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('zman-civ-date').innerText = currentFilterDate.toLocaleDateString('en-US', options);
             
-            // Safe lat/lng parsing with defaults
-            let lat = 40.091;
-            let lng = -74.218;
-            if (searchCenter && typeof searchCenter.lat === 'number') {
-                lat = searchCenter.lat;
-                lng = searchCenter.lng;
-            } else if (searchCenter && typeof searchCenter.lat === 'function') {
-                 lat = searchCenter.lat();
-                 lng = searchCenter.lng();
-            }
-            
+            // Hebrew Date
             try {
-                // Formatting Date strictly as YYYY-MM-DD
-                const y = currentFilterDate.getFullYear();
-                const m = String(currentFilterDate.getMonth() + 1).padStart(2, '0');
-                const d = String(currentFilterDate.getDate()).padStart(2, '0');
-                const dateStr = `${y}-${m}-${d}`;
+                const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
+                document.getElementById('zman-heb-date').innerText = hDate;
+            } catch(e) { document.getElementById('zman-heb-date').innerText = ""; }
 
-                const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
-                // console.log("Fetching Zmanim:", url); // Debugging
-                
-                const res = await fetch(url);
-                if(!res.ok) throw new Error("API Error");
-                const data = await res.json();
-                
-                let html = `<div class="zmanim-location-title">${data.location.title || "Location"}</div>`;
-                const times = data.times;
-                
-                const formatZman = (iso) => {
-                    const d = new Date(iso);
-                    let h = d.getHours(); let m = String(d.getMinutes()).padStart(2, '0');
-                    let ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
-                    return `${h}:${m}${ampm}`;
-                };
-                
-                const zList = [ 
-                    { k: 'alotHaShachar', l: 'Alot Hashachar' }, 
-                    { k: 'sunrise', l: 'Sunrise (Netz)' }, 
-                    { k: 'sofZmanShma', l: 'Sof Zman Shma (Gra)' }, 
-                    { k: 'sofZmanTfila', l: 'Sof Zman Tefila' }, 
-                    { k: 'chatzot', l: 'Chatzot' }, 
-                    { k: 'minchaGedola', l: 'Mincha Gedola' }, 
-                    { k: 'minchaKetana', l: 'Mincha Ketana' },
-                    { k: 'plagHaMincha', l: 'Plag HaMincha' },
-                    { k: 'sunset', l: 'Sunset (Shkia)' }, 
-                    { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' } 
-                ];
-                
-                zList.forEach(i => { 
-                    if(times[i.k]) html += `<div class="zmanim-card"><span class="zman-name">${i.l}</span><span class="zman-time">${formatZman(times[i.k])}</span></div>`; 
-                });
-                zDiv.innerHTML = html;
-            } catch(e) { 
-                console.error("Zmanim Error:", e);
-                zDiv.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading Zmanim.<br>Please check connection.</div>'; 
-            }
+            document.getElementById('zman-day-name').innerText = currentFilterDate.toLocaleDateString('en-US', {weekday:'long'});
+            document.getElementById('zman-daf-name').innerText = DafEngine.get(currentFilterDate);
+
+            // Calculate Solar
+            const data = Solar.calc(currentFilterDate, zmanLoc.lat, zmanLoc.lng, zmanLoc.elev);
+            
+            const fmt = (ms) => {
+                if(!ms) return "--:--";
+                return new Date(ms).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit', timeZone: zmanLoc.tz});
+            };
+            
+            // Simple List based on your provided structure
+            const zList = [
+                { l: "Alos Hashachar (16.1°)", t: data.alot },
+                { l: "Sunrise (Netz)", t: data.sunrise },
+                { l: "Chatzos", t: data.noon },
+                { l: "Sunset (Shkia)", t: data.sunset },
+                { l: "Tzais (8.5°)", t: data.tzais }
+            ];
+
+            let html = "";
+            zList.forEach(z => {
+                html += `<li class="zman-card">
+                    <div class="zman-left"><span class="zman-label">${z.l}</span></div>
+                    <div class="zman-right"><span class="zman-time">${fmt(z.t)}</span></div>
+                </li>`;
+            });
+            document.getElementById('zmanimList').innerHTML = html;
         }
 
         // --- SETTINGS & PROFILE ---
@@ -869,6 +927,12 @@
             const bounds = map.getBounds();
             if(!center || !bounds) return;
             searchCenter = { lat: center.lat(), lng: center.lng() };
+            
+            // Sync Zmanim Location
+            zmanLoc.lat = searchCenter.lat;
+            zmanLoc.lng = searchCenter.lng;
+            zmanLoc.name = "Map Location"; // Simplified
+
             document.getElementById("status-pill").innerText = `Near: Map Center`;
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
