@@ -77,7 +77,13 @@
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
-    /* STICKY LIQUID HEADER (For Recent/Saved) */
+    /* VIEWS */
+    #list-view { position: absolute; inset: 0; padding-bottom: 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none; }
+    #map-view { position: absolute; inset: 0; z-index: 5; }
+    #zmanim-view { position: absolute; inset: 0; background: var(--bg); z-index: 15; overflow-y: auto; display: none; padding-bottom: 120px; }
+    #settings-view { position: absolute; inset: 0; padding: 0 12px 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none; }
+
+    /* STICKY HEADER FOR LISTS */
     .sticky-header {
         position: fixed; top: 0; left: 0; right: 0; height: 60px;
         background: rgba(242, 244, 248, 0.85);
@@ -91,22 +97,13 @@
     }
     .sticky-header.visible { opacity: 1; pointer-events: auto; }
 
-    /* VIEWS */
-    #list-view, #settings-view, #zmanim-view { 
-        position: absolute; inset: 0; 
-        padding-bottom: 120px; /* Space for toolbar */
-        overflow-y: auto; background: var(--bg); 
-        z-index: 10; display: none;
-    }
-    #map-view { position: absolute; inset: 0; z-index: 5; }
-
-    /* PAGE HEADERS (Big Titles) */
+    /* PAGE HEADERS */
     .list-page-header {
         font-size: 34px; font-weight: 800; color: var(--primary);
-        margin-top: 40px; margin-bottom: 15px; padding-left: 12px;
+        margin-top: 40px; margin-bottom: 15px; padding-left: 5px;
     }
 
-    /* ZMANIM STYLES */
+    /* ZMANIM HEADER */
     .zman-header-section {
         background: #fff; padding: 15px 15px 10px 15px;
         border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20;
@@ -132,8 +129,7 @@
     .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
     .zman-sub { font-size: 10px; color: #999; margin-top: 2px; text-transform: uppercase; }
     .card-select { display: block; margin-top: 4px; font-size: 10px; background: #f0f0f0; border: none; padding: 2px 6px; border-radius: 4px; color: #555; font-weight: 600; }
-
-    /* GLOSSARY */
+    
     .glossary-section { padding: 0 15px; margin-bottom: 100px; }
     details { background: #fff; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
     summary { padding: 12px; font-size: 14px; font-weight: 600; background: #fafafa; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; outline: none; }
@@ -210,18 +206,18 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - 35px BUFFER */
+    /* RIGHT SIDE LAYOUT - 45px BUFFER (No Cutoff) */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 35px; text-align: right;
+        position: absolute; top: 8px; right: 45px; text-align: right;
         font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
         margin: 0;
     } 
     .time-val-card { 
-        position: absolute; top: calc(50% - 10px); right: 35px; transform: translateY(-50%);
+        position: absolute; top: calc(50% - 10px); right: 45px; transform: translateY(-50%);
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
-        position: absolute; bottom: 8px; right: 35px;
+        position: absolute; bottom: 8px; right: 45px;
         display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
@@ -572,6 +568,12 @@
             { id: "tzais", label: "Tzais / Motzaei", desc: "Nightfall.", opts: [['8.5','8.5°'],['42','42m'],['50','50m'],['60','60m'],['72','72m']] },
             { id: "shaa", label: "Shaa Zmanis", desc: "Length of 1 Halachic Hour.", opts: [['gra','Gra'],['mga','MGA']] }
         ];
+        
+        // --- FALLBACK SAMPLE DATA (To prevent "No Results" error if DB missing) ---
+        const SAMPLE_MINYANIM = [
+          { "id": 101, "name": "Bais Medrash Govoah", "address": "617 6th St", "city": "Lakewood", "state": "NJ", "zip": "08701", "nusach": "Ashkenaz", "lat": 40.093, "lng": -74.222, "shacharis": {"sun": ["7:00a", "8:00a"], "mon_thu": ["6:45a", "8:00a"], "tue_wed_fri": ["7:00a", "8:15a"]}, "mincha": {"week": ["1:30p", "5:00p"], "fri": ["1:30p"], "shabbos": ["5:00p"]}, "maariv": {"week": ["9:00p", "10:00p"], "shabbos": ["6:30p"]} },
+          { "id": 102, "name": "Khal Chasidim", "address": "1401 Cedar Row", "city": "Lakewood", "state": "NJ", "zip": "08701", "nusach": "Sefard", "lat": 40.089, "lng": -74.215, "shacharis": {"sun": ["8:30a"], "mon_thu": ["8:00a"], "tue_wed_fri": ["8:00a"]}, "mincha": {"week": ["2:00p"], "fri": ["2:00p"], "shabbos": ["2:00p"]}, "maariv": {"week": ["8:00p"], "shabbos": ["8:00p"]} }
+        ];
 
         const ADS_DB = [
           { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
@@ -610,13 +612,17 @@
                 }
             });
 
+            // DATA LOADING: Try Fetch, Fallback to Sample
             try {
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
-                processMinyanim(fullDbData);
-                populateNusachFilter();
-            } catch(e) { console.error("Data Load Error", e); }
+            } catch(e) { 
+                console.warn("DB Fetch Error - Using Sample Data");
+                fullDbData = SAMPLE_MINYANIM; 
+            }
+            processMinyanim(fullDbData);
+            populateNusachFilter();
             
             initPullToDismiss();
         });
@@ -631,6 +637,7 @@
             const sticky = document.getElementById('sticky-header');
             sticky.classList.remove('visible');
             
+            // Padding & Header Management
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
                 document.getElementById('filter-header').style.display = 'none'; 
@@ -961,8 +968,19 @@
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            if(isMapMode) document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
-            else document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            
+            // PILL LOGIC
+            if(isMapMode) {
+                document.getElementById("status-pill").style.display = 'block';
+                document.getElementById("map-radius-pill").style.display = 'block';
+                document.getElementById("count-pill").style.display = 'block';
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            } else {
+                document.getElementById("status-pill").style.display = 'block'; // Keep "Near" on List
+                document.getElementById("map-radius-pill").style.display = 'none'; // Hide Radius
+                document.getElementById("count-pill").style.display = 'block';
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            }
 
             if(currentTab === 'map' || currentTab === 'list') renderList(results);
             if(currentTab === 'map') updateMapMarkers(results);
