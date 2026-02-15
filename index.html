@@ -13,12 +13,12 @@
         --ad-bg: #FFF8E1; 
         --ad-border: #FBC02D; 
 
-        /* TEFILLAH COLORS (Filters) */
+        /* TEFILLAH COLORS (Only for Filters) */
         --color-Shacharis: #2E7D32; 
         --color-Mincha: #E65100;    
         --color-Maariv: #1565C0;    
 
-        /* NUSACH BACKGROUNDS */
+        /* NUSACH BACKGROUND COLORS (For Results) */
         --bg-Ashkenaz: #E3F2FD;       
         --bg-Sefard: #E8F5E9;         
         --bg-Ari: #F3E5F5;            
@@ -26,7 +26,7 @@
         --bg-Chabad: #FFF8E1;         
         --bg-Other: #F5F5F5;          
         
-        /* NUSACH TEXT */
+        /* TEXT COLORS FOR NUSACH (For Contrast) */
         --text-Ashkenaz: #1565C0;
         --text-Sefard: #2E7D32;
         --text-Ari: #7B1FA2;
@@ -170,8 +170,6 @@
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; }
 
-    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
-
     /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
     .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
@@ -252,9 +250,14 @@
     
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     
-    .rabbi-info { font-size: 15px; color: #555; margin-top: 5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-    .address-info { font-size: 14px; color: #777; margin-bottom: 15px; margin-top: 5px; }
-    .drawer-tag { margin-bottom: 15px; }
+    /* SCROLLING HEADER INFO */
+    .drawer-scroll-info { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .rabbi-info { font-size: 15px; color: #555; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    
+    /* SMALL NUSACH TAG FOR DRAWER */
+    .nusach-tag-drawer { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+
+    .address-info { font-size: 14px; color: #777; margin-bottom: 15px; }
 
     .schedule-section { margin-top: 15px; }
     .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
@@ -262,8 +265,16 @@
     .schedule-item { margin-bottom: 6px; }
     .schedule-day { font-weight: 700; color: #666; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;}
     
-    .contact-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .contact-btn { flex: 1; background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 50px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 80px; white-space: nowrap; }
+    /* SMALL CONTACT PILLS */
+    .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+    .contact-btn { 
+        background: #f5f5f5; border: 1px solid #ddd; 
+        padding: 6px 12px; border-radius: 20px; /* Small Pill */
+        font-weight: 700; font-size: 11px; 
+        text-align: center; text-decoration: none; color: #333; 
+        display: flex; align-items: center; justify-content: center; gap: 4px; 
+        white-space: nowrap; flex: none;
+    }
     .contact-btn:active { background: #eee; }
     .contact-btn.disabled { opacity: 0.5; cursor: default; background: #eee; color: #aaa; pointer-events: none; }
     .missing-info-text { font-size: 11px; color: #999; text-align: center; margin-top: 8px; font-style: italic; width: 100%; }
@@ -313,8 +324,7 @@
         <div class="drawer-header">
             <div class="drawer-title-container">
                 <div class="drawer-title" id="drawer-title"></div>
-                <div class="rabbi-info" id="drawer-rabbi"></div>
-            </div>
+                </div>
             <div class="drawer-actions">
                 <button class="circle-action-btn" id="share-btn">
                     <i class="material-icons" style="font-size:20px;">ios_share</i>
@@ -504,7 +514,6 @@
             const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
             document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
             
-            // Hebrew Date Support via built-in Intl
             try {
                 const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
                 document.getElementById('hebrew-date').innerText = hDate;
@@ -539,16 +548,14 @@
                 if(shul.nusach) allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
-                let minyanimForThisShul = []; // Local list for counting
+                let minyanimForThisShul = []; 
                 
-                // SHACHARIS
                 if (!isSat && shul.shacharis && shul.shacharis[dayKey]) {
                     shul.shacharis[dayKey].forEach(t => { 
                         addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; 
                     });
                 }
                 
-                // MINCHA
                 if (isFri) {
                     if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 } else if (isSat) {
@@ -557,7 +564,6 @@
                     if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 }
 
-                // MAARIV
                 if (isSat) {
                     if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
                 } else {
@@ -567,7 +573,6 @@
                 if (!hasTimes) {
                     processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
                 } else {
-                    // Push all minyanim for this shul to global list
                     processedMinyanim.push(...minyanimForThisShul);
                 }
             });
@@ -622,7 +627,6 @@
                 dot.style.display = "none";
                 mapPill.style.display = "none";
                 countPill.style.display = "block";
-                // Update text to include minyan count
                 applyFilters(); 
             } else {
                 list.style.display = "none";
@@ -630,8 +634,7 @@
                 btn.classList.add("active");
                 dot.style.display = "block";
                 mapPill.style.display = "block";
-                countPill.style.display = "block"; // Keep count on map but filtered text
-                // Update text to shul count only
+                countPill.style.display = "block"; 
                 applyFilters(); 
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
@@ -695,7 +698,7 @@
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
-            // MINYAN COUNT LOGIC (Updated to switch based on view)
+            // MINYAN COUNT LOGIC
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
             const totalMinyanim = results.length;
             const isListMode = document.getElementById("list-view").style.display !== 'none';
@@ -747,7 +750,6 @@
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 
-                // Only Nusach color on pill, border neutral
                 let rightSide = '';
                 if(m.timeValue === 9999) {
                     rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
@@ -791,7 +793,6 @@
             });
             Object.values(groups).forEach(m => {
                 const pinDiv = document.createElement("div");
-                // Only Nusach Color
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 
                 pinDiv.className = `custom-marker ${nCls}`;
@@ -809,7 +810,6 @@
             if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
             
-            // Initial load protection
             if (isFirstIdle) {
                 isFirstIdle = false;
                 return; 
@@ -850,27 +850,19 @@
             const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             
             document.getElementById("drawer-title").innerText = m.name;
-            document.getElementById("drawer-rabbi").innerHTML = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
             
-            const shareBtn = document.getElementById("share-btn");
-            shareBtn.onclick = () => shareShul(m);
-
-            let phoneBtn = m.phone 
-                ? `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`
-                : `<div class="contact-btn disabled"><i class="material-icons">call</i> Call</div>`;
-
-            let emailBtn = m.email 
-                ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`
-                : `<div class="contact-btn disabled"><i class="material-icons">email</i> Email</div>`;
-
-            let goDavenBtn = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`;
-
-            let missingInfoText = (!m.phone || !m.email) 
-                ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` 
-                : '';
-
+            // RABBI & NUSACH (SCROLLING HEADER)
+            let rabbiText = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
+            let nusachTag = `<span class="nusach-tag-drawer ${nCls}">${m.nusach}</span>`;
+            
             document.getElementById("drawer-content").innerHTML = `
-                <p class="address-info">${m.address}</p>
+                <div class="drawer-scroll-info">
+                    ${rabbiText}
+                    ${nusachTag}
+                </div>
+                
+                <p class="address-info" style="margin-top:0;">${m.address}</p>
+                
                 <div class="drawer-nav-row">
                     <div class="tefillah-text tef-${m.tefillah}" style="font-size:14px;">${m.tefillah} • ${m.timeDisplay}</div>
                     <div style="display:flex; align-items:center; gap:8px;">
@@ -880,13 +872,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="drawer-tag"><span class="nusach-tag ${nCls}">${m.nusach}</span></div>
+                
                 <div class="contact-row">
-                    ${phoneBtn}
-                    ${emailBtn}
-                    ${goDavenBtn}
+                    ${m.phone 
+                        ? `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`
+                        : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">call</i> Call</div>`}
+                    
+                    ${m.email 
+                        ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:14px">email</i> Email</a>`
+                        : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">email</i> Email</div>`}
+                    
+                    <a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>
                 </div>
-                ${missingInfoText}
+                ${(!m.phone || !m.email) ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` : ''}
                 
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
@@ -899,6 +897,11 @@
                     </div>
                 </div>
             `;
+            
+            // Rebind share button
+            const shareBtn = document.getElementById("share-btn");
+            shareBtn.onclick = () => shareShul(m);
+
             const drawer = document.getElementById("details-drawer");
             drawer.classList.add("open");
             drawer.style.transform = "translateY(0)";
@@ -908,7 +911,6 @@
         // AD DETAILS DRAWER
         function openAdDetails(ad) {
             document.getElementById("drawer-title").innerText = ad.name;
-            document.getElementById("drawer-rabbi").innerHTML = ""; 
             
             const shareBtn = document.getElementById("share-btn");
             shareBtn.onclick = () => {
@@ -916,12 +918,12 @@
             };
 
             let phoneBtn = ad.phone 
-                ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`
+                ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`
                 : '';
             let webBtn = ad.website
-                ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons">public</i> Website</a>` 
+                ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` 
                 : '';
-            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`;
+            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
 
             document.getElementById("drawer-content").innerHTML = `
                 <div class="ad-hero">
