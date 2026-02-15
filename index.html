@@ -132,8 +132,7 @@
     .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
     .zman-sub { font-size: 10px; color: #999; margin-top: 2px; text-transform: uppercase; }
     .card-select { display: block; margin-top: 4px; font-size: 10px; background: #f0f0f0; border: none; padding: 2px 6px; border-radius: 4px; color: #555; font-weight: 600; }
-
-    /* GLOSSARY */
+    
     .glossary-section { padding: 0 15px; margin-bottom: 100px; }
     details { background: #fff; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
     summary { padding: 12px; font-size: 14px; font-weight: 600; background: #fafafa; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; outline: none; }
@@ -555,7 +554,7 @@
         // HEBCAL ENGINE
         const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}};
 
-        // ROBUST SOLAR ENGINE (Includes Level/Elev etc)
+        // ROBUST SOLAR ENGINE
         const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};const E=90.833+.0293*Math.sqrt(n);return{noon:p,alot16:f(106.1,!0),mish10:f(100.2,!0),mish11:f(101,!0),mish115:f(101.5,!0),sunLevel:{rise:f(90.833,!0),set:f(90.833,!1)},sunElev:{rise:f(E,!0),set:f(E,!1)},tzais85:f(98.5,!1),tzais16:f(106.1,!1)}}};
 
         const zmanimConfig = [
@@ -572,8 +571,8 @@
             { id: "tzais", label: "Tzais / Motzaei", desc: "Nightfall.", opts: [['8.5','8.5°'],['42','42m'],['50','50m'],['60','60m'],['72','72m']] },
             { id: "shaa", label: "Shaa Zmanis", desc: "Length of 1 Halachic Hour.", opts: [['gra','Gra'],['mga','MGA']] }
         ];
-        
-        // --- FALLBACK SAMPLE DATA (To prevent "No Results" error if DB missing) ---
+
+        // --- FALLBACK SAMPLE DATA ---
         const SAMPLE_MINYANIM = [
           { "id": 101, "name": "Bais Medrash Govoah", "address": "617 6th St", "city": "Lakewood", "state": "NJ", "zip": "08701", "nusach": "Ashkenaz", "lat": 40.093, "lng": -74.222, "shacharis": {"sun": ["7:00a", "8:00a"], "mon_thu": ["6:45a", "8:00a"], "tue_wed_fri": ["7:00a", "8:15a"]}, "mincha": {"week": ["1:30p", "5:00p"], "fri": ["1:30p"], "shabbos": ["5:00p"]}, "maariv": {"week": ["9:00p", "10:00p"], "shabbos": ["6:30p"]} },
           { "id": 102, "name": "Khal Chasidim", "address": "1401 Cedar Row", "city": "Lakewood", "state": "NJ", "zip": "08701", "nusach": "Sefard", "lat": 40.089, "lng": -74.215, "shacharis": {"sun": ["8:30a"], "mon_thu": ["8:00a"], "tue_wed_fri": ["8:00a"]}, "mincha": {"week": ["2:00p"], "fri": ["2:00p"], "shabbos": ["2:00p"]}, "maariv": {"week": ["8:00p"], "shabbos": ["8:00p"]} }
@@ -616,13 +615,14 @@
                 }
             });
 
-            // DATA LOADING: Try Fetch, Fallback to Sample
+            // DB LOAD & FALLBACK
             try {
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
+                if(!fullDbData || fullDbData.length === 0) throw new Error("Empty DB");
             } catch(e) { 
-                console.warn("DB Fetch Error - Using Sample Data");
+                console.warn("Using Sample Data due to DB error:", e);
                 fullDbData = SAMPLE_MINYANIM; 
             }
             processMinyanim(fullDbData);
@@ -1231,4 +1231,3 @@
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
-
