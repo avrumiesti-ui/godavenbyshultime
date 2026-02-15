@@ -13,12 +13,12 @@
         --ad-bg: #FFF8E1; 
         --ad-border: #FBC02D; 
 
-        /* TEFILLAH COLORS (Only for Filters) */
+        /* TEFILLAH COLORS */
         --color-Shacharis: #2E7D32; 
         --color-Mincha: #E65100;    
         --color-Maariv: #1565C0;    
 
-        /* NUSACH BACKGROUND COLORS (For Results) */
+        /* NUSACH BACKGROUNDS */
         --bg-Ashkenaz: #E3F2FD;       
         --bg-Sefard: #E8F5E9;         
         --bg-Ari: #F3E5F5;            
@@ -26,7 +26,7 @@
         --bg-Chabad: #FFF8E1;         
         --bg-Other: #F5F5F5;          
         
-        /* TEXT COLORS FOR NUSACH (For Contrast) */
+        /* NUSACH TEXT */
         --text-Ashkenaz: #1565C0;
         --text-Sefard: #2E7D32;
         --text-Ari: #7B1FA2;
@@ -100,68 +100,51 @@
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
         height: 85px; 
+        box-sizing: border-box;
     }
     .info-zone { 
         width: 60%; flex-basis: 60%; flex-shrink: 0;
-        padding: 10px 12px; 
+        padding: 8px 12px; /* Tighter padding for 4 lines */
         cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: center;
+        display: flex; flex-direction: column; justify-content: flex-start; /* Align top */
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        position: relative; /* Enables absolute children */
+        position: relative; 
         cursor: pointer; background: #fafafa; 
         box-sizing: border-box; 
     }
     
-    /* RIGHT SIDE LAYOUT - RIGHT ANCHORED (10px padding) */
+    /* 4-LINE INFO LAYOUT */
+    .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+    .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+    .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
+    .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
+
+    /* RIGHT SIDE LAYOUT - RIGHT ANCHORED (15px padding for Safari) */
     
     /* 1. TEFILLAH (Top Right) */
     .tefillah-label { 
-        position: absolute; 
-        top: 8px; 
-        right: 10px; 
-        text-align: right;
-        font-size: 11px; 
-        font-weight: 900; 
-        text-transform: uppercase; 
-        letter-spacing: 0.5px; 
-        line-height: 1; 
-        color: #555; 
+        position: absolute; top: 8px; right: 15px; text-align: right;
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
         margin: 0;
     } 
     
-    /* 2. TIME PILL (Vertically Centered, Right Anchored) */
+    /* 2. TIME PILL (Vertically Centered 42.5px - 10px raise = 32.5px from top) */
     .time-val-card { 
         position: absolute;
-        top: 50%;
-        right: 10px;
+        top: calc(50% - 10px); /* Raised 10px */
+        right: 15px; /* Safari safety buffer */
         transform: translateY(-50%);
-        padding: 4px 8px; 
-        border-radius: 8px; 
-        background: #E8EAF6; 
-        color: var(--primary); 
-        font-weight: 800; 
-        font-size: 16px; 
-        white-space: nowrap;
+        padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     
     /* 3. MAP/DISTANCE (Bottom Right) */
     .dist-row { 
-        position: absolute;
-        bottom: 8px;
-        right: 10px;
-        display: flex; 
-        align-items: center; 
-        justify-content: flex-end; 
-        gap: 6px; 
-        margin: 0;
+        position: absolute; bottom: 8px; right: 15px;
+        display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
-    
-    .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-    .shul-address { font-size: 15px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
@@ -194,13 +177,8 @@
 
     /* TIME PILLS (NUSACH COLORED) */
     .time-pill {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 14px;
-        font-weight: 800;
-        font-size: 16px;
-        white-space: nowrap;
-        margin: 2px;
+        display: inline-block; padding: 4px 12px; border-radius: 14px;
+        font-weight: 800; font-size: 16px; white-space: nowrap; margin: 2px;
         border: 1px solid rgba(0,0,0,0.08); 
     }
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; }
@@ -210,7 +188,7 @@
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; }
 
-    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
+    .nusach-tag-drawer { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
 
     /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
@@ -278,11 +256,11 @@
     }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
     
-    /* DRAWER HEADER STYLING UPDATE */
     .drawer-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f0f0f0; }
     .drawer-title-container { flex: 1; padding-right: 10px; }
-    .drawer-title { font-size: 18px; font-weight: 800; color: var(--primary); line-height: 1.1; margin-bottom: 2px; } /* Smaller font */
-    .drawer-address-locked { font-size: 13px; color: #777; margin: 0; font-weight: 500; } /* Tighter spacing */
+    .drawer-title { font-size: 18px; font-weight: 800; color: var(--primary); line-height: 1.1; margin-bottom: 2px; } 
+    .drawer-address-locked { font-size: 13px; color: #777; margin: 0; font-weight: 500; }
+    .drawer-city-locked { font-size: 12px; color: #999; margin: 0; }
     
     .drawer-actions { display: flex; gap: 12px; flex-shrink: 0; }
     .circle-action-btn { width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; }
@@ -298,7 +276,6 @@
     .schedule-item { margin-bottom: 6px; }
     .schedule-day { font-weight: 700; color: #666; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;}
     
-    /* SMALL CONTACT PILLS */
     .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
     .contact-btn { 
         background: #f5f5f5; border: 1px solid #ddd; 
@@ -316,17 +293,15 @@
     .drawer-nav-row { 
         display: flex; justify-content: space-between; align-items: center; 
         margin-top: 5px; background: #fafafa; 
-        padding: 8px 12px; /* Compact Padding */
+        padding: 8px 12px; 
         border-radius: 12px; border: 1px solid #f0f0f0; 
     }
     .drawer-nav-left { display: flex; align-items: center; gap: 8px; }
 
-    /* Static Chip for Drawer */
     .static-chip {
         padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #fff; display: inline-block;
     }
 
-    /* DRAWER MAP CIRCLE */
     .map-circle-lg { width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
     .google-maps-icon-lg { font-size: 20px !important; }
 
@@ -369,7 +344,8 @@
         <div class="drawer-header">
             <div class="drawer-title-container">
                 <div class="drawer-title" id="drawer-title"></div>
-                <div class="drawer-address-locked" id="drawer-address"></div>
+                <div class="drawer-address-locked" id="drawer-address-line1"></div>
+                <div class="drawer-city-locked" id="drawer-address-line2"></div>
             </div>
             <div class="drawer-actions">
                 <button class="circle-action-btn" id="share-btn">
@@ -796,6 +772,7 @@
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 
+                // Only Nusach color on pill, border neutral
                 let rightSide = '';
                 if(m.timeValue === 9999) {
                     rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
@@ -821,7 +798,8 @@
                     <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
-                        <div class="nusach-tag ${nusachTagClass}">${m.nusach}</div>
+                        <div class="shul-city">${m.city}, ${m.state} ${m.zip}</div>
+                        <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
                     </div>
                     ${rightSide}`;
                 list.appendChild(card);
@@ -839,6 +817,7 @@
             });
             Object.values(groups).forEach(m => {
                 const pinDiv = document.createElement("div");
+                // Only Nusach Color
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 
                 pinDiv.className = `custom-marker ${nCls}`;
@@ -896,16 +875,12 @@
             const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             
             document.getElementById("drawer-title").innerText = m.name;
+            document.getElementById("drawer-address-line1").innerText = m.address; 
+            document.getElementById("drawer-address-line2").innerText = `${m.city}, ${m.state} ${m.zip}`; 
             
-            // BUILD FULL ADDRESS
-            let fullAddress = `${m.address}, ${m.city}, ${m.state} ${m.zip}`;
-            document.getElementById("drawer-address").innerText = fullAddress; 
-            
-            // RABBI & NUSACH (SCROLLING HEADER)
             let rabbiText = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
-            let nusachTag = `<span class="nusach-tag ${nCls}" style="margin:0;">${m.nusach}</span>`;
+            let nusachTag = `<span class="nusach-tag-drawer ${nCls}" style="margin:0;">${m.nusach}</span>`;
             
-            // SELECTED TEFILLAH ROW (Compact)
             let tefillahChipClass = `chip-${m.tefillah}`;
             let timePillClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             
@@ -972,7 +947,8 @@
 
         function openAdDetails(ad) {
             document.getElementById("drawer-title").innerText = ad.name;
-            document.getElementById("drawer-address").innerText = ""; 
+            document.getElementById("drawer-address-line1").innerText = ""; 
+            document.getElementById("drawer-address-line2").innerText = ""; 
             
             const shareBtn = document.getElementById("share-btn");
             shareBtn.onclick = () => {
@@ -985,7 +961,7 @@
             let webBtn = ad.website
                 ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` 
                 : '';
-            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`;
+            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
 
             document.getElementById("drawer-content").innerHTML = `
                 <div class="ad-hero">
