@@ -68,7 +68,7 @@
         pointer-events: none; display: none;
     }
 
-    /* CARDS - 60/40 SPLIT (MORE SPACE ON RIGHT) */
+    /* CARDS - 60/40 SPLIT WITH PADDING */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -84,7 +84,8 @@
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        cursor: pointer; background: #fafafa; padding: 5px;
+        cursor: pointer; background: #fafafa; 
+        padding: 5px 15px 5px 5px; /* Added right padding (15px) to move content left */
         text-align: center; gap: 4px;
     }
     
@@ -345,16 +346,7 @@
         <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:10px;">Done</button>
     </div>
 
-    <div id="list-view">
-        <div class="empty-state">
-            <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
-            <strong>Welcome to ShulTime</strong><br><br>
-            <b>1. Search</b> for a city or zip code.<br>
-            <b>2. Filter</b> by time or Nusach.<br>
-            <b>3. Tap</b> the target to use GPS.
-        </div>
-    </div>
-    
+    <div id="list-view"></div>
     <div id="map-view"></div>
     
     <button class="fab-location" onclick="useMyLocation()">
@@ -401,15 +393,17 @@
         let allNusachs = new Set();
         let fullDbData = [];
         let currentFilterDate = new Date();
-        let isFirstIdle = true; // Flag for initial load
+        let isFirstIdle = true; 
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
             document.getElementById('time-end').value = "23:59";
             updateDateDisplay();
             
+            // SHOW WELCOME SCREEN IMMEDIATELY
+            renderWelcome();
+
             try {
-                // Fetch ONLY database.json (Ads are now built-in)
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
@@ -419,6 +413,35 @@
             
             initPullToDismiss();
         });
+
+        // WELCOME SCREEN WITH ADS
+        function renderWelcome() {
+            const list = document.getElementById("list-view");
+            list.innerHTML = `
+                <div class="empty-state">
+                    <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
+                    <strong>Welcome to ShulTime</strong><br><br>
+                    <b>1. Search</b> for a city or zip code.<br>
+                    <b>2. Filter</b> by time or Nusach.<br>
+                    <b>3. Tap</b> the target to use GPS.
+                    <div style="margin-top: 30px; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; margin-bottom: 10px;">Sponsored</div>
+                </div>
+            `;
+            
+            ADS_DB.forEach(ad => {
+                const adCard = document.createElement("div");
+                adCard.className = "ad-card";
+                adCard.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <span class="ad-badge">AD</span>
+                        <span class="ad-content">${ad.name}</span>
+                    </div>
+                    <i class="material-icons ad-arrow">chevron_right</i>
+                `;
+                adCard.onclick = () => openAdDetails(ad);
+                list.appendChild(adCard);
+            });
+        }
 
         // DATE LOGIC
         function changeDate(days) {
@@ -535,7 +558,7 @@
                 btn.classList.remove("active");
                 dot.style.display = "none";
                 mapPill.style.display = "none";
-                countPill.style.display = "none"; // Hide count on map initially if searched
+                countPill.style.display = "block";
             } else {
                 list.style.display = "none";
                 icon.innerText = "list";
@@ -575,31 +598,18 @@
         }
 
         function applyFilters(){
-            // If explicit search hasn't happened and we are just starting, don't show anything yet
-            if(!searchCenter && !map) return;
-
+            if(!searchCenter || !allMinyanim.length) return;
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM, endVal = (eH*60)+eM;
 
             let results = allMinyanim.map(m => {
-                // If we have a search center, calc distance
-                if (searchCenter) {
-                    m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
-                } else {
-                    m.distance = 0; // fallback
-                }
+                m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
             });
 
-            // Filter Logic
             if (document.getElementById("list-view").style.display !== 'none') {
-                if (searchCenter) {
-                     results = results.filter(m => m.distance <= currentRadius);
-                } else {
-                    // List view but no search center yet? show nothing
-                    results = []; 
-                }
+                results = results.filter(m => m.distance <= currentRadius);
             } else if (map) {
                 const bounds = map.getBounds();
                 if(bounds) {
@@ -629,7 +639,7 @@
             const list = document.getElementById("list-view");
             list.innerHTML = "";
             if (results.length === 0) {
-                list.innerHTML = '<div class="empty-state"><i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br><strong>Welcome to ShulTime</strong><br><br><b>1. Search</b> for a city or zip code.<br><b>2. Filter</b> by time or Nusach.<br><b>3. Tap</b> the target to use GPS.</div>';
+                list.innerHTML = '<div class="empty-state">No minyanim found.</div>';
                 return;
             }
 
@@ -637,7 +647,6 @@
             results.forEach((m, index) => {
                 minyanCount++;
                 
-                // AD LOGIC
                 if (minyanCount % 4 === 0 && ads.length > 0) {
                     const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ads.length;
                     const adData = ads[safeAdIndex];
@@ -720,10 +729,10 @@
             if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
             
-            // INITIAL LOAD CHECK
+            // Initial load protection
             if (isFirstIdle) {
                 isFirstIdle = false;
-                return; // Don't search on first load
+                return; 
             }
 
             const center = map.getCenter();
@@ -814,7 +823,6 @@
             document.getElementById("scrim").style.display = "block";
         }
 
-        // AD DETAILS DRAWER
         function openAdDetails(ad) {
             document.getElementById("drawer-title").innerText = ad.name;
             document.getElementById("drawer-rabbi").innerHTML = ""; 
@@ -917,14 +925,9 @@
             document.getElementById("status-pill").style.display = "none";
             document.getElementById("count-pill").style.display = "none";
             document.getElementById("map-radius-pill").style.display = "none";
-            document.getElementById("list-view").innerHTML = `
-                <div class="empty-state">
-                    <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
-                    <strong>Welcome to ShulTime</strong><br><br>
-                    <b>1. Search</b> for a city or zip code.<br>
-                    <b>2. Filter</b> by time or Nusach.<br>
-                    <b>3. Tap</b> the target to use GPS.
-                </div>`;
+            // RESTORE WELCOME
+            renderWelcome();
+            
             const el = document.querySelector('gmp-place-autocomplete');
             if(el) el.value = null;
             if(map) { markers.forEach(m => m.map = null); }
