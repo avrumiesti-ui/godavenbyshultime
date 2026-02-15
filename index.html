@@ -38,7 +38,7 @@
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
-    /* FLOATING HEADER */
+    /* FLOATING HEADER (Search) */
     .floating-header {
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
@@ -62,6 +62,20 @@
     }
     .circle-btn.active { background: var(--primary); color: #fff; }
 
+    /* STICKY LIQUID HEADER (For Recent/Saved) */
+    .sticky-header {
+        position: fixed; top: 0; left: 0; right: 0; height: 60px;
+        background: rgba(242, 244, 248, 0.85); /* Matches BG with transparency */
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        z-index: 900; 
+        display: flex; align-items: flex-end; justify-content: center;
+        padding-bottom: 12px;
+        font-weight: 800; font-size: 17px; color: var(--primary);
+        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
+    }
+    .sticky-header.visible { opacity: 1; pointer-events: auto; }
+
     /* STATUS PILLS */
     .status-area {
         position: fixed; top: 75px; left: 0; right: 0;
@@ -80,17 +94,16 @@
     /* VIEWS */
     #list-view, #settings-view { 
         position: absolute; inset: 0; 
-        /* Padding top will be adjusted dynamically via JS */
         padding: 110px 12px 120px; 
         overflow-y: auto; background: var(--bg); 
         z-index: 10; display: none;
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
-    /* PAGE HEADERS (Recent/Saved) */
+    /* PAGE HEADERS (Big Titles in List) */
     .list-page-header {
-        font-size: 24px; font-weight: 800; color: var(--primary);
-        margin-bottom: 15px; padding-left: 5px;
+        font-size: 34px; font-weight: 800; color: var(--primary);
+        margin-top: 20px; margin-bottom: 15px; padding-left: 5px;
     }
 
     /* ZMANIM VIEW */
@@ -141,15 +154,17 @@
     }
     .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; }
+    
     #nav-toggle { font-weight: 800; color: var(--primary); }
     
     /* SETTINGS STYLES */
     .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .settings-header { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+    .settings-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 20px; margin-bottom: 20px; padding-left: 5px; }
     .input-group { margin-bottom: 15px; }
     .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
     .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
     .settings-input:focus { outline: none; border-color: var(--primary); background: #fff; }
+    
     .settings-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; color: #333; text-decoration: none; cursor: pointer; }
     .settings-link:last-child { border-bottom: none; }
     .settings-link i { color: #ccc; }
@@ -160,17 +175,20 @@
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
-        height: 85px; box-sizing: border-box;
+        height: 85px; 
+        box-sizing: border-box;
     }
     .info-zone { 
         width: 60%; flex-basis: 60%; flex-shrink: 0;
-        padding: 8px 12px; cursor: pointer; 
+        padding: 8px 12px; 
+        cursor: pointer; 
         display: flex; flex-direction: column; justify-content: flex-start;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        position: relative; cursor: pointer; background: #fafafa; 
+        position: relative; 
+        cursor: pointer; background: #fafafa; 
         box-sizing: border-box; 
     }
     
@@ -179,10 +197,11 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT */
+    /* RIGHT SIDE LAYOUT - STRICT 15px BUFFER */
     .tefillah-label { 
         position: absolute; top: 8px; right: 15px; text-align: right;
-        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; margin: 0;
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
+        margin: 0;
     } 
     .time-val-card { 
         position: absolute; top: calc(50% - 10px); right: 15px; transform: translateY(-50%);
@@ -362,6 +381,8 @@
 </style>
 </head>
 <body>
+
+    <div id="sticky-header" class="sticky-header"></div>
 
     <div class="floating-header" id="filter-header">
         <div class="search-container" onclick="event.stopPropagation()">
@@ -575,6 +596,21 @@
             renderWelcome();
             loadProfile();
 
+            // SCROLL LISTENER FOR STICKY HEADER
+            document.getElementById('list-view').addEventListener('scroll', function() {
+                const header = document.getElementById('sticky-header');
+                // Threshold: ~40px scroll
+                if(this.scrollTop > 40) {
+                    header.classList.add('visible');
+                    // Set title based on current tab
+                    if(currentTab === 'recent') header.innerText = "Recent";
+                    else if(currentTab === 'saved') header.innerText = "Saved";
+                    else header.classList.remove('visible'); // Don't show on search results
+                } else {
+                    header.classList.remove('visible');
+                }
+            });
+
             try {
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
@@ -592,6 +628,8 @@
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             
             const list = document.getElementById('list-view');
+            const sticky = document.getElementById('sticky-header');
+            sticky.classList.remove('visible'); // Reset on switch
             
             // Highlight logic
             if(tab !== 'map' && tab !== 'list') {
@@ -665,14 +703,14 @@
             document.getElementById('nav-toggle-text').innerText = text;
         }
 
-        // --- ZMANIM (FIXED) ---
+        // --- ZMANIM (FIXED 2.0) ---
         async function fetchZmanim() {
             const zDiv = document.getElementById("zmanim-content");
             zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
             
             // Default to Lakewood if no search center
-            const lat = searchCenter ? searchCenter.lat : 40.091;
-            const lng = searchCenter ? searchCenter.lng : -74.218;
+            const lat = (searchCenter && searchCenter.lat) ? searchCenter.lat : 40.091;
+            const lng = (searchCenter && searchCenter.lng) ? searchCenter.lng : -74.218;
             
             try {
                 // FIXED DATE FORMATTING (YYYY-MM-DD local)
@@ -1029,12 +1067,7 @@
                 list.innerHTML = '<div class="empty-state">No minyanim found.</div>';
                 return;
             }
-            // Use Helper
-            renderListCards(results, list);
-        }
 
-        // Helper to render cards
-        function renderListCards(results, container) {
             let minyanCount = 0;
             results.forEach((m, index) => {
                 minyanCount++;
@@ -1046,7 +1079,7 @@
                         adCard.className = "ad-card";
                         adCard.innerHTML = `<div style="display:flex; align-items:center;"><span class="ad-badge">AD</span><span class="ad-content">${adData.name}</span></div><i class="material-icons ad-arrow">chevron_right</i>`;
                         adCard.onclick = () => openAdDetails(adData);
-                        container.appendChild(adCard);
+                        list.appendChild(adCard);
                     }
                 }
 
@@ -1074,7 +1107,7 @@
                         <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
                     </div>
                     ${rightSide}`;
-                container.appendChild(card);
+                list.appendChild(card);
             });
         }
 
