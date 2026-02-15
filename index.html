@@ -43,14 +43,13 @@
         display: flex; justify-content: center; align-items: center; gap: 8px;
         z-index: 800; pointer-events: none; padding: 0 10px;
     }
-    #status-pill, #count-pill, #map-radius-pill {
+    .pill {
         padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
         display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
         max-width: 45%; overflow: hidden; text-overflow: ellipsis;
     }
-    #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
-    #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
+    #radius-pill { background: #2E7D32; color: #fff; border: 1px solid #2E7D32; }
 
     /* VIEWS */
     #list-view { 
@@ -68,7 +67,7 @@
         pointer-events: none; display: none;
     }
 
-    /* CARDS - 70/30 SPLIT (Adjusted to prevent cutoff) */
+    /* CARDS - 75/25 SPLIT */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -76,13 +75,13 @@
         min-height: 90px; 
     }
     .info-zone { 
-        width: 70%; flex-basis: 70%; flex-shrink: 0;
+        width: 75%; flex-basis: 75%; flex-shrink: 0;
         padding: 12px; cursor: pointer; 
         display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
-        width: 30%; flex-basis: 30%; flex-shrink: 0;
+        width: 25%; flex-basis: 25%; flex-shrink: 0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         cursor: pointer; background: #fafafa; padding: 5px;
         text-align: center; gap: 4px;
@@ -91,11 +90,13 @@
     .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
     .shul-address { font-size: 15px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    /* Right Side Elements */
     .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px; } 
     
     .dist-row { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 3px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; }
+    
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
+    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
     /* COLORS */
     .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
@@ -123,7 +124,7 @@
     .time-val-card {
         padding: 4px 8px;
         border-radius: 8px;
-        background: #E8EAF6; /* Light Blue BG */
+        background: #E8EAF6; 
         color: var(--primary);
         font-weight: 800;
         font-size: 16px;
@@ -136,6 +137,7 @@
     .chip-Shacharis { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
     .chip-Mincha { background: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
     .chip-Maariv { background: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
+    
     .chip-Ashkenaz { background: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
     .chip-Sefard { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
     .chip-Ari { background: #F3E5F5; color: #7B1FA2; border-color: #E1BEE7; }
@@ -199,7 +201,7 @@
     .address-info { font-size: 14px; color: #777; margin-bottom: 15px; margin-top: 5px; }
     .drawer-tag { margin-bottom: 15px; }
 
-    .schedule-section { margin-top: 15px; }
+    .schedule-section { margin-top: 20px; }
     .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
     .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
     .schedule-item { margin-bottom: 6px; }
@@ -212,9 +214,6 @@
     .missing-info-text { font-size: 11px; color: #999; text-align: center; margin-top: 8px; font-style: italic; width: 100%; }
 
     /* DRAWER MAP CIRCLE */
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
-    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
-    
     .map-circle-lg { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
     .google-maps-icon-lg { font-size: 26px !important; }
 
@@ -247,9 +246,8 @@
     </div>
 
     <div class="status-area">
-        <div id="status-pill"></div>
-        <div id="count-pill"></div>
-        <div id="map-radius-pill"></div>
+        <div id="count-pill" class="pill"></div>
+        <div id="radius-pill" class="pill"></div>
     </div>
 
     <div id="center-marker"></div>
@@ -381,6 +379,7 @@
             initPullToDismiss();
         });
 
+        // DATE LOGIC
         function changeDate(days) {
             currentFilterDate.setDate(currentFilterDate.getDate() + days);
             updateDateDisplay();
@@ -487,6 +486,7 @@
             const icon = document.getElementById("view-icon");
             const dot = document.getElementById("center-marker");
             const mapPill = document.getElementById("map-radius-pill");
+            const countPill = document.getElementById("count-pill");
             
             if (list.style.display === "none") {
                 list.style.display = "block";
@@ -494,12 +494,14 @@
                 btn.classList.remove("active");
                 dot.style.display = "none";
                 mapPill.style.display = "none";
+                countPill.style.display = "block";
             } else {
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
                 mapPill.style.display = "block";
+                countPill.style.display = "none";
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
@@ -509,8 +511,6 @@
 
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
-            document.getElementById("status-pill").style.display = "block";
-            document.getElementById("status-pill").innerText = `Near: ${name}`;
             if(map) {
                 isProgrammaticMove = true;
                 map.setCenter({ lat, lng });
@@ -540,7 +540,18 @@
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
-            }).filter(m => m.distance <= currentRadius);
+            }); // Filter in onMapIdle if map mode
+
+            // If List Mode, use Radius Filter
+            if (document.getElementById("list-view").style.display !== 'none') {
+                results = results.filter(m => m.distance <= currentRadius);
+            } else if (map) {
+                // If Map Mode, use Map Bounds
+                const bounds = map.getBounds();
+                if(bounds) {
+                    results = results.filter(m => bounds.contains({lat: m.lat, lng: m.lng}));
+                }
+            }
 
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
             if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
@@ -554,9 +565,7 @@
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            const countPill = document.getElementById("count-pill");
-            countPill.style.display = "block";
-            countPill.innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
 
             renderList(results);
             updateMapMarkers(results);
@@ -568,21 +577,21 @@
             results.forEach(m => {
                 let nCls = `nusach-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
-                const link = `https://www.godaven.com/shul-details/${godavenId}`;
+                const link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 const card = document.createElement("div");
                 card.className = "minyan-card";
                 
                 let rightSide = '';
                 if(m.timeValue === 9999) {
-                    rightSide = `<div class="map-zone" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
+                    rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
                         <div class="map-footer">
                             <div class="dist-label">${m.distance.toFixed(1)}mi</div>
                             <div class="map-circle"><i class="material-icons google-maps-icon">place</i></div>
                         </div>
                     </div>`;
                 } else {
-                    rightSide = `<div class="map-zone" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')">
+                    rightSide = `<div class="map-zone" onclick="window.open('${link}','_blank')">
                         <div class="tefillah-label tef-${m.tefillah}">${m.tefillah}</div>
                         <div class="time-val-card">${m.timeDisplay}</div>
                         <div class="dist-row">
@@ -633,7 +642,7 @@
             const bounds = map.getBounds();
             if(!center || !bounds) return;
             searchCenter = { lat: center.lat(), lng: center.lng() };
-            document.getElementById("status-pill").innerText = `Near: Map Center`;
+            
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
@@ -813,7 +822,11 @@
 
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 },
-                zoom: 12, disableDefaultUI: true, clickableIcons: false, mapId: "DEMO_MAP_ID"
+                zoom: 12, disableDefaultUI: true, clickableIcons: false, mapId: "DEMO_MAP_ID",
+                // HIDE POIS
+                styles: [
+                  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
+                ]
             });
 
             map.addListener('idle', onMapIdle);
@@ -840,4 +853,3 @@
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
-
