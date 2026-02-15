@@ -80,28 +80,32 @@
     /* VIEWS */
     #list-view, #settings-view { 
         position: absolute; inset: 0; 
+        /* Padding top will be adjusted dynamically via JS */
         padding: 110px 12px 120px; 
         overflow-y: auto; background: var(--bg); 
         z-index: 10; display: none;
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
+    /* PAGE HEADERS (Recent/Saved) */
+    .list-page-header {
+        font-size: 24px; font-weight: 800; color: var(--primary);
+        margin-bottom: 15px; padding-left: 5px;
+    }
+
     /* ZMANIM VIEW */
     #zmanim-view {
         position: absolute; inset: 0; 
         background: var(--bg); z-index: 15;
         overflow-y: auto; display: none;
-        padding-bottom: 120px; /* Space for toolbar */
+        padding-bottom: 120px;
     }
-    
     .zmanim-header-container {
         position: sticky; top: 0; background: var(--bg);
         padding: 15px 12px; z-index: 20;
         border-bottom: 1px solid rgba(0,0,0,0.05);
     }
     .zmanim-location-title { font-size: 18px; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 10px; }
-
-    /* Zmanim Card Style */
     .zmanim-card { 
         background: #fff; border-radius: 15px; padding: 15px; margin: 0 12px 10px 12px; 
         display: flex; justify-content: space-between; align-items: center; 
@@ -137,7 +141,6 @@
     }
     .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; }
-    
     #nav-toggle { font-weight: 800; color: var(--primary); }
     
     /* SETTINGS STYLES */
@@ -147,7 +150,6 @@
     .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
     .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
     .settings-input:focus { outline: none; border-color: var(--primary); background: #fff; }
-    
     .settings-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; color: #333; text-decoration: none; cursor: pointer; }
     .settings-link:last-child { border-bottom: none; }
     .settings-link i { color: #ccc; }
@@ -158,20 +160,17 @@
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
-        height: 85px; 
-        box-sizing: border-box;
+        height: 85px; box-sizing: border-box;
     }
     .info-zone { 
         width: 60%; flex-basis: 60%; flex-shrink: 0;
-        padding: 8px 12px; 
-        cursor: pointer; 
+        padding: 8px 12px; cursor: pointer; 
         display: flex; flex-direction: column; justify-content: flex-start;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        position: relative; 
-        cursor: pointer; background: #fafafa; 
+        position: relative; cursor: pointer; background: #fafafa; 
         box-sizing: border-box; 
     }
     
@@ -267,7 +266,6 @@
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     
-    /* SHARED DATE NAVIGATOR STYLE */
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
     .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
     .date-display-container { text-align: center; }
@@ -593,17 +591,27 @@
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             
+            const list = document.getElementById('list-view');
+            
             // Highlight logic
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
-                document.getElementById('filter-header').style.display = 'none'; // Hide filter
-                // Hide pills for non-search
+                document.getElementById('filter-header').style.display = 'none'; 
                 document.getElementById('status-pill').style.display = 'none';
                 document.getElementById('count-pill').style.display = 'none';
                 document.getElementById('map-radius-pill').style.display = 'none';
+                
+                // ADJUST TOP PADDING
+                if(tab === 'recent' || tab === 'saved' || tab === 'settings') {
+                    list.style.paddingTop = '60px'; // Shorter padding
+                } else {
+                    list.style.paddingTop = '110px';
+                }
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
-                document.getElementById('filter-header').style.display = 'flex'; // Show filter
+                document.getElementById('filter-header').style.display = 'flex';
+                // Reset padding for search
+                list.style.paddingTop = '110px';
             }
 
             // Hide All
@@ -629,7 +637,7 @@
             }
             else if(tab === 'recent') {
                 document.getElementById('list-view').style.display = 'block';
-                updateToggleButton('Map', 'map'); // If clicked, go to map
+                updateToggleButton('Map', 'map'); 
                 renderRecents();
             }
             else if(tab === 'saved') {
@@ -647,15 +655,9 @@
         }
 
         function toggleView() {
-            // Close filter drawer if open
             document.getElementById('filter-drawer').style.display = 'none';
-
             const mapVisible = document.getElementById('map-view').style.display === 'block';
-            if (mapVisible) {
-                switchTab('list');
-            } else {
-                switchTab('map');
-            }
+            if (mapVisible) { switchTab('list'); } else { switchTab('map'); }
         }
 
         function updateToggleButton(text, iconName) {
@@ -663,30 +665,58 @@
             document.getElementById('nav-toggle-text').innerText = text;
         }
 
-        // --- ZMANIM ---
+        // --- ZMANIM (FIXED) ---
         async function fetchZmanim() {
             const zDiv = document.getElementById("zmanim-content");
             zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
+            
+            // Default to Lakewood if no search center
             const lat = searchCenter ? searchCenter.lat : 40.091;
             const lng = searchCenter ? searchCenter.lng : -74.218;
             
             try {
-                const dateStr = currentFilterDate.toISOString().split('T')[0];
+                // FIXED DATE FORMATTING (YYYY-MM-DD local)
+                const year = currentFilterDate.getFullYear();
+                const month = String(currentFilterDate.getMonth() + 1).padStart(2, '0');
+                const day = String(currentFilterDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+
                 const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
                 const res = await fetch(url);
+                if(!res.ok) throw new Error("API Error");
                 const data = await res.json();
+                
                 let html = `<div class="zmanim-location-title">${data.location.title || "Location"}</div>`;
                 const times = data.times;
+                
                 const formatZman = (iso) => {
                     const d = new Date(iso);
                     let h = d.getHours(); let m = String(d.getMinutes()).padStart(2, '0');
                     let ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
                     return `${h}:${m}${ampm}`;
                 };
-                const zList = [ { k: 'alotHaShachar', l: 'Alot Hashachar' }, { k: 'sunrise', l: 'Sunrise' }, { k: 'sofZmanShma', l: 'Sof Zman Shma' }, { k: 'sofZmanTfila', l: 'Sof Zman Tefila' }, { k: 'chatzot', l: 'Chatzot' }, { k: 'minchaGedola', l: 'Mincha Gedola' }, { k: 'sunset', l: 'Sunset' }, { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' } ];
-                zList.forEach(i => { if(times[i.k]) html += `<div class="zmanim-card"><span class="zman-name">${i.l}</span><span class="zman-time">${formatZman(times[i.k])}</span></div>`; });
+                
+                const zList = [ 
+                    { k: 'alotHaShachar', l: 'Alot Hashachar' }, 
+                    { k: 'sunrise', l: 'Sunrise (Netz)' }, 
+                    { k: 'sofZmanShma', l: 'Sof Zman Shma (Gra)' }, 
+                    { k: 'sofZmanTfila', l: 'Sof Zman Tefila' }, 
+                    { k: 'chatzot', l: 'Chatzot' }, 
+                    { k: 'minchaGedola', l: 'Mincha Gedola' }, 
+                    { k: 'minchaKetana', l: 'Mincha Ketana' },
+                    { k: 'plagHaMincha', l: 'Plag HaMincha' },
+                    { k: 'sunset', l: 'Sunset (Shkia)' }, 
+                    { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' } 
+                ];
+                
+                zList.forEach(i => { 
+                    if(times[i.k]) html += `<div class="zmanim-card"><span class="zman-name">${i.l}</span><span class="zman-time">${formatZman(times[i.k])}</span></div>`; 
+                });
                 zDiv.innerHTML = html;
-            } catch(e) { zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Error loading Zmanim.</div>'; }
+            } catch(e) { 
+                console.error("Zmanim Error:", e);
+                zDiv.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading Zmanim.<br>Please check connection.</div>'; 
+            }
         }
 
         // --- SETTINGS & PROFILE ---
@@ -736,8 +766,14 @@
             processedMinyanim.forEach(m => {
                 if(favs.includes(m.id) && !seen.has(m.id)) { uniqueResults.push(m); seen.add(m.id); }
             });
-            if(uniqueResults.length === 0) document.getElementById('list-view').innerHTML = '<div class="empty-state">No saved shuls.</div>';
-            else renderList(uniqueResults);
+            const list = document.getElementById('list-view');
+            
+            if(uniqueResults.length === 0) {
+                list.innerHTML = '<div class="list-page-header">Saved</div><div class="empty-state">No saved shuls.</div>';
+            } else {
+                list.innerHTML = '<div class="list-page-header">Saved</div>'; // Header
+                renderListCards(uniqueResults, list); // Helper to append
+            }
         }
 
         function renderRecents() {
@@ -747,8 +783,45 @@
                 const match = processedMinyanim.find(r => r.id === id);
                 if(match && !seen.has(id)) { uniqueResults.push(match); seen.add(id); }
             });
-            if(uniqueResults.length === 0) document.getElementById('list-view').innerHTML = '<div class="empty-state">No recent activity.</div>';
-            else renderList(uniqueResults);
+            const list = document.getElementById('list-view');
+            
+            if(uniqueResults.length === 0) {
+                list.innerHTML = '<div class="list-page-header">Recent</div><div class="empty-state">No recent activity.</div>';
+            } else {
+                list.innerHTML = '<div class="list-page-header">Recent</div>'; // Header
+                renderListCards(uniqueResults, list); // Helper to append
+            }
+        }
+
+        // Helper to render cards without wiping innerHTML
+        function renderListCards(results, container) {
+            results.forEach((m) => {
+                let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+                let nusachTagClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+                const link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
+                
+                const card = document.createElement("div");
+                card.className = "minyan-card";
+                
+                let rightSide = (m.timeValue === 9999) 
+                    ? `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                        <div class="map-footer"><div class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
+                    : `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                        <div class="tefillah-label">${m.tefillah}</div>
+                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
+                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
+                    </div>`;
+
+                card.innerHTML = `
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
+                        <div class="shul-name">${m.name}</div>
+                        <div class="shul-address">${m.address}</div>
+                        <div class="shul-city">${m.city || ''}, ${m.state || ''} ${m.zip || ''}</div>
+                        <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
+                    </div>
+                    ${rightSide}`;
+                container.appendChild(card);
+            });
         }
 
         function showComingSoon() {
@@ -794,9 +867,9 @@
 
         function updateDateDisplay() {
             const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-            const dateStr = currentFilterDate.toLocaleDateString('en-US', options);
-            document.getElementById('date-display').innerText = dateStr;
-            document.getElementById('zman-date-display').innerText = dateStr;
+            document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
+            const shortOptions = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('zman-date-display').innerText = currentFilterDate.toLocaleDateString('en-US', shortOptions);
             
             try {
                 const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
@@ -941,7 +1014,7 @@
                 document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
             }
 
-            if(currentTab === 'map' || currentTab === 'list' || currentTab === 'recent' || currentTab === 'saved') {
+            if(currentTab === 'map' || currentTab === 'list') {
                 renderList(results);
             }
             if(currentTab === 'map') {
@@ -956,7 +1029,12 @@
                 list.innerHTML = '<div class="empty-state">No minyanim found.</div>';
                 return;
             }
+            // Use Helper
+            renderListCards(results, list);
+        }
 
+        // Helper to render cards
+        function renderListCards(results, container) {
             let minyanCount = 0;
             results.forEach((m, index) => {
                 minyanCount++;
@@ -968,7 +1046,7 @@
                         adCard.className = "ad-card";
                         adCard.innerHTML = `<div style="display:flex; align-items:center;"><span class="ad-badge">AD</span><span class="ad-content">${adData.name}</span></div><i class="material-icons ad-arrow">chevron_right</i>`;
                         adCard.onclick = () => openAdDetails(adData);
-                        list.appendChild(adCard);
+                        container.appendChild(adCard);
                     }
                 }
 
@@ -981,22 +1059,22 @@
                 
                 let rightSide = (m.timeValue === 9999) 
                     ? `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="map-footer"><div class="dist-label">${m.distance.toFixed(1)}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
+                        <div class="map-footer"><div class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
                     : `<div class="map-zone" onclick="window.open('${link}','_blank')">
                         <div class="tefillah-label">${m.tefillah}</div>
                         <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
-                        <div class="dist-row"><span class="dist-label">${m.distance.toFixed(1)}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
+                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
                     </div>`;
 
                 card.innerHTML = `
                     <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
-                        <div class="shul-city">${m.city}, ${m.state} ${m.zip}</div>
+                        <div class="shul-city">${m.city || ''}, ${m.state || ''} ${m.zip || ''}</div>
                         <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
                     </div>
                     ${rightSide}`;
-                list.appendChild(card);
+                container.appendChild(card);
             });
         }
 
