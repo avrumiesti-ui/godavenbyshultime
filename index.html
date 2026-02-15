@@ -85,7 +85,7 @@
         width: 40%; flex-basis: 40%; flex-shrink: 0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         cursor: pointer; background: #fafafa; 
-        padding: 5px 15px 5px 5px; /* Added right padding (15px) to move content left */
+        padding: 5px 20px 5px 5px; /* Added 5px more right padding (Total 20px) */
         text-align: center; gap: 4px;
     }
     
@@ -94,6 +94,7 @@
     
     /* Right Side Elements */
     .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px; } 
+    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); align-self: center; margin-right: -10px; }
     
     .dist-row { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 3px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
@@ -101,7 +102,7 @@
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
-    /* ADVERTISEMENT CARD - Half Height */
+    /* ADVERTISEMENT CARD */
     .ad-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; align-items: center; justify-content: space-between;
@@ -177,7 +178,10 @@
     /* DATE NAVIGATOR */
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
     .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
-    .date-display { font-weight: 700; color: #333; font-size: 15px; }
+    
+    .date-display-container { text-align: center; }
+    .date-display { font-weight: 800; color: #333; font-size: 16px; line-height: 1.2; }
+    .hebrew-date { font-weight: 600; color: var(--primary); font-size: 13px; opacity: 0.8; }
 
     .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .radius-row input[type=range] { flex: 1; accent-color: var(--primary); }
@@ -286,7 +290,10 @@
             <label class="filter-label">Date</label>
             <div class="date-nav">
                 <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
-                <div class="date-display" id="date-display">Today</div>
+                <div class="date-display-container">
+                    <div class="date-display" id="date-display">Today</div>
+                    <div class="hebrew-date" id="hebrew-date"></div>
+                </div>
                 <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
             </div>
         </div>
@@ -452,8 +459,16 @@
         }
 
         function updateDateDisplay() {
-            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
             document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
+            
+            // Hebrew Date Support via built-in Intl
+            try {
+                const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
+                document.getElementById('hebrew-date').innerText = hDate;
+            } catch(e) {
+                document.getElementById('hebrew-date').innerText = "";
+            }
         }
 
         function getDayKey(date) {
@@ -482,36 +497,42 @@
                 if(shul.nusach) allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
+                let minyanimForThisShul = []; // Local list for counting
                 
                 // SHACHARIS
                 if (!isSat && shul.shacharis && shul.shacharis[dayKey]) {
-                    shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t); hasTimes = true; });
+                    shul.shacharis[dayKey].forEach(t => { 
+                        addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; 
+                    });
                 }
                 
                 // MINCHA
                 if (isFri) {
-                    if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; });
+                    if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 } else if (isSat) {
-                    if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; });
+                    if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 } else {
-                    if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; });
+                    if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
                 }
 
                 // MAARIV
                 if (isSat) {
-                    if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t); hasTimes = true; });
+                    if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
                 } else {
-                    if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t); hasTimes = true; });
+                    if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
                 }
 
                 if (!hasTimes) {
                     processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
+                } else {
+                    // Push all minyanim for this shul to global list
+                    processedMinyanim.push(...minyanimForThisShul);
                 }
             });
             allMinyanim = processedMinyanim;
         }
 
-        function addMinyan(shul, type, tStr) {
+        function addMinyan(shul, type, tStr, list) {
             if(!tStr) return;
             let raw = tStr.trim().replace(/[^0-9:]/g,"");
             if(!raw) return;
@@ -524,7 +545,7 @@
 
             let formatted = formatTime(h, m);
             
-            processedMinyanim.push({
+            list.push({
                 ...shul, tefillah: type, timeDisplay: formatted, timeValue: (sortH * 60) + m
             });
         }
@@ -565,7 +586,7 @@
                 btn.classList.add("active");
                 dot.style.display = "block";
                 mapPill.style.display = "block";
-                countPill.style.display = "block"; // Show count on map
+                countPill.style.display = "block"; // Keep count on map but filtered text
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
@@ -628,8 +649,16 @@
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
+            // MINYAN COUNT LOGIC
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            const totalMinyanim = results.length;
+            
+            const isMapMode = document.getElementById("list-view").style.display === 'none';
+            if(isMapMode) {
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            } else {
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${totalMinyanim} Minyanim`;
+            }
 
             renderList(results);
             updateMapMarkers(results);
@@ -823,6 +852,7 @@
             document.getElementById("scrim").style.display = "block";
         }
 
+        // AD DETAILS DRAWER
         function openAdDetails(ad) {
             document.getElementById("drawer-title").innerText = ad.name;
             document.getElementById("drawer-rabbi").innerHTML = ""; 
