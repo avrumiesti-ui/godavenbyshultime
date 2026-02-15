@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-    :root { --primary: #0D2B4F; --bg: #F2F4F8; --ad-bg: #FFF8E1; }
+    :root { --primary: #0D2B4F; --bg: #F2F4F8; --ad-bg: #FFF8E1; --ad-border: #FBC02D; }
     
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
@@ -68,57 +68,66 @@
         pointer-events: none; display: none;
     }
 
-    /* CARDS */
+    /* CARDS - 75/25 SPLIT */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
-        min-height: 85px; 
+        min-height: 90px; 
     }
     .info-zone { 
         width: 75%; flex-basis: 75%; flex-shrink: 0;
-        padding: 10px 12px; cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 12px; cursor: pointer; 
+        display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 25%; flex-basis: 25%; flex-shrink: 0;
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        cursor: pointer; background: #fafafa; padding: 10px 12px;
-        flex-shrink: 0; text-align: right;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        cursor: pointer; background: #fafafa; padding: 5px;
+        text-align: center; gap: 4px;
     }
     
-    .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
     .shul-address { font-size: 15px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .tefillah-label { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; text-align: center; } 
-    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); align-self: center; }
+    /* Right Side Elements */
+    .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px; } 
+    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); align-self: center; margin-right: -10px; }
     
-    .map-footer { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; }
+    .dist-row { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 3px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
-    /* AD CARD STYLE */
+    /* ADVERTISEMENT CARD - Half Height */
     .ad-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; align-items: center; justify-content: space-between;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden;
-        min-height: 45px; /* Half Height */
-        padding: 0 12px; cursor: pointer; border-left: 4px solid #FBC02D;
+        min-height: 45px; 
+        padding: 0 15px; cursor: pointer;
+        border-left: 5px solid var(--ad-border);
     }
-    .ad-label { font-size: 10px; font-weight: 900; color: #FBC02D; text-transform: uppercase; letter-spacing: 1px; margin-right: 10px; }
-    .ad-content { flex: 1; font-weight: 700; color: #444; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ad-icon { color: #ccc; }
+    .ad-badge { 
+        font-size: 10px; font-weight: 900; color: var(--ad-border); 
+        text-transform: uppercase; letter-spacing: 1px; margin-right: 12px;
+        background: var(--ad-bg); padding: 2px 6px; border-radius: 4px;
+    }
+    .ad-content { 
+        flex: 1; font-weight: 700; color: #444; font-size: 14px; 
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+    }
+    .ad-arrow { color: #ccc; }
 
-    /* AD DRAWER SPECIFIC */
-    .ad-hero { width: 100%; height: 150px; background: #eee; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    /* AD DRAWER STYLING */
+    .ad-hero { width: 100%; height: 160px; background: #eee; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .ad-hero img { width: 100%; height: 100%; object-fit: cover; }
-    .ad-desc { font-size: 15px; color: #555; line-height: 1.5; margin-bottom: 20px; }
+    .ad-desc { font-size: 15px; color: #555; line-height: 1.5; margin-bottom: 20px; padding: 0 5px; }
 
     /* COLORS */
-    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
+    .nusach-tag { font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
     .nusach-Ashkenaz { background: #E3F2FD; color: #1565C0; }
     .nusach-Sefard { background: #E8F5E9; color: #2E7D32; }
     .nusach-Ari { background: #F3E5F5; color: #7B1FA2; }
@@ -135,7 +144,6 @@
     /* CHIP COLORS */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.1s; }
     .chip.active { border-width: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
-    
     .chip-Shacharis { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
     .chip-Mincha { background: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
     .chip-Maariv { background: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
@@ -346,7 +354,38 @@
     </button>
 
     <script>
-        let map, allMinyanim = [], processedMinyanim = [], ads = [], searchCenter = null, currentRadius = 20;
+        // HARDCODED ADS (No need for external file)
+        const ADS_DB = [
+          {
+            "id": 1,
+            "name": "The Hat Box",
+            "address": "470 Oberlin Ave South, Lakewood, NJ 08701",
+            "phone": "732-961-2262",
+            "website": "https://hatboxmenswear.com",
+            "description": "The finest selection of hats and menswear in Lakewood. Visit us for the perfect fit!",
+            "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box"
+          },
+          {
+            "id": 2,
+            "name": "Seasons Supermarket",
+            "address": "711 Cedarbridge Ave, Lakewood, NJ 08701",
+            "phone": "732-813-7700",
+            "website": "https://www.seasonskosher.com",
+            "description": "Premium kosher supermarket with fresh produce, bakery, and prepared foods.",
+            "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket"
+          },
+          {
+            "id": 3,
+            "name": "Aurum Jewelers USA",
+            "address": "Lakewood, NJ (Online & Appt Only)",
+            "phone": "1-323-316-8676",
+            "website": "https://aurumjewelersusa.com",
+            "description": "Exquisite jewelry for every occasion. Custom designs, repairs, and wholesale diamonds.",
+            "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers"
+          }
+        ];
+
+        let map, allMinyanim = [], processedMinyanim = [], searchCenter = null, currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
         let selectedShul = null;
         let markers = [];
@@ -361,15 +400,10 @@
             updateDateDisplay();
             
             try {
-                // Fetch Data in Parallel
-                const [dbRes, adsRes] = await Promise.all([
-                    fetch("database.json"),
-                    fetch("ads.json")
-                ]);
-                
-                fullDbData = await dbRes.json();
-                ads = await adsRes.json();
-                
+                // Fetch ONLY database.json (Ads are now built-in)
+                const res = await fetch("database.json");
+                if (!res.ok) throw new Error("DB Fetch Failed");
+                fullDbData = await res.json();
                 processMinyanim(fullDbData);
                 populateNusachFilter();
             } catch(e) { console.error("Data Load Error", e); }
@@ -540,11 +574,8 @@
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
-            });
+            }); // Filter in onMapIdle if map mode
 
-            // Sync Filtering logic:
-            // 1. If List View is open, filter by Radius
-            // 2. If Map View is open, filter by Visible Bounds
             if (document.getElementById("list-view").style.display !== 'none') {
                 results = results.filter(m => m.distance <= currentRadius);
             } else if (map) {
@@ -584,29 +615,24 @@
             results.forEach((m, index) => {
                 minyanCount++;
                 
-                // --- INSERT AD LOGIC ---
-                if (minyanCount % 4 === 0 && ads.length > 0) {
-                    const adIndex = (minyanCount / 4) % ads.length; 
-                    const ad = ads[adIndex]; // Simple rotation
-                    // Use modulo to cycle through ads correctly even if adIndex >= ads.length
-                    const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ads.length;
-                    const adData = ads[safeAdIndex];
-
+                // AD LOGIC (Using Hardcoded ADS_DB)
+                if (minyanCount % 4 === 0 && ADS_DB.length > 0) {
+                    const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ADS_DB.length;
+                    const adData = ADS_DB[safeAdIndex];
                     if(adData) {
                         const adCard = document.createElement("div");
                         adCard.className = "ad-card";
                         adCard.innerHTML = `
                             <div style="display:flex; align-items:center;">
-                                <span class="ad-label">AD</span>
+                                <span class="ad-badge">AD</span>
                                 <span class="ad-content">${adData.name}</span>
                             </div>
-                            <i class="material-icons ad-icon">chevron_right</i>
+                            <i class="material-icons ad-arrow">chevron_right</i>
                         `;
                         adCard.onclick = () => openAdDetails(adData);
                         list.appendChild(adCard);
                     }
                 }
-                // -----------------------
 
                 let nCls = `nusach-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
                 const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
@@ -706,9 +732,7 @@
             document.getElementById("drawer-title").innerText = m.name;
             document.getElementById("drawer-rabbi").innerHTML = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
             
-            // Rebind share button
             const shareBtn = document.getElementById("share-btn");
-            // Remove old listener if any to avoid stacking - simplest way is replace node or just overwrite onclick
             shareBtn.onclick = () => shareShul(m);
 
             let phoneBtn = m.phone 
@@ -764,9 +788,8 @@
         // AD DETAILS DRAWER
         function openAdDetails(ad) {
             document.getElementById("drawer-title").innerText = ad.name;
-            document.getElementById("drawer-rabbi").innerHTML = ""; // Clear rabbi
+            document.getElementById("drawer-rabbi").innerHTML = ""; 
             
-            // Rebind share button for ad
             const shareBtn = document.getElementById("share-btn");
             shareBtn.onclick = () => {
                 if(navigator.share) navigator.share({title: ad.name, text: `Check out ${ad.name} on ShulTime!`, url: ad.website});
