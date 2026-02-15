@@ -68,7 +68,7 @@
         pointer-events: none; display: none;
     }
 
-    /* CARDS - 75/25 SPLIT */
+    /* CARDS - 60/40 SPLIT (MORE SPACE ON RIGHT) */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -76,13 +76,13 @@
         min-height: 90px; 
     }
     .info-zone { 
-        width: 75%; flex-basis: 75%; flex-shrink: 0;
+        width: 60%; flex-basis: 60%; flex-shrink: 0;
         padding: 12px; cursor: pointer; 
         display: flex; flex-direction: column; justify-content: center;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
-        width: 25%; flex-basis: 25%; flex-shrink: 0;
+        width: 40%; flex-basis: 40%; flex-shrink: 0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         cursor: pointer; background: #fafafa; padding: 5px;
         text-align: center; gap: 4px;
@@ -93,12 +93,11 @@
     
     /* Right Side Elements */
     .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px; } 
-    .time-val { font-weight: 800; font-size: 18px; color: var(--primary); align-self: center; margin-right: -10px; }
     
     .dist-row { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 3px; }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; margin-top: 2px; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
     /* ADVERTISEMENT CARD - Half Height */
@@ -346,7 +345,16 @@
         <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:10px;">Done</button>
     </div>
 
-    <div id="list-view"></div>
+    <div id="list-view">
+        <div class="empty-state">
+            <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
+            <strong>Welcome to ShulTime</strong><br><br>
+            <b>1. Search</b> for a city or zip code.<br>
+            <b>2. Filter</b> by time or Nusach.<br>
+            <b>3. Tap</b> the target to use GPS.
+        </div>
+    </div>
+    
     <div id="map-view"></div>
     
     <button class="fab-location" onclick="useMyLocation()">
@@ -354,7 +362,7 @@
     </button>
 
     <script>
-        // HARDCODED ADS (No need for external file)
+        // HARDCODED ADS
         const ADS_DB = [
           {
             "id": 1,
@@ -385,7 +393,7 @@
           }
         ];
 
-        let map, allMinyanim = [], processedMinyanim = [], searchCenter = null, currentRadius = 20;
+        let map, allMinyanim = [], processedMinyanim = [], ads = ADS_DB, searchCenter = null, currentRadius = 20;
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
         let selectedShul = null;
         let markers = [];
@@ -393,6 +401,7 @@
         let allNusachs = new Set();
         let fullDbData = [];
         let currentFilterDate = new Date();
+        let isFirstIdle = true; // Flag for initial load
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -526,14 +535,14 @@
                 btn.classList.remove("active");
                 dot.style.display = "none";
                 mapPill.style.display = "none";
-                countPill.style.display = "block";
+                countPill.style.display = "none"; // Hide count on map initially if searched
             } else {
                 list.style.display = "none";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
                 mapPill.style.display = "block";
-                countPill.style.display = "none";
+                countPill.style.display = "block"; // Show count on map
                 if(map && searchCenter && map.getZoom() === 12 && !markers.length) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
@@ -566,18 +575,31 @@
         }
 
         function applyFilters(){
-            if(!searchCenter || !allMinyanim.length) return;
+            // If explicit search hasn't happened and we are just starting, don't show anything yet
+            if(!searchCenter && !map) return;
+
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM, endVal = (eH*60)+eM;
 
             let results = allMinyanim.map(m => {
-                m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                // If we have a search center, calc distance
+                if (searchCenter) {
+                    m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                } else {
+                    m.distance = 0; // fallback
+                }
                 return m;
-            }); // Filter in onMapIdle if map mode
+            });
 
+            // Filter Logic
             if (document.getElementById("list-view").style.display !== 'none') {
-                results = results.filter(m => m.distance <= currentRadius);
+                if (searchCenter) {
+                     results = results.filter(m => m.distance <= currentRadius);
+                } else {
+                    // List view but no search center yet? show nothing
+                    results = []; 
+                }
             } else if (map) {
                 const bounds = map.getBounds();
                 if(bounds) {
@@ -597,7 +619,7 @@
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
 
             renderList(results);
             updateMapMarkers(results);
@@ -607,7 +629,7 @@
             const list = document.getElementById("list-view");
             list.innerHTML = "";
             if (results.length === 0) {
-                list.innerHTML = '<div class="empty-state">No minyanim found.</div>';
+                list.innerHTML = '<div class="empty-state"><i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br><strong>Welcome to ShulTime</strong><br><br><b>1. Search</b> for a city or zip code.<br><b>2. Filter</b> by time or Nusach.<br><b>3. Tap</b> the target to use GPS.</div>';
                 return;
             }
 
@@ -615,10 +637,10 @@
             results.forEach((m, index) => {
                 minyanCount++;
                 
-                // AD LOGIC (Using Hardcoded ADS_DB)
-                if (minyanCount % 4 === 0 && ADS_DB.length > 0) {
-                    const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ADS_DB.length;
-                    const adData = ADS_DB[safeAdIndex];
+                // AD LOGIC
+                if (minyanCount % 4 === 0 && ads.length > 0) {
+                    const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ads.length;
+                    const adData = ads[safeAdIndex];
                     if(adData) {
                         const adCard = document.createElement("div");
                         adCard.className = "ad-card";
@@ -697,6 +719,13 @@
         function onMapIdle() {
             if (isProgrammaticMove) { isProgrammaticMove = false; return; }
             if(!map) return;
+            
+            // INITIAL LOAD CHECK
+            if (isFirstIdle) {
+                isFirstIdle = false;
+                return; // Don't search on first load
+            }
+
             const center = map.getCenter();
             const bounds = map.getBounds();
             if(!center || !bounds) return;
