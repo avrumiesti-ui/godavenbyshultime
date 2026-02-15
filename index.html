@@ -75,7 +75,7 @@
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
-    #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
+    #map-radius-pill { background: #2E7D32; color: #fff; display: none; } /* Green for Radius */
 
     /* VIEWS */
     #list-view, #zmanim-view, #settings-view { 
@@ -114,6 +114,9 @@
     .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; }
     
+    /* BOLD TOGGLE BUTTON */
+    #nav-toggle { font-weight: 800; color: var(--primary); }
+    
     /* SETTINGS STYLES */
     .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .settings-header { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
@@ -133,25 +136,26 @@
     .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; }
     .zman-location { text-align: center; margin-bottom: 20px; color: #777; font-size: 14px; font-weight: 500; }
 
-    /* CARD STYLES */
+    /* CARDS - 60/40 SPLIT - LOCKED HEIGHT 85PX */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
         height: 85px; 
+        box-sizing: border-box;
     }
     .info-zone { 
         width: 60%; flex-basis: 60%; flex-shrink: 0;
-        padding: 10px 12px; 
+        padding: 8px 12px; 
         cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: center;
+        display: flex; flex-direction: column; justify-content: flex-start;
         min-width: 0; border-right: 1px solid #f0f0f0;
     }
     .map-zone { 
         width: 40%; flex-basis: 40%; flex-shrink: 0;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        position: relative; 
         cursor: pointer; background: #fafafa; 
-        padding: 5px; gap: 4px; /* Centered Layout */
+        box-sizing: border-box; 
     }
     
     .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
@@ -159,10 +163,23 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE ELEMENTS */
-    .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; } 
-    .time-val-card { padding: 4px 8px; border-radius: 8px; background: #E8EAF6; color: var(--primary); font-weight: 800; font-size: 16px; white-space: nowrap; }
-    .dist-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+    /* RIGHT SIDE LAYOUT - RIGHT ANCHORED (15px padding for Safari) */
+    .tefillah-label { 
+        position: absolute; top: 8px; right: 15px; text-align: right;
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
+        margin: 0;
+    } 
+    .time-val-card { 
+        position: absolute;
+        top: calc(50% - 10px); 
+        right: 15px; 
+        transform: translateY(-50%);
+        padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
+    }
+    .dist-row { 
+        position: absolute; bottom: 8px; right: 15px;
+        display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
+    }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
@@ -334,7 +351,7 @@
 </head>
 <body>
 
-    <div class="floating-header" onclick="scrollToTop(event)">
+    <div class="floating-header" id="filter-header">
         <div class="search-container" onclick="event.stopPropagation()">
             <div id="autocomplete-container" style="flex:1; height:100%;"></div>
         </div>
@@ -352,7 +369,7 @@
     <div id="center-marker"></div>
     <div id="scrim" onclick="closeDetails()"></div>
 
-    <div id="coming-soon-toast" class="coming-soon-overlay">Coming Soon</div>
+    <div id="coming-soon-toast" class="coming-soon-overlay">Feature Coming Soon</div>
 
     <div id="details-drawer">
         <div class="drawer-header">
@@ -548,11 +565,15 @@
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            // Highlight button (toggle button logic handled separately)
+            // Highlight logic
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
+                // Hide header filter on non-search pages
+                document.getElementById('filter-header').style.display = 'none';
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
+                // Show header filter
+                document.getElementById('filter-header').style.display = 'flex';
             }
 
             // Hide All
@@ -561,27 +582,27 @@
             document.getElementById('zmanim-view').style.display = 'none';
             document.getElementById('settings-view').style.display = 'none';
             document.getElementById('center-marker').style.display = 'none';
-            document.querySelector('.search-container').style.display = 'none'; // Hide search on other tabs?
             document.querySelector('.fab-location').style.display = 'none'; 
+            document.getElementById('status-pill').style.display = 'none';
+            document.getElementById('count-pill').style.display = 'none';
+            document.getElementById('map-radius-pill').style.display = 'none';
 
             if(tab === 'map') {
                 document.getElementById('map-view').style.display = 'block';
                 document.getElementById('center-marker').style.display = 'block';
-                document.querySelector('.search-container').style.display = 'flex';
                 document.querySelector('.fab-location').style.display = 'flex';
                 updateToggleButton('List', 'list');
                 applyFilters(); 
             }
             else if(tab === 'list') {
                 document.getElementById('list-view').style.display = 'block';
-                document.querySelector('.search-container').style.display = 'flex';
                 document.querySelector('.fab-location').style.display = 'flex';
                 updateToggleButton('Map', 'map');
                 applyFilters();
             }
             else if(tab === 'recent') {
                 document.getElementById('list-view').style.display = 'block';
-                updateToggleButton('Map', 'map'); // If user clicks toggle while here, go to map
+                updateToggleButton('Map', 'map'); // If clicked, go to map
                 renderRecents();
             }
             else if(tab === 'saved') {
@@ -599,7 +620,9 @@
         }
 
         function toggleView() {
-            // If current view is map, switch to list. If list, switch to map.
+            // Close filter drawer if open
+            document.getElementById('filter-drawer').style.display = 'none';
+
             const mapVisible = document.getElementById('map-view').style.display === 'block';
             if (mapVisible) {
                 switchTab('list');
@@ -683,7 +706,6 @@
         function renderFavorites() {
             let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
             const uniqueResults = []; const seen = new Set();
-            // Filter unique shuls from processedMinyanim based on ID
             processedMinyanim.forEach(m => {
                 if(favs.includes(m.id) && !seen.has(m.id)) { uniqueResults.push(m); seen.add(m.id); }
             });
@@ -815,16 +837,12 @@
 
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
-            document.getElementById("status-pill").style.display = "block";
-            document.getElementById("status-pill").innerText = `Near: ${name}`;
             if(map) {
                 isProgrammaticMove = true;
                 map.setCenter({ lat, lng });
                 map.setZoom(13);
             }
             switchTab('map');
-            // If switchTab sets to map, we might need to wait for idle, or applyFilters directly
-            // applyFilters is called in switchTab > map block
         }
 
         function manualRadiusUpdate(val) { updateRadius(val); applyFilters(); }
@@ -846,7 +864,6 @@
                 return m;
             });
 
-            // Filtering based on active view
             const isMapMode = (currentTab === 'map' && document.getElementById("list-view").style.display === 'none');
             
             if (!isMapMode) {
@@ -869,10 +886,18 @@
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
             
-            if(isMapMode) {
-                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
-            } else {
-                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            // PILL VISIBILITY
+            if(currentTab === 'map') {
+                document.getElementById('status-pill').style.display = 'block';
+                document.getElementById('status-pill').innerText = `Near: ${name || 'Map'}`;
+                document.getElementById('map-radius-pill').style.display = 'block';
+                document.getElementById('count-pill').style.display = 'block';
+                document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls`;
+            } else if (currentTab === 'list') {
+                document.getElementById('status-pill').style.display = 'none';
+                document.getElementById('map-radius-pill').style.display = 'none';
+                document.getElementById('count-pill').style.display = 'block';
+                document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
             }
 
             if(currentTab === 'map' || currentTab === 'list' || currentTab === 'recent' || currentTab === 'saved') {
