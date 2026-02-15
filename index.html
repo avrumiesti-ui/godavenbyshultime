@@ -75,12 +75,12 @@
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
-    #map-radius-pill { background: #2E7D32; color: #fff; display: none; } /* Green for Radius */
+    #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
     /* VIEWS */
     #list-view, #zmanim-view, #settings-view { 
         position: absolute; inset: 0; 
-        padding: 110px 12px 120px; /* Bottom padding for Floating Toolbar */
+        padding-bottom: 120px; 
         overflow-y: auto; background: var(--bg); 
         z-index: 10; display: none;
     }
@@ -103,7 +103,7 @@
         padding: 10px 15px;
         z-index: 1500;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        border-radius: 40px; /* Pill Shape */
+        border-radius: 40px; 
     }
     .nav-item {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -114,12 +114,16 @@
     .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; }
     
-    /* BOLD TOGGLE BUTTON */
     #nav-toggle { font-weight: 800; color: var(--primary); }
     
+    /* PAGE HEADERS (Settings, Recent, Saved) */
+    .page-header {
+        padding: 50px 20px 20px; /* Start at top */
+        font-size: 34px; font-weight: 800; color: var(--primary);
+    }
+
     /* SETTINGS STYLES */
-    .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .settings-header { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+    .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin: 0 15px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .input-group { margin-bottom: 15px; }
     .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
     .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
@@ -131,12 +135,15 @@
     .settings-link-text { font-size: 16px; font-weight: 600; }
 
     /* ZMANIM STYLES */
-    .zmanim-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .zmanim-card { background: #fff; border-radius: 15px; padding: 15px; margin: 0 15px 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .zman-name { font-weight: 700; color: #555; font-size: 15px; }
-    .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; }
-    .zman-location { text-align: center; margin-bottom: 20px; color: #777; font-size: 14px; font-weight: 500; }
+    .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; font-family: monospace; }
+    .zman-sub { font-size: 10px; color: #999; text-transform: uppercase; }
+    .zman-header-section { padding: 40px 15px 10px; background: var(--bg); }
+    .zman-title { font-size: 34px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+    .zman-loc { font-size: 14px; color: #666; background: #e0e0e0; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 10px; font-weight: 600; }
 
-    /* CARDS - 60/40 SPLIT - LOCKED HEIGHT 85PX */
+    /* CARDS - 60/40 SPLIT */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -163,24 +170,25 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - RIGHT ANCHORED (15px padding for Safari) */
+    /* RIGHT SIDE LAYOUT - 40px BUFFER (No Cutoff) */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 15px; text-align: right;
+        position: absolute; top: 8px; right: 40px; text-align: right;
         font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
         margin: 0;
     } 
     .time-val-card { 
         position: absolute;
         top: calc(50% - 10px); 
-        right: 15px; 
+        right: 40px; 
         transform: translateY(-50%);
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
-        position: absolute; bottom: 8px; right: 15px;
+        position: absolute; bottom: 8px; right: 40px;
         display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
+    
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
@@ -340,13 +348,6 @@
 
     .empty-state { text-align: center; color: #555; margin-top: 50px; padding: 0 30px; line-height: 1.6; }
     .empty-state strong { color: var(--primary); font-size: 1.2em; }
-    
-    /* TIME PILLS (NUSACH COLORED) */
-    .time-pill {
-        display: inline-block; padding: 4px 12px; border-radius: 14px;
-        font-weight: 800; font-size: 16px; white-space: nowrap; margin: 2px;
-        border: 1px solid rgba(0,0,0,0.08); 
-    }
 </style>
 </head>
 <body>
@@ -405,7 +406,6 @@
                 <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
             </div>
         </div>
-
         <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
             <div class="radius-row">
@@ -421,52 +421,20 @@
                 <div class="chip" onclick="manualRadiusUpdate(99)">99</div>
             </div>
         </div>
-        
-        <div class="filter-section">
-            <label class="filter-label">Sort By</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
-                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Tefillah</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Nusach</label>
-            <div class="chip-group" id="nusach-group">
-                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Time Range</label>
-            <div class="time-inputs-row">
-                <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
-                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
-            </div>
-            <div style="display:flex; gap:6px;">
-                <button class="action-btn" onclick="setAllDay()">All Day</button>
-                <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
-            </div>
-        </div>
+        <div class="filter-section"><label class="filter-label">Sort By</label><div class="chip-group"><div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div><div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div></div></div>
+        <div class="filter-section"><label class="filter-label">Tefillah</label><div class="chip-group"><div class="chip active" onclick="setFilter('tefillah', '', this)">All</div><div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div><div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div><div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div></div></div>
+        <div class="filter-section"><label class="filter-label">Nusach</label><div class="chip-group" id="nusach-group"><div class="chip active" onclick="setFilter('nusach', '', this)">All</div></div></div>
+        <div class="filter-section"><label class="filter-label">Time Range</label><div class="time-inputs-row"><input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()"><input type="time" id="time-end" class="time-input" onchange="applyFilters()"></div><div style="display:flex; gap:6px;"><button class="action-btn" onclick="setAllDay()">All Day</button><button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button></div></div>
         <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:10px;">Done</button>
     </div>
 
     <div id="list-view"></div>
     <div id="map-view"></div>
+    
     <div id="zmanim-view"></div>
     
     <div id="settings-view">
-        <div class="settings-header">Settings</div>
+        <div class="page-header">Settings</div>
         
         <div class="settings-card">
             <div class="input-group">
@@ -526,10 +494,34 @@
     </div>
 
     <script>
+        // --- DAF ENGINE ---
+        const DafEngine={masechtot:[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],get:(e)=>{const t=new Date(2020,0,5),a=Math.floor((e-t)/864e5);if(a<0)return"";let n=a;for(let r of DafEngine.masechtot){if(n<r.p)return r.n+" "+(n+2);n-=r.p}return""}};
+
+        // HEBCAL ENGINE
+        const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}};
+
+        // ROBUST SOLAR ENGINE
+        const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};const E=90.833+.0293*Math.sqrt(n);return{noon:p,alot16:f(106.1,!0),mish10:f(100.2,!0),mish11:f(101,!0),mish115:f(101.5,!0),sunLevel:{rise:f(90.833,!0),set:f(90.833,!1)},sunElev:{rise:f(E,!0),set:f(E,!1)},tzais85:f(98.5,!1),tzais16:f(106.1,!1)}}};
+
+        const zmanimConfig = [
+            { id: "alot", label: "Alos Hashachar", desc: "Dawn (16.1°)", opts: [['16.1','16.1°']] },
+            { id: "mish", label: "Misheyakir", desc: "Earliest Talis (10.2°)", opts: [['10.2','10.2°']] },
+            { id: "sunrise", label: "Netz Hachama", desc: "Sunrise", opts: [['elev','Elev'],['level','Level']] },
+            { id: "shema", label: "Sof Zman Shema", desc: "Latest Shema", opts: [['gra','Gra'],['mga','MGA']] },
+            { id: "tefila", label: "Sof Zman Tefila", desc: "Latest Shacharis", opts: [['gra','Gra'],['mga','MGA']] },
+            { id: "chatzos", label: "Chatzos Hayom", desc: "Midday" },
+            { id: "mincha", label: "Mincha Gedola", desc: "Earliest Mincha", opts: [['gra','Gra']] },
+            { id: "plag", label: "Plag Hamincha", desc: "1.25h before night", opts: [['gra','Gra']] },
+            { id: "candles", label: "Candle Lighting", desc: "18min before Sunset", opts: [['18','18m']] },
+            { id: "sunset", label: "Shkia", desc: "Sunset", opts: [['elev','Elev'],['level','Level']] },
+            { id: "tzais", label: "Tzais / Motzaei", desc: "Nightfall (8.5°)", opts: [['8.5','8.5°']] },
+            { id: "shaa", label: "Shaa Zmanis", desc: "1 Halachic Hour", opts: [['gra','Gra']] }
+        ];
+
         const ADS_DB = [
-          { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "description": "The finest selection of hats and menswear.", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
-          { "id": 2, "name": "Seasons Supermarket", "address": "711 Cedarbridge Ave, Lakewood, NJ 08701", "phone": "732-813-7700", "website": "https://www.seasonskosher.com", "description": "Premium kosher supermarket.", "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket" },
-          { "id": 3, "name": "Aurum Jewelers USA", "address": "Lakewood, NJ (Online & Appt Only)", "phone": "1-323-316-8676", "website": "https://aurumjewelersusa.com", "description": "Exquisite jewelry for every occasion.", "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers" }
+          { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
+          { "id": 2, "name": "Seasons Supermarket", "address": "711 Cedarbridge Ave, Lakewood, NJ 08701", "phone": "732-813-7700", "website": "https://www.seasonskosher.com", "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket" },
+          { "id": 3, "name": "Aurum Jewelers USA", "address": "Lakewood, NJ (Online & Appt Only)", "phone": "1-323-316-8676", "website": "https://aurumjewelersusa.com", "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers" }
         ];
 
         let map, allMinyanim = [], processedMinyanim = [], ads = ADS_DB, searchCenter = null, currentRadius = 20;
@@ -542,6 +534,8 @@
         let currentFilterDate = new Date();
         let isFirstIdle = true; 
         let currentTab = 'map';
+        let zmanLoc = { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' };
+        let zmanOpts = { alot:'16.1', mish:'10.2', sunrise:'elev', shema:'gra', tefila:'gra', mincha:'gra', plag:'gra', candles:'18', tzais:'8.5', shaa:'gra', sunset:'elev' };
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -561,31 +555,38 @@
             initPullToDismiss();
         });
 
-        // --- NAVIGATION LOGIC ---
+        // --- NAVIGATION ---
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            // Highlight logic
+            const list = document.getElementById('list-view');
+            const zmanim = document.getElementById('zmanim-view');
+            const settings = document.getElementById('settings-view');
+            
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
-                // Hide header filter on non-search pages
-                document.getElementById('filter-header').style.display = 'none';
+                document.getElementById('filter-header').style.display = 'none'; 
+                document.getElementById('status-pill').style.display = 'none';
+                document.getElementById('count-pill').style.display = 'none';
+                document.getElementById('map-radius-pill').style.display = 'none';
+                
+                // NO DEAD SPACE
+                list.style.paddingTop = '0px'; 
+                zmanim.style.paddingTop = '0px';
+                settings.style.paddingTop = '0px'; 
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
-                // Show header filter
                 document.getElementById('filter-header').style.display = 'flex';
+                // SEARCH PADDING
+                list.style.paddingTop = '110px';
             }
 
-            // Hide All
             document.getElementById('map-view').style.display = 'none';
-            document.getElementById('list-view').style.display = 'none';
-            document.getElementById('zmanim-view').style.display = 'none';
-            document.getElementById('settings-view').style.display = 'none';
+            list.style.display = 'none';
+            zmanim.style.display = 'none';
+            settings.style.display = 'none';
             document.getElementById('center-marker').style.display = 'none';
             document.querySelector('.fab-location').style.display = 'none'; 
-            document.getElementById('status-pill').style.display = 'none';
-            document.getElementById('count-pill').style.display = 'none';
-            document.getElementById('map-radius-pill').style.display = 'none';
 
             if(tab === 'map') {
                 document.getElementById('map-view').style.display = 'block';
@@ -595,40 +596,34 @@
                 applyFilters(); 
             }
             else if(tab === 'list') {
-                document.getElementById('list-view').style.display = 'block';
+                list.style.display = 'block';
                 document.querySelector('.fab-location').style.display = 'flex';
                 updateToggleButton('Map', 'map');
                 applyFilters();
             }
             else if(tab === 'recent') {
-                document.getElementById('list-view').style.display = 'block';
-                updateToggleButton('Map', 'map'); // If clicked, go to map
+                list.style.display = 'block';
+                updateToggleButton('Map', 'map'); 
                 renderRecents();
             }
             else if(tab === 'saved') {
-                document.getElementById('list-view').style.display = 'block';
+                list.style.display = 'block';
                 updateToggleButton('Map', 'map');
                 renderFavorites();
             }
             else if(tab === 'zmanim') {
-                document.getElementById('zmanim-view').style.display = 'block';
-                fetchZmanim();
+                zmanim.style.display = 'block';
+                renderZmanim();
             }
             else if(tab === 'settings') {
-                document.getElementById('settings-view').style.display = 'block';
+                settings.style.display = 'block';
             }
         }
 
         function toggleView() {
-            // Close filter drawer if open
             document.getElementById('filter-drawer').style.display = 'none';
-
             const mapVisible = document.getElementById('map-view').style.display === 'block';
-            if (mapVisible) {
-                switchTab('list');
-            } else {
-                switchTab('map');
-            }
+            if (mapVisible) { switchTab('list'); } else { switchTab('map'); }
         }
 
         function updateToggleButton(text, iconName) {
@@ -636,33 +631,96 @@
             document.getElementById('nav-toggle-text').innerText = text;
         }
 
-        // --- ZMANIM ---
-        async function fetchZmanim() {
-            const zDiv = document.getElementById("zmanim-view");
-            zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
-            const lat = searchCenter ? searchCenter.lat : 40.091;
-            const lng = searchCenter ? searchCenter.lng : -74.218;
+        // --- ZMANIM RENDER ---
+        function renderZmanim() {
+            if(searchCenter && typeof searchCenter.lat === 'function') {
+                zmanLoc.lat = searchCenter.lat();
+                zmanLoc.lng = searchCenter.lng();
+                zmanLoc.name = document.getElementById('status-pill').innerText.replace('Near: ', '') || "Map Location";
+            }
             
-            try {
-                const dateStr = currentFilterDate.toISOString().split('T')[0];
-                const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                let html = `<div class="zman-location">Zmanim for ${data.location.title || "Location"} <br> ${dateStr}</div>`;
-                const times = data.times;
-                const formatZman = (iso) => {
-                    const d = new Date(iso);
-                    let h = d.getHours(); let m = String(d.getMinutes()).padStart(2, '0');
-                    let ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
-                    return `${h}:${m}${ampm}`;
-                };
-                const zList = [ { k: 'alotHaShachar', l: 'Alot Hashachar' }, { k: 'sunrise', l: 'Sunrise' }, { k: 'sofZmanShma', l: 'Sof Zman Shma' }, { k: 'sofZmanTfila', l: 'Sof Zman Tefila' }, { k: 'chatzot', l: 'Chatzot' }, { k: 'minchaGedola', l: 'Mincha Gedola' }, { k: 'sunset', l: 'Sunset' }, { k: 'tzeit7083deg', l: 'Tzeit Hakochavim' } ];
-                zList.forEach(i => { if(times[i.k]) html += `<div class="zmanim-card"><span class="zman-name">${i.l}</span><span class="zman-time">${formatZman(times[i.k])}</span></div>`; });
-                zDiv.innerHTML = html;
-            } catch(e) { zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Error loading Zmanim.</div>'; }
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            const dateStr = currentFilterDate.toLocaleDateString('en-US', options);
+            const hebDateStr = HebCal.getHebrewStr(currentFilterDate);
+            const dayName = currentFilterDate.toLocaleDateString('en-US', {weekday:'long'});
+            const dafName = DafEngine.get(currentFilterDate);
+
+            // RUN CALC
+            const data = Solar.calc(currentFilterDate, zmanLoc.lat, zmanLoc.lng, zmanLoc.elev);
+            
+            const fmt = (ms) => {
+                if(!ms || isNaN(ms)) return "--:--";
+                return new Date(ms).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
+            };
+            const mins = m => m*60000;
+            const rise = (zmanOpts.sunrise==='elev') ? data.sunElev.rise : data.sunLevel.rise; 
+            const set = (zmanOpts.sunset==='elev') ? data.sunElev.set : data.sunLevel.set;
+            const setShkia = (zmanOpts.sunset==='elev') ? data.sunElev.set : data.sunLevel.set;
+
+            let html = `
+            <div class="zman-header-section">
+                <div class="zman-top-row">
+                    <div class="zman-title">Zmanim</div>
+                    <div class="zman-loc-badge">${zmanLoc.name}</div>
+                </div>
+                <div class="date-nav">
+                    <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
+                    <div class="date-display-container">
+                        <div class="date-display">${dateStr}</div>
+                        <div class="hebrew-date">${hebDateStr}</div>
+                    </div>
+                    <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
+                </div>
+                <div class="zman-info-bar">
+                    <div class="zman-info-pill"><span>Day</span><div>${dayName}</div></div>
+                    <div class="zman-info-pill"><span>Daf Yomi</span><div>${dafName}</div></div>
+                </div>
+            </div>
+            <ul class="zmanim-list" style="padding-top:10px;">
+            `;
+
+            zmanimConfig.forEach(z => {
+                let val = ""; let sKey = zmanOpts[z.id]; let sub = "";
+                
+                if(z.id === "alot") val = fmt(sKey==='16.1' ? data.alot16 : rise - mins(parseInt(sKey)));
+                if(z.id === "mish") val = fmt(sKey==='10.2' ? data.mish10 : (sKey==='11' ? data.mish11 : data.mish115));
+                if(z.id === "sunrise") val = fmt(rise);
+                if(z.id === "chatzos") val = fmt(data.noon);
+                if(z.id === "sunset") val = fmt(setShkia);
+                if(z.id === "shema" || z.id === "tefila") {
+                    let factor = z.id==="shema"?3:4;
+                    let s=rise-mins(72), e=set+mins(72);
+                    if(sKey==='mga16') { s=data.alot16; e=data.tzais16; }
+                    if(sKey==='mga90') { s=rise-mins(90); e=set+mins(90); }
+                    val = fmt(sKey==='gra' ? rise + ((set-rise)/12)*factor : s + ((e-s)/12)*factor);
+                }
+                if(z.id === "mincha") {
+                    let m30=data.noon+mins(30); let mGra=rise+((set-rise)/12)*6.5; let mMga=data.alot16+((data.tzais16-data.alot16)/12)*6.5;
+                    if(sKey==='fix30') val=fmt(m30); else if(sKey==='gra') val=fmt(mGra); else if(sKey==='mga') val=fmt(mMga); else val=fmt(m30>mGra?m30:mGra);
+                }
+                if(z.id === "plag") {
+                    if(sKey==='mga') val = fmt(data.alot16 + ((data.tzais16-data.alot16)/12)*10.75);
+                    else val = fmt(rise + ((set-rise)/12)*10.75);
+                }
+                if(z.id === "candles") val = fmt(setShkia - mins(parseInt(sKey)));
+                if(z.id === "tzais") val = fmt(sKey==='8.5' ? data.tzais85 : setShkia+mins(parseInt(sKey)));
+                if(z.id === "shaa") {
+                    let ms = sKey==='gra' ? (set-rise)/12 : (data.tzais16-data.alot16)/12;
+                    val = (ms/60000).toFixed(1); sub="min";
+                }
+
+                html += `<li class="zman-card">
+                    <div class="zman-left"><span class="zman-label">${z.label}</span><span class="zman-desc">${z.desc}</span></div>
+                    <div class="zman-right"><span class="zman-time">${val}</span>${sub?`<span class="zman-sub">${sub}</span>`:''}</div>
+                </li>`;
+            });
+            html += `</ul>`;
+            document.getElementById('zmanim-view').innerHTML = html;
         }
 
-        // --- SETTINGS & PROFILE ---
+        function changeZmanOption(key, val) { zmanOpts[key] = val; renderZmanim(); }
+
+        // --- SETTINGS ---
         function saveProfile() {
             const name = document.getElementById('profile-name').value;
             const phone = document.getElementById('profile-phone').value;
@@ -675,10 +733,10 @@
         }
         function shareApp() {
             if(navigator.share) navigator.share({title: 'ShulTime', text: 'Find Minyanim near you!', url: window.location.href});
-            else alert("Share feature not supported on this browser.");
+            else alert("Share feature not supported.");
         }
 
-        // --- LOCAL STORAGE & LISTS ---
+        // --- LISTS ---
         function addToRecents(m) {
             let recents = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
             recents = recents.filter(id => id !== m.id);
@@ -709,8 +767,10 @@
             processedMinyanim.forEach(m => {
                 if(favs.includes(m.id) && !seen.has(m.id)) { uniqueResults.push(m); seen.add(m.id); }
             });
-            if(uniqueResults.length === 0) document.getElementById('list-view').innerHTML = '<div class="empty-state">No saved shuls.</div>';
-            else renderList(uniqueResults);
+            const list = document.getElementById('list-view');
+            list.innerHTML = '<div class="page-header">Saved</div>';
+            if(uniqueResults.length === 0) list.innerHTML += '<div class="empty-state">No saved shuls.</div>';
+            else renderListCards(uniqueResults, list); 
         }
 
         function renderRecents() {
@@ -720,8 +780,40 @@
                 const match = processedMinyanim.find(r => r.id === id);
                 if(match && !seen.has(id)) { uniqueResults.push(match); seen.add(id); }
             });
-            if(uniqueResults.length === 0) document.getElementById('list-view').innerHTML = '<div class="empty-state">No recent activity.</div>';
-            else renderList(uniqueResults);
+            const list = document.getElementById('list-view');
+            list.innerHTML = '<div class="page-header">Recent</div>';
+            if(uniqueResults.length === 0) list.innerHTML += '<div class="empty-state">No recent activity.</div>';
+            else renderListCards(uniqueResults, list); 
+        }
+
+        function renderListCards(results, container) {
+            results.forEach((m) => {
+                let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+                let nusachTagClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+                const link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
+                
+                const card = document.createElement("div");
+                card.className = "minyan-card";
+                
+                let rightSide = (m.timeValue === 9999) 
+                    ? `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                        <div class="map-footer"><div class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
+                    : `<div class="map-zone" onclick="window.open('${link}','_blank')">
+                        <div class="tefillah-label">${m.tefillah}</div>
+                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
+                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
+                    </div>`;
+
+                card.innerHTML = `
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
+                        <div class="shul-name">${m.name}</div>
+                        <div class="shul-address">${m.address}</div>
+                        <div class="shul-city">${m.city || ''}, ${m.state || ''} ${m.zip || ''}</div>
+                        <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
+                    </div>
+                    ${rightSide}`;
+                container.appendChild(card);
+            });
         }
 
         function showComingSoon() {
@@ -730,7 +822,6 @@
             toast.style.animation = 'none'; toast.offsetHeight; toast.style.animation = 'fadeInOut 2s forwards';
         }
 
-        // --- EXISTING LOGIC ---
         function renderWelcome() {
             const list = document.getElementById("list-view");
             list.innerHTML = `
@@ -755,8 +846,8 @@
         function changeDate(days) {
             currentFilterDate.setDate(currentFilterDate.getDate() + days);
             updateDateDisplay();
-            processMinyanim(fullDbData);
-            applyFilters();
+            if(currentTab === 'zmanim') renderZmanim();
+            else { processMinyanim(fullDbData); applyFilters(); }
         }
 
         function updateDateDisplay() {
@@ -793,23 +884,19 @@
                 if(!shul.name) return;
                 if(shul.nusach) allNusachs.add(shul.nusach.trim());
                 let hasTimes = false;
-                let minyanimForThisShul = []; 
                 
-                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
-                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); }
-
-                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); }
-
+                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t); hasTimes = true; });
+                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; }); } 
+                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; }); } 
+                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; }); }
+                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t); hasTimes = true; }); } 
+                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t); hasTimes = true; }); }
                 if (!hasTimes) processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
-                else processedMinyanim.push(...minyanimForThisShul);
             });
             allMinyanim = processedMinyanim;
         }
 
-        function addMinyan(shul, type, tStr, list) {
+        function addMinyan(shul, type, tStr) {
             if(!tStr) return;
             let raw = tStr.trim().replace(/[^0-9:]/g,"");
             if(!raw) return;
@@ -818,7 +905,7 @@
             if (type === 'Mincha' && h < 9) sortH += 12;
             if (type === 'Maariv' && h < 12) sortH += 12; 
             if (type === 'Mincha' && h === 12) sortH = 12;
-            list.push({ ...shul, tefillah: type, timeDisplay: formatTime(h, m), timeValue: (sortH * 60) + m });
+            processedMinyanim.push({ ...shul, tefillah: type, timeDisplay: formatTime(h, m), timeValue: (sortH * 60) + m });
         }
 
         function populateNusachFilter() {
@@ -837,6 +924,7 @@
 
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
+            document.getElementById("status-pill").innerText = `Near: ${name}`;
             if(map) {
                 isProgrammaticMove = true;
                 map.setCenter({ lat, lng });
@@ -858,105 +946,40 @@
             const [sH, sM] = document.getElementById('time-start').value.split(':').map(Number);
             const [eH, eM] = document.getElementById('time-end').value.split(':').map(Number);
             const startVal = (sH*60)+sM, endVal = (eH*60)+eM;
-
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
             });
 
             const isMapMode = (currentTab === 'map' && document.getElementById("list-view").style.display === 'none');
-            
-            if (!isMapMode) {
-                results = results.filter(m => m.distance <= currentRadius);
-            } else if (map) {
+            if (!isMapMode) results = results.filter(m => m.distance <= currentRadius);
+            else if (map) {
                 const bounds = map.getBounds();
                 if(bounds) results = results.filter(m => bounds.contains({lat: m.lat, lng: m.lng}));
             }
 
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
             if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
-            
             results = results.filter(m => {
                 if (m.timeValue === 9999) return true; 
                 return m.timeValue >= startVal && m.timeValue <= endVal;
             });
-
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            
-            // PILL VISIBILITY
-            if(currentTab === 'map') {
-                document.getElementById('status-pill').style.display = 'block';
-                document.getElementById('status-pill').innerText = `Near: ${name || 'Map'}`;
-                document.getElementById('map-radius-pill').style.display = 'block';
-                document.getElementById('count-pill').style.display = 'block';
-                document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls`;
-            } else if (currentTab === 'list') {
-                document.getElementById('status-pill').style.display = 'none';
-                document.getElementById('map-radius-pill').style.display = 'none';
-                document.getElementById('count-pill').style.display = 'block';
-                document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
-            }
+            if(isMapMode) document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            else document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
 
-            if(currentTab === 'map' || currentTab === 'list' || currentTab === 'recent' || currentTab === 'saved') {
-                renderList(results);
-            }
-            if(currentTab === 'map') {
-                updateMapMarkers(results);
-            }
+            if(currentTab === 'map' || currentTab === 'list') renderList(results);
+            if(currentTab === 'map') updateMapMarkers(results);
         }
 
         function renderList(results){
             const list = document.getElementById("list-view");
             list.innerHTML = "";
-            if (results.length === 0) {
-                list.innerHTML = '<div class="empty-state">No minyanim found.</div>';
-                return;
-            }
-
-            let minyanCount = 0;
-            results.forEach((m, index) => {
-                minyanCount++;
-                if (minyanCount % 4 === 0 && ads.length > 0) {
-                    const safeAdIndex = (Math.floor(minyanCount / 4) - 1) % ads.length;
-                    const adData = ads[safeAdIndex];
-                    if(adData) {
-                        const adCard = document.createElement("div");
-                        adCard.className = "ad-card";
-                        adCard.innerHTML = `<div style="display:flex; align-items:center;"><span class="ad-badge">AD</span><span class="ad-content">${adData.name}</span></div><i class="material-icons ad-arrow">chevron_right</i>`;
-                        adCard.onclick = () => openAdDetails(adData);
-                        list.appendChild(adCard);
-                    }
-                }
-
-                let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                let nusachTagClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
-                
-                const card = document.createElement("div");
-                card.className = "minyan-card";
-                
-                let rightSide = (m.timeValue === 9999) 
-                    ? `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="map-footer"><div class="dist-label">${m.distance.toFixed(1)}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
-                    : `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="tefillah-label">${m.tefillah}</div>
-                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
-                        <div class="dist-row"><span class="dist-label">${m.distance.toFixed(1)}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
-                    </div>`;
-
-                card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
-                        <div class="shul-name">${m.name}</div>
-                        <div class="shul-address">${m.address}</div>
-                        <div class="shul-city">${m.city}, ${m.state} ${m.zip}</div>
-                        <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
-                    </div>
-                    ${rightSide}`;
-                list.appendChild(card);
-            });
+            if (results.length === 0) { list.innerHTML = '<div class="empty-state">No minyanim found.</div>'; return; }
+            renderListCards(results, list);
         }
 
         async function updateMapMarkers(results) {
@@ -990,155 +1013,15 @@
             const bounds = map.getBounds();
             if(!center || !bounds) return;
             searchCenter = { lat: center.lat(), lng: center.lng() };
+            zmanLoc.lat = searchCenter.lat; zmanLoc.lng = searchCenter.lng; zmanLoc.name = "Map Location"; 
             document.getElementById("status-pill").innerText = `Near: Map Center`;
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
-            
             document.getElementById("radius-input").value = r.toFixed(1);
             document.getElementById("radius-slider").value = r.toFixed(1);
             document.getElementById("map-radius-pill").innerText = `Radius: ${r.toFixed(1)} mi`;
             currentRadius = r;
             applyFilters();
-        }
-
-        function formatListPills(list, nusach) {
-            if(!list || list.length === 0) return 'None';
-            let nCls = `nusach-bg-${(nusach || 'Other').replace(/\s+/g, '-')}`;
-            return list.map(t => {
-                let clean = t.split(' ')[0];
-                let [h, m] = clean.split(':').map(Number);
-                if(isNaN(h)) return t;
-                let formatted = formatTime(h, m || 0);
-                return `<span class="time-pill ${nCls}" style="border:1px solid #ddd; font-size:14px;">${formatted}</span>`;
-            }).join(" ");
-        }
-
-        function openDetails(m) {
-            selectedShul = m;
-            addToRecents(m);
-            checkFavoriteStatus(m.id);
-            const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
-            const link = `https://www.godaven.com/shul-details/${godavenId}`;
-            const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-            document.getElementById("drawer-title").innerText = m.name;
-            document.getElementById("drawer-address-line1").innerText = m.address; 
-            document.getElementById("drawer-address-line2").innerText = `${m.city}, ${m.state} ${m.zip}`; 
-            
-            let rabbiText = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
-            let nusachTag = `<span class="nusach-tag-drawer ${nCls}" style="margin:0;">${m.nusach}</span>`;
-            
-            let tefillahChipClass = `chip-${m.tefillah}`;
-            let timePillClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-            
-            const shareBtn = document.getElementById("share-btn");
-            shareBtn.onclick = () => shareShul(m);
-
-            let phoneBtn = m.phone ? `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>` : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">call</i> Call</div>`;
-            let emailBtn = m.email ? `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:14px">email</i> Email</a>` : `<div class="contact-btn disabled"><i class="material-icons" style="font-size:14px">email</i> Email</div>`;
-            let goDavenBtn = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>`;
-            let missingInfoText = (!m.phone || !m.email) ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` : '';
-
-            document.getElementById("drawer-content").innerHTML = `
-                <div class="drawer-top-info">${nusachTag}${rabbiText}</div>
-                <div class="drawer-nav-row">
-                    <div class="drawer-nav-left"><span class="static-chip ${tefillahChipClass}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
-                    <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${m.distance.toFixed(1)}mi</div><div class="map-circle-lg" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}','_blank')"><i class="material-icons google-maps-icon google-maps-icon-lg">place</i></div></div>
-                </div>
-                <div class="contact-row">${phoneBtn}${emailBtn}${goDavenBtn}</div>${missingInfoText}
-                <div class="schedule-section">
-                    <div class="schedule-title">Weekday Schedule</div>
-                    <div class="schedule-grid">
-                        <div class="schedule-item"><div class="schedule-day">Shacharis Sun</div>${formatListPills(m.shacharis?.sun, m.nusach)}</div>
-                        <div class="schedule-item"><div class="schedule-day">Shacharis M/Th</div>${formatListPills(m.shacharis?.mon_thu, m.nusach)}</div>
-                        <div class="schedule-item"><div class="schedule-day">Shacharis T/W/F</div>${formatListPills(m.shacharis?.tue_wed_fri, m.nusach)}</div>
-                        <div class="schedule-item"><div class="schedule-day">Mincha</div>${formatListPills(m.mincha?.week, m.nusach)}</div>
-                        <div class="schedule-item"><div class="schedule-day">Maariv</div>${formatListPills(m.maariv?.week, m.nusach)}</div>
-                    </div>
-                </div>`;
-            const drawer = document.getElementById("details-drawer");
-            drawer.classList.add("open");
-            drawer.style.transform = "translateY(0)";
-            document.getElementById("scrim").style.display = "block";
-        }
-
-        function openAdDetails(ad) {
-            document.getElementById("drawer-title").innerText = ad.name;
-            document.getElementById("drawer-address-line1").innerText = ""; 
-            document.getElementById("drawer-address-line2").innerText = ""; 
-            const shareBtn = document.getElementById("share-btn");
-            shareBtn.onclick = () => { if(navigator.share) navigator.share({title: ad.name, text: `Check out ${ad.name} on ShulTime!`, url: ad.website}); };
-            let phoneBtn = ad.phone ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>` : '';
-            let webBtn = ad.website ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` : '';
-            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
-            document.getElementById("drawer-content").innerHTML = `<div class="ad-hero"><img src="${ad.image_url}" alt="${ad.name}"></div><div class="ad-desc">${ad.description}</div><p class="address-info" style="margin-top:0;">${ad.address}</p><div class="contact-row">${phoneBtn}${webBtn}${mapBtn}</div>`;
-            const drawer = document.getElementById("details-drawer");
-            drawer.classList.add("open");
-            drawer.style.transform = "translateY(0)";
-            document.getElementById("scrim").style.display = "block";
-        }
-
-        async function shareShul(m) {
-            if(!m) return;
-            const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
-            const link = `https://www.godaven.com/shul-details/${godavenId}`;
-            const text = `Shared by ShulTime:\n\n${m.name}\n${m.address}\n\nNusach: ${m.nusach}\nLink: ${link}`;
-            if(navigator.share) { try { await navigator.share({ title: m.name, text: text, url: link }); } catch(e) { console.log('Share failed', e); } } else { navigator.clipboard.writeText(text + "\n" + link); alert("Copied to clipboard!"); }
-        }
-
-        function closeDetails() {
-            const drawer = document.getElementById("details-drawer");
-            drawer.classList.remove("open");
-            drawer.style.transform = "translateY(100%)";
-            document.getElementById("scrim").style.display = "none";
-        }
-
-        function initPullToDismiss() {}
-
-        function toggleFilters() {
-            const d = document.getElementById('filter-drawer');
-            d.style.display = (d.style.display==='block') ? 'none' : 'block';
-        }
-
-        function setFilter(type, val, btn) {
-            filters[type] = val;
-            const group = btn.parentElement;
-            group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
-        }
-
-        function setAllDay() { document.getElementById('time-start').value = "00:00"; document.getElementById('time-end').value = "23:59"; applyFilters(); }
-        
-        function setNextHour() {
-            const now = new Date(); const pad = n => String(n).padStart(2,'0');
-            document.getElementById('time-start').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            const next = new Date(now.getTime() + 60*60*1000);
-            document.getElementById('time-end').value = `${pad(next.getHours())}:${pad(next.getMinutes())}`;
-            applyFilters();
-        }
-
-        function onStartTimeChange() {
-            const [h,m] = document.getElementById('time-start').value.split(':').map(Number);
-            let endH = h + 1; if(endH > 23) endH = 23;
-            document.getElementById('time-end').value = `${String(endH).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-            applyFilters();
-        }
-
-        function useMyLocation() {
-            navigator.geolocation.getCurrentPosition(pos => {
-                setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
-            }, e => alert("Please enable GPS/Location services."));
-        }
-
-        function clearSearch(){
-            searchCenter = null;
-            document.getElementById("status-pill").style.display = "none";
-            document.getElementById("count-pill").style.display = "none";
-            document.getElementById("map-radius-pill").style.display = "none";
-            renderWelcome();
-            const el = document.querySelector('gmp-place-autocomplete');
-            if(el) el.value = null;
-            if(map) { markers.forEach(m => m.map = null); }
         }
 
         function getDistance(lat1, lon1, lat2, lon2){
@@ -1151,23 +1034,18 @@
             const { Map } = await google.maps.importLibrary("maps");
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
             const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-
             const autocomplete = new PlaceAutocompleteElement();
             autocomplete.setAttribute("types", "(cities)");
             autocomplete.placeholder = "Search City...";
             const container = document.getElementById("autocomplete-container");
             container.appendChild(autocomplete);
-
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 },
                 zoom: 12, disableDefaultUI: true, clickableIcons: false, mapId: "DEMO_MAP_ID",
                 styles: [ { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] } ]
             });
-
             map.addListener('idle', onMapIdle);
-
             autocomplete.addEventListener('input', () => { if (!autocomplete.value) clearSearch(); });
-
             autocomplete.addEventListener("gmp-select", async (event) => {
                 if (event.placePrediction) {
                     if (document.activeElement) document.activeElement.blur();
