@@ -75,16 +75,40 @@
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
-    #map-radius-pill { background: #2E7D32; color: #fff; display: none; } /* Green for Radius */
+    #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
     /* VIEWS */
-    #list-view, #zmanim-view, #settings-view { 
+    #list-view, #settings-view { 
         position: absolute; inset: 0; 
-        padding: 110px 12px 120px; /* Bottom padding for Floating Toolbar */
+        padding: 110px 12px 120px; 
         overflow-y: auto; background: var(--bg); 
         z-index: 10; display: none;
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
+
+    /* ZMANIM VIEW */
+    #zmanim-view {
+        position: absolute; inset: 0; 
+        background: var(--bg); z-index: 15;
+        overflow-y: auto; display: none;
+        padding-bottom: 120px; /* Space for toolbar */
+    }
+    
+    .zmanim-header-container {
+        position: sticky; top: 0; background: var(--bg);
+        padding: 15px 12px; z-index: 20;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .zmanim-location-title { font-size: 18px; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 10px; }
+
+    /* Zmanim Card Style */
+    .zmanim-card { 
+        background: #fff; border-radius: 15px; padding: 15px; margin: 0 12px 10px 12px; 
+        display: flex; justify-content: space-between; align-items: center; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    }
+    .zman-name { font-weight: 700; color: #555; font-size: 15px; }
+    .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; }
 
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
@@ -93,7 +117,7 @@
         pointer-events: none; display: none;
     }
 
-    /* FLOATING PILL TOOLBAR (iOS Liquid Style) */
+    /* FLOATING PILL TOOLBAR */
     .floating-toolbar {
         position: fixed; bottom: 30px; left: 20px; right: 20px;
         background: rgba(255, 255, 255, 0.85);
@@ -103,7 +127,7 @@
         padding: 10px 15px;
         z-index: 1500;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        border-radius: 40px; /* Pill Shape */
+        border-radius: 40px; 
     }
     .nav-item {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -114,7 +138,6 @@
     .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; }
     
-    /* BOLD TOGGLE BUTTON */
     #nav-toggle { font-weight: 800; color: var(--primary); }
     
     /* SETTINGS STYLES */
@@ -130,13 +153,7 @@
     .settings-link i { color: #ccc; }
     .settings-link-text { font-size: 16px; font-weight: 600; }
 
-    /* ZMANIM STYLES */
-    .zmanim-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .zman-name { font-weight: 700; color: #555; font-size: 15px; }
-    .zman-time { font-weight: 800; color: var(--primary); font-size: 17px; }
-    .zman-location { text-align: center; margin-bottom: 20px; color: #777; font-size: 14px; font-weight: 500; }
-
-    /* CARDS - 60/40 SPLIT - LOCKED HEIGHT 85PX */
+    /* CARDS */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -163,17 +180,13 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - RIGHT ANCHORED (15px padding for Safari) */
+    /* RIGHT SIDE LAYOUT */
     .tefillah-label { 
         position: absolute; top: 8px; right: 15px; text-align: right;
-        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
-        margin: 0;
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; margin: 0;
     } 
     .time-val-card { 
-        position: absolute;
-        top: calc(50% - 10px); 
-        right: 15px; 
-        transform: translateY(-50%);
+        position: absolute; top: calc(50% - 10px); right: 15px; transform: translateY(-50%);
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
@@ -254,6 +267,7 @@
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     
+    /* SHARED DATE NAVIGATOR STYLE */
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
     .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
     .date-display-container { text-align: center; }
@@ -463,7 +477,20 @@
 
     <div id="list-view"></div>
     <div id="map-view"></div>
-    <div id="zmanim-view"></div>
+    
+    <div id="zmanim-view">
+        <div class="zmanim-header-container">
+            <div class="date-nav">
+                <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
+                <div class="date-display-container">
+                    <div class="date-display" id="zman-date-display">Today</div>
+                    <div class="hebrew-date" id="zman-hebrew-date"></div>
+                </div>
+                <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
+            </div>
+        </div>
+        <div id="zmanim-content" style="padding-top: 15px;"></div>
+    </div>
     
     <div id="settings-view">
         <div class="settings-header">Settings</div>
@@ -565,15 +592,18 @@
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            
             // Highlight logic
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
-                // Hide header filter on non-search pages
-                document.getElementById('filter-header').style.display = 'none';
+                document.getElementById('filter-header').style.display = 'none'; // Hide filter
+                // Hide pills for non-search
+                document.getElementById('status-pill').style.display = 'none';
+                document.getElementById('count-pill').style.display = 'none';
+                document.getElementById('map-radius-pill').style.display = 'none';
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
-                // Show header filter
-                document.getElementById('filter-header').style.display = 'flex';
+                document.getElementById('filter-header').style.display = 'flex'; // Show filter
             }
 
             // Hide All
@@ -583,9 +613,6 @@
             document.getElementById('settings-view').style.display = 'none';
             document.getElementById('center-marker').style.display = 'none';
             document.querySelector('.fab-location').style.display = 'none'; 
-            document.getElementById('status-pill').style.display = 'none';
-            document.getElementById('count-pill').style.display = 'none';
-            document.getElementById('map-radius-pill').style.display = 'none';
 
             if(tab === 'map') {
                 document.getElementById('map-view').style.display = 'block';
@@ -638,7 +665,7 @@
 
         // --- ZMANIM ---
         async function fetchZmanim() {
-            const zDiv = document.getElementById("zmanim-view");
+            const zDiv = document.getElementById("zmanim-content");
             zDiv.innerHTML = '<div style="text-align:center; padding:20px;">Loading Zmanim...</div>';
             const lat = searchCenter ? searchCenter.lat : 40.091;
             const lng = searchCenter ? searchCenter.lng : -74.218;
@@ -648,7 +675,7 @@
                 const url = `https://www.hebcal.com/zmanim?cfg=json&a=on&b=18&lat=${lat}&lng=${lng}&date=${dateStr}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                let html = `<div class="zman-location">Zmanim for ${data.location.title || "Location"} <br> ${dateStr}</div>`;
+                let html = `<div class="zmanim-location-title">${data.location.title || "Location"}</div>`;
                 const times = data.times;
                 const formatZman = (iso) => {
                     const d = new Date(iso);
@@ -755,17 +782,30 @@
         function changeDate(days) {
             currentFilterDate.setDate(currentFilterDate.getDate() + days);
             updateDateDisplay();
-            processMinyanim(fullDbData);
-            applyFilters();
+            
+            // If on Zmanim, refresh it
+            if(currentTab === 'zmanim') {
+                fetchZmanim();
+            } else {
+                processMinyanim(fullDbData);
+                applyFilters();
+            }
         }
 
         function updateDateDisplay() {
             const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-            document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
+            const dateStr = currentFilterDate.toLocaleDateString('en-US', options);
+            document.getElementById('date-display').innerText = dateStr;
+            document.getElementById('zman-date-display').innerText = dateStr;
+            
             try {
                 const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
                 document.getElementById('hebrew-date').innerText = hDate;
-            } catch(e) { document.getElementById('hebrew-date').innerText = ""; }
+                document.getElementById('zman-hebrew-date').innerText = hDate;
+            } catch(e) { 
+                document.getElementById('hebrew-date').innerText = ""; 
+                document.getElementById('zman-hebrew-date').innerText = "";
+            }
         }
 
         function getDayKey(date) {
@@ -837,6 +877,7 @@
 
         function setSearchLocation(lat, lng, name){
             searchCenter = { lat, lng };
+            document.getElementById("status-pill").innerText = `Near: ${name}`;
             if(map) {
                 isProgrammaticMove = true;
                 map.setCenter({ lat, lng });
@@ -864,6 +905,7 @@
                 return m;
             });
 
+            // Filtering based on active view
             const isMapMode = (currentTab === 'map' && document.getElementById("list-view").style.display === 'none');
             
             if (!isMapMode) {
@@ -886,10 +928,9 @@
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
             
-            // PILL VISIBILITY
+            // PILL VISIBILITY & LOGIC
             if(currentTab === 'map') {
                 document.getElementById('status-pill').style.display = 'block';
-                document.getElementById('status-pill').innerText = `Near: ${name || 'Map'}`;
                 document.getElementById('map-radius-pill').style.display = 'block';
                 document.getElementById('count-pill').style.display = 'block';
                 document.getElementById('count-pill').innerText = `${uniqueShuls} Shuls`;
