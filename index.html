@@ -7,15 +7,17 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
+    /* --- 1. GLOBAL VARIABLES --- */
     :root { 
         --primary: #0D2B4F; 
         --bg: #F2F4F8; 
+        --text: #333;
     }
     
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; color: var(--text); }
     
-    /* FLOATING HEADER */
+    /* --- 2. SHULTIME (MAP/LIST) STYLES --- */
     .floating-header {
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
@@ -31,10 +33,9 @@
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
         border-radius: 50%; background: #fff; border: none;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--primary);
+        cursor: pointer; color: var(--primary); 
     }
-
-    /* STATUS PILLS */
+    
     .status-area {
         position: fixed; top: 75px; left: 0; right: 0;
         display: flex; justify-content: center; align-items: center; gap: 8px;
@@ -42,13 +43,21 @@
     }
     #status-pill, #count-pill, #map-radius-pill {
         padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
-        display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #fff; color: var(--primary); border: 1px solid var(--primary);
+        display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
+        background: #fff; color: var(--primary); border: 1px solid var(--primary);
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; border: none; }
     #map-radius-pill { background: #2E7D32; color: #fff; border: none; }
 
-    /* VIEWS */
-    #list-view, #zmanim-view, #settings-view { 
+    #center-marker {
+        position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
+        background: #2196F3; border: 3px solid #fff; border-radius: 50%;
+        transform: translate(-50%, -50%); z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        pointer-events: none; display: none;
+    }
+
+    /* VIEWS CONFIG */
+    #list-view, #settings-view, #zmanim-view { 
         position: absolute; inset: 0; 
         padding-bottom: 120px; 
         overflow-y: auto; background: var(--bg); 
@@ -70,24 +79,52 @@
     .shul-address { font-size: 12px; color: #666; }
     .nusach-tag-list { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #eee; display: inline-block; width: fit-content; margin-top: 4px; font-weight: 700; }
 
+    /* Right side buffer 40px */
     .tefillah-label { position: absolute; top: 8px; right: 40px; font-size: 10px; font-weight: 900; color: #555; text-transform: uppercase; } 
     .time-val-card { position: absolute; top: 50%; right: 40px; transform: translateY(-50%); padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 16px; background: #E8EAF6; color: var(--primary); }
     .dist-row { position: absolute; bottom: 8px; right: 40px; display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #666; }
     .map-circle { width: 24px; height: 24px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
-    
-    /* CUSTOM MARKER */
     .custom-marker { padding: 4px 8px; border-radius: 8px; background: white; font-weight: bold; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); border: 1px solid #ccc; position: relative; top: -10px; }
     .custom-marker::after { content: ""; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: white transparent transparent transparent; }
 
-    /* ZMANIM STYLES */
-    .zman-header-section { background: #fff; padding: 40px 20px 15px; position: sticky; top: 0; z-index: 20; border-bottom: 1px solid #eee; }
-    .zman-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .zman-title { font-size: 34px; font-weight: 800; color: var(--primary); margin: 0; }
-    .zman-card { background: #fff; border-radius: 12px; padding: 15px; margin: 0 15px 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .zman-time { font-size: 20px; font-weight: 800; color: var(--primary); font-family: monospace; }
+    /* --- 3. ZMANIM MODULE STYLES (ISOLATED) --- */
+    .z-header { background: #fff; padding: 40px 20px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; }
+    .z-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .z-app-title { font-size: 32px; font-weight: 800; color: var(--primary); margin: 0; }
+    .z-loc-btn { font-size: 12px; background: #E3F2FD; color: var(--primary); padding: 6px 12px; border-radius: 15px; font-weight: 700; border: none; cursor: pointer; }
     
-    /* FILTER DRAWER */
+    .z-nav { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 6px; border-radius: 10px; }
+    .z-nav-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; }
+    .z-date-box { text-align: center; }
+    .z-date-civ { font-weight: 800; font-size: 15px; color: #333; }
+    .z-date-heb { font-size: 12px; color: #777; }
+    
+    .z-info-row { display: flex; gap: 10px; margin-top: 15px; }
+    .z-info-pill { flex: 1; background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .z-label-sm { font-size: 10px; color: #999; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .z-val-lg { font-size: 14px; font-weight: 800; color: #333; }
+
+    .z-list { list-style: none; padding: 20px 15px; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+    .z-card { background: #fff; border-radius: 14px; padding: 15px; box-shadow: 0 3px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+    .z-card-left { display: flex; flex-direction: column; gap: 2px; }
+    .z-card-label { font-size: 16px; font-weight: 700; color: #333; }
+    .z-card-desc { font-size: 11px; color: #888; }
+    .z-card-time { font-size: 20px; font-weight: 800; color: var(--primary); font-family: monospace; }
+    .z-select { display: block; margin-top: 6px; font-size: 11px; background: #f1f5f9; border: none; padding: 4px 8px; border-radius: 6px; color: #555; font-weight: 600; outline: none; }
+    
+    .z-glossary { padding: 0 20px 100px; }
+    .z-glossary details { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+    .z-glossary summary { padding: 12px; font-size: 14px; font-weight: 700; color: #555; background: #fafafa; cursor: pointer; outline: none; }
+    .z-glossary div { padding: 15px; font-size: 13px; line-height: 1.5; color: #666; border-top: 1px solid #eee; }
+
+    /* DRAWER & FILTER STYLES */
     #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; }
+    .filter-section { margin-bottom: 15px; }
+    .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .radius-row { display: flex; align-items: center; gap: 10px; }
     
     /* TOOLBAR */
     .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
@@ -97,10 +134,16 @@
     #nav-toggle { font-weight: 800; color: var(--primary); }
 
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
-
-    /* UTILS */
+    
+    /* GENERAL UTILS */
     .page-header { padding: 40px 20px 15px; font-size: 34px; font-weight: 800; color: var(--primary); }
     .empty-state { text-align: center; color: #666; margin-top: 50px; padding: 0 20px; }
+    
+    /* MODAL */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-card { background: #fff; width: 90%; max-width: 400px; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px; box-sizing: border-box; }
 </style>
 </head>
 <body>
@@ -120,21 +163,65 @@
         <div id="map-radius-pill"></div>
     </div>
 
+    <div id="filter-drawer">
+        <div class="filter-section">
+            <label class="filter-label">Radius (Miles)</label>
+            <div class="radius-row">
+                <input type="range" min="1" max="50" value="20" style="flex:1" oninput="manualRadiusUpdate(this.value)">
+                <span id="rad-val" style="font-weight:700; width:30px;">20</span>
+            </div>
+            <div class="chip-group">
+                <div class="chip" onclick="manualRadiusUpdate(1)">1</div>
+                <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
+                <div class="chip" onclick="manualRadiusUpdate(20)">20</div>
+                <div class="chip" onclick="manualRadiusUpdate(50)">50</div>
+            </div>
+        </div>
+        <button class="circle-btn" style="width:100%; border-radius:12px; background:var(--primary); color:white; margin-top:10px;" onclick="toggleFilters()">Done</button>
+    </div>
+
     <div id="map-view"></div>
     <div id="list-view"></div>
-    <div id="zmanim-view"></div>
+    
+    <div id="zmanim-view">
+        <div class="z-header">
+            <div class="z-title-row">
+                <h1 class="z-app-title">Zmanim</h1>
+                <button class="z-loc-btn" id="z-loc-label" onclick="openLocModal()">Lakewood, NJ</button>
+            </div>
+            <div class="z-nav">
+                <button class="z-nav-btn" onclick="ZmanimApp.shiftDate(-1)">‹</button>
+                <div class="z-date-box">
+                    <div class="z-date-civ" id="z-date-civ"></div>
+                    <div class="z-date-heb" id="z-date-heb"></div>
+                </div>
+                <button class="z-nav-btn" onclick="ZmanimApp.shiftDate(1)">›</button>
+            </div>
+            <div class="z-info-row">
+                <div class="z-info-pill"><span class="z-label-sm">Day</span><div class="z-val-lg" id="z-day"></div></div>
+                <div class="z-info-pill"><span class="z-label-sm">Daf Yomi</span><div class="z-val-lg" id="z-daf"></div></div>
+            </div>
+        </div>
+        <ul class="z-list" id="z-list"></ul>
+        <div class="z-glossary" id="z-glossary"></div>
+    </div>
+    
     <div id="settings-view">
         <div class="page-header">Settings</div>
         <div class="empty-state">Settings coming soon...</div>
     </div>
 
-    <div id="filter-drawer">
-        <h3 style="margin-top:0;">Filters</h3>
-        <p>Radius: <span id="rad-val">20</span> mi</p>
-        <input type="range" min="1" max="50" value="20" style="width:100%" oninput="manualRadiusUpdate(this.value)">
-        <button class="circle-btn" style="width:100%; border-radius:12px; margin-top:15px; background:var(--primary); color:white;" onclick="toggleFilters()">Done</button>
+    <div class="modal" id="locModal">
+        <div class="modal-card">
+            <h3 style="margin-top:0;">Change Location</h3>
+            <input type="text" id="loc-search" class="modal-input" placeholder="City Name">
+            <button class="circle-btn" style="width:100%; border-radius:12px; background:var(--primary); color:white;" onclick="ZmanimApp.searchCity()">Search</button>
+            <div id="loc-results" style="margin-top:10px;"></div>
+            <button class="circle-btn" style="width:100%; border-radius:12px; background:#eee; color:#333; margin-top:10px;" onclick="document.getElementById('locModal').classList.remove('active')">Close</button>
+        </div>
     </div>
-
+    
+    <div id="center-marker"></div>
     <button class="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
 
     <div class="floating-toolbar">
@@ -146,314 +233,233 @@
     </div>
 
     <script>
-        // --- 1. GLOBAL VARIABLES ---
-        let map, allMinyanim = [], processedMinyanim = [], searchCenter = null, currentRadius = 20;
+        // --- 1. SHULTIME CORE VARIABLES ---
+        let map, allMinyanim=[], searchCenter=null, currentRadius=20, currentTab='map';
         let markers = [];
-        let currentFilterDate = new Date();
-        let currentTab = 'map';
-        let zmanLoc = { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' };
 
-        // --- 2. SAMPLE DATA (FALLBACK) ---
-        const SAMPLE_DATA = [
-            { "id": 1, "name": "Bais Medrash Govoah", "address": "617 6th St", "city": "Lakewood", "state": "NJ", "lat": 40.093, "lng": -74.222, "nusach": "Ashkenaz", "shacharis": {"sun":["7:00a","8:00a"],"week":["6:30a"]}, "mincha":{"week":["1:30p"]}, "maariv":{"week":["9:30p"]} },
-            { "id": 2, "name": "Satmar", "address": "Forest Ave", "city": "Lakewood", "state": "NJ", "lat": 40.080, "lng": -74.210, "nusach": "Sefard", "shacharis": {"sun":["8:30a"],"week":["8:00a"]}, "mincha":{"week":["2:00p"]}, "maariv":{"week":["9:00p"]} },
-            { "id": 3, "name": "Khal Chasidim", "address": "1401 Cedar Row", "city": "Lakewood", "state": "NJ", "lat": 40.089, "lng": -74.215, "nusach": "Sefard", "shacharis": {"sun":["9:00a"],"week":["7:45a"]}, "mincha":{"week":["1:45p"]}, "maariv":{"week":["10:00p"]} }
-        ];
-
-        // --- 3. INITIALIZATION ---
-        document.addEventListener("DOMContentLoaded", async () => {
-            // Load Data
-            try {
-                const res = await fetch("database.json");
-                if(!res.ok) throw new Error("Failed");
-                const data = await res.json();
-                processData(data);
-            } catch(e) {
-                console.log("Using Sample Data");
-                processData(SAMPLE_DATA);
-            }
-        });
-
-        // --- 4. DATA PROCESSING ---
-        function processData(data) {
-            allMinyanim = [];
-            data.forEach(shul => {
-                // Flatten minyanim for easier searching/listing
-                const add = (list, type) => { if(list) list.forEach(t => allMinyanim.push({...shul, tefillah: type, timeDisplay: t})) };
-                // Simple logic for sample (week vs sun)
-                const isSun = currentFilterDate.getDay() === 0;
-                const key = isSun ? 'sun' : 'week';
-                
-                add(shul.shacharis?.[key] || shul.shacharis?.week, 'Shacharis');
-                add(shul.mincha?.[key] || shul.mincha?.week, 'Mincha');
-                add(shul.maariv?.[key] || shul.maariv?.week, 'Maariv');
-            });
-            // Initial render if map isn't ready
-            if(!map) console.log("Data loaded, waiting for map...");
-        }
-
-        // --- 5. GOOGLE MAPS INIT ---
-        async function initApp() {
-            const { Map } = await google.maps.importLibrary("maps");
-            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-
-            const autocomplete = new PlaceAutocompleteElement();
-            document.getElementById("autocomplete-container").appendChild(autocomplete);
-
-            map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 }, // Lakewood Default
-                zoom: 13,
-                disableDefaultUI: true,
-                mapId: "DEMO_MAP_ID"
-            });
-
-            // Map Events
-            map.addListener('idle', () => {
-                const center = map.getCenter();
-                searchCenter = { lat: center.lat(), lng: center.lng() };
-                zmanLoc = { lat: searchCenter.lat, lng: searchCenter.lng, name: "Map Location", elev: 30, tz: 'America/New_York' };
-                document.getElementById('status-pill').innerText = "Near: Map Center";
-                applyFilters(AdvancedMarkerElement);
-            });
-
-            autocomplete.addEventListener("gmp-select", async (e) => {
-                const place = e.placePrediction.toPlace();
-                await place.fetchFields({ fields: ["location", "displayName"] });
-                map.setCenter(place.location);
-                map.setZoom(14);
-            });
-        }
-
-        // --- 6. FILTERING & RENDERING ---
-        function applyFilters(MarkerClass) {
-            if(!searchCenter || !allMinyanim.length) return;
+        // --- 2. ZMANIM MODULE (ISOLATED) ---
+        const ZmanimApp = {
+            date: new Date(),
+            loc: { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' },
+            opts: { alot:'16.1', mish:'10.2', sunrise:'elev', shema:'gra', tefila:'gra', mincha:'gra', plag:'gra', candles:'18', tzais:'8.5', shaa:'gra', sunset:'elev' },
+            config: [
+                { id: "alot", label: "Alos Hashachar", desc: "Dawn (16.1°)", opts: [['16.1','16.1°'],['72','72m']] },
+                { id: "mish", label: "Misheyakir", desc: "Earliest Talis (10.2°)", opts: [['10.2','10.2°'],['11','11°']] },
+                { id: "sunrise", label: "Netz Hachama", desc: "Sunrise", opts: [['elev','Visual'],['level','Level']] },
+                { id: "shema", label: "Sof Zman Shema", desc: "Latest Shema", opts: [['gra','Gra'],['mga','MGA']] },
+                { id: "tefila", label: "Sof Zman Tefila", desc: "Latest Shacharis", opts: [['gra','Gra'],['mga','MGA']] },
+                { id: "chatzos", label: "Chatzos Hayom", desc: "Midday" },
+                { id: "mincha", label: "Mincha Gedola", desc: "Earliest Mincha" },
+                { id: "plag", label: "Plag Hamincha", desc: "1.25h before night" },
+                { id: "candles", label: "Candle Lighting", desc: "18m before Sunset", opts:[['18','18m'],['22','22m']] },
+                { id: "sunset", label: "Shkia", desc: "Sunset", opts: [['elev','Visual'],['level','Level']] },
+                { id: "tzais", label: "Tzais", desc: "Nightfall", opts: [['8.5','8.5°'],['72','72m']] },
+                { id: "shaa", label: "Shaa Zmanis", desc: "1 Halachic Hour" }
+            ],
             
-            // Calc Distance
-            let results = allMinyanim.map(m => {
-                m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
-                return m;
-            });
-
-            // Filter by Radius (for map & list)
-            const isMap = document.getElementById('map-view').style.display !== 'none';
-            if (!isMap) {
-                 // In list mode, maybe show everything or just radius? Let's stick to radius.
-                 results = results.filter(m => m.distance <= currentRadius);
-            } else {
-                 // In map mode, use radius too
-                 results = results.filter(m => m.distance <= currentRadius);
-            }
-            
-            // Sort by Time (Simple string compare for demo)
-            results.sort((a,b) => a.timeDisplay.localeCompare(b.timeDisplay));
-
-            // Update Pills
-            const uniqueShuls = new Set(results.map(r => r.id)).size;
-            document.getElementById('status-pill').style.display = 'block';
-            document.getElementById('count-pill').style.display = 'block';
-            document.getElementById('count-pill').innerText = isMap ? `${uniqueShuls} Shuls` : `${uniqueShuls} Shuls / ${results.length} Minyanim`;
-            
-            if(isMap) {
-                document.getElementById('map-radius-pill').style.display = 'block';
-                document.getElementById('map-radius-pill').innerText = `Radius: ${currentRadius}mi`;
-                updateMarkers(results, MarkerClass);
-            } else {
-                document.getElementById('map-radius-pill').style.display = 'none';
-                renderList(results);
-            }
-        }
-
-        function updateMarkers(results, MarkerClass) {
-            // Clear old
-            markers.forEach(m => m.map = null);
-            markers = [];
-            
-            // Group by location to avoid overlap stack
-            const locs = {};
-            results.forEach(r => {
-                const key = r.lat + "," + r.lng;
-                if(!locs[key]) locs[key] = r; // Take first one
-            });
-
-            Object.values(locs).forEach(m => {
-                if(MarkerClass) {
-                    const pin = document.createElement('div');
-                    pin.className = 'custom-marker';
-                    pin.textContent = m.timeDisplay;
-                    
-                    const marker = new MarkerClass({
-                        map: map,
-                        position: { lat: m.lat, lng: m.lng },
-                        content: pin,
-                        title: m.name
-                    });
-                    markers.push(marker);
-                }
-            });
-        }
-
-        function renderList(results) {
-            const list = document.getElementById("list-view");
-            if(currentTab !== 'list') return; // Only render if active
-            list.innerHTML = "";
-            results.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'minyan-card';
-                div.innerHTML = `
-                    <div class="info-zone">
-                        <div class="shul-name">${m.name}</div>
-                        <div class="shul-address">${m.address}</div>
-                        <div class="shul-city">${m.city}, ${m.state}</div>
-                        <div class="nusach-tag-list">${m.nusach}</div>
-                    </div>
-                    <div class="map-zone">
-                         <div class="tefillah-label">${m.tefillah}</div>
-                         <div class="time-val-card">${m.timeDisplay}</div>
-                         <div class="dist-row"><span>${m.distance.toFixed(1)}mi</span></div>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        // --- 7. ZMANIM ENGINE (NOAA) ---
-        const Solar = {
-            calc: (date, lat, lng) => {
-                // Simplified NOAA for brevity & robustness
-                // In real app, paste full algo here. 
-                // For demo, we return dummy reliable times based on offsets
-                const base = new Date(date).setHours(6,0,0,0);
+            // Engines
+            Daf: { get: (d) => { const s=new Date(2020,0,5), a=Math.floor((d-s)/864e5); if(a<0)return""; let n=a; const m=[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104}]; for(let r of m){if(n<r.p)return r.n+" "+(n+2);n-=r.p} return "Sanhedrin 22"; } }, // simplified for demo
+            Heb: { get: (d) => new Intl.DateTimeFormat('en-US-u-ca-hebrew',{day:'numeric',month:'long',year:'numeric'}).format(d) },
+            Solar: { calc: (d, lat, lng, elev) => {
+                // Mock reliable offline calculation for demo stability (replaces heavy math block)
+                const base = new Date(d).setHours(6,0,0,0);
                 const add = m => new Date(base + m*60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-                return {
-                    alot: add(0), sunrise: add(60), noon: add(360), sunset: add(720), tzais: add(760)
-                };
+                return { alot:add(0), mish:add(30), sun:add(60), noon:add(360), set:add(720), tzais:add(760) };
+            }},
+
+            // Methods
+            init: function() { this.render(); },
+            shiftDate: function(d) { this.date.setDate(this.date.getDate() + d); this.render(); },
+            updateLoc: function(l) { this.loc = l; this.render(); },
+            changeOpt: function(id, val) { this.opts[id] = val; this.render(); },
+            
+            render: function() {
+                document.getElementById('z-loc-label').innerText = this.loc.name;
+                document.getElementById('z-date-civ').innerText = this.date.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+                document.getElementById('z-date-heb').innerText = this.Heb.get(this.date);
+                document.getElementById('z-day').innerText = this.date.toLocaleDateString('en-US', {weekday:'long'});
+                document.getElementById('z-daf').innerText = this.Daf.get(this.date);
+
+                const times = this.Solar.calc(this.date, this.loc.lat, this.loc.lng, this.loc.elev);
+                
+                let html = "";
+                this.config.forEach(z => {
+                    // Logic mapping
+                    let t = times.noon; 
+                    if(z.id.includes('alot')) t=times.alot;
+                    if(z.id.includes('sunrise')) t=times.sun;
+                    if(z.id.includes('sunset')) t=times.set;
+                    
+                    let sel = "";
+                    if(z.opts) {
+                        sel = `<select class="z-select" onchange="ZmanimApp.changeOpt('${z.id}',this.value)">${z.opts.map(o=>`<option value="${o[0]}" ${this.opts[z.id]===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>`;
+                    }
+
+                    html += `<li class="z-card">
+                        <div class="z-card-left"><span class="z-card-label">${z.label}</span><span class="z-card-desc">${z.desc}</span>${sel}</div>
+                        <div class="z-card-right"><span class="z-card-time">${t}</span></div>
+                    </li>`;
+                });
+                document.getElementById('z-list').innerHTML = html;
+                this.renderGlossary();
+            },
+            
+            renderGlossary: function() {
+                let h = "";
+                this.config.forEach(z => {
+                    if(z.opts) h+= `<details><summary>${z.label}</summary><div>${z.desc}</div></details>`;
+                });
+                document.getElementById('z-glossary').innerHTML = h;
+            },
+            
+            searchCity: async function() {
+                const q = document.getElementById('loc-search').value;
+                const r = document.getElementById('loc-results');
+                r.innerHTML = "Searching...";
+                // Mock result for offline safety
+                setTimeout(() => {
+                    r.innerHTML = `<div onclick="ZmanimApp.updateLoc({lat:51.5,lng:-0.1,name:'London',elev:10});document.getElementById('locModal').classList.remove('active')" style="padding:10px; border-bottom:1px solid #eee;">London, UK</div>`;
+                }, 500);
             }
         };
 
-        function renderZmanim() {
-            const d = Solar.calc(new Date(), zmanLoc.lat, zmanLoc.lng);
-            const html = `
-                <div class="zman-header-section">
-                    <div class="zman-top-row"><div class="zman-title">Zmanim</div><div class="zman-loc-badge">${zmanLoc.name}</div></div>
-                    <div class="zman-info-bar">
-                        <div class="zman-info-pill"><span>Date</span><div class="zman-info-val">${new Date().toLocaleDateString()}</div></div>
-                    </div>
-                </div>
-                <ul class="zmanim-list">
-                    <li class="zman-card"><span>Alos</span><span class="zman-time">${d.alot}</span></li>
-                    <li class="zman-card"><span>Sunrise</span><span class="zman-time">${d.sunrise}</span></li>
-                    <li class="zman-card"><span>Chatzos</span><span class="zman-time">${d.noon}</span></li>
-                    <li class="zman-card"><span>Sunset</span><span class="zman-time">${d.sunset}</span></li>
-                    <li class="zman-card"><span>Tzais</span><span class="zman-time">${d.tzais}</span></li>
-                </ul>
-            `;
-            document.getElementById('zmanim-view').innerHTML = html;
-        }
-
-        // --- 8. UI HELPERS ---
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            // Reset Views
-            ['map-view','list-view','zmanim-view','settings-view'].forEach(id => document.getElementById(id).style.display='none');
-            document.getElementById('filter-header').style.display='none';
-            document.getElementById('status-pill').style.display='none';
-            document.getElementById('count-pill').style.display='none';
-            document.getElementById('map-radius-pill').style.display='none';
-            document.getElementById('center-marker').style.display='none';
+        // --- 3. MAIN APP INIT ---
+        document.addEventListener("DOMContentLoaded", async () => {
+            ZmanimApp.init(); // Start Zmanim immediately
             
-            // Logic
-            if(tab === 'map') {
-                document.getElementById('nav-toggle').classList.add('active');
-                document.getElementById('map-view').style.display='block';
-                document.getElementById('filter-header').style.display='flex';
-                document.getElementById('center-marker').style.display='block';
-                document.getElementById('status-pill').style.display='block';
-                document.getElementById('count-pill').style.display='block';
-                document.getElementById('map-radius-pill').style.display='block';
-                updateToggleButton('List', 'list');
-                applyFilters(google.maps.marker.AdvancedMarkerElement); // Refresh
-            } else if(tab === 'list') {
-                document.getElementById('nav-toggle').classList.add('active');
-                document.getElementById('list-view').style.display='block';
-                document.getElementById('filter-header').style.display='flex';
-                document.getElementById('status-pill').style.display='block';
-                document.getElementById('count-pill').style.display='block';
-                document.getElementById('list-view').style.paddingTop = '110px';
-                updateToggleButton('Map', 'map');
-                applyFilters(); // Refresh list
-            } else if(tab === 'recent') {
-                document.getElementById('nav-recent').classList.add('active');
-                document.getElementById('list-view').style.display='block';
-                document.getElementById('list-view').style.paddingTop = '0px';
-                document.getElementById('list-view').innerHTML = '<div class="page-header">Recent</div><div class="empty-state">No history.</div>';
-                updateToggleButton('Map', 'map');
-            } else if(tab === 'saved') {
-                document.getElementById('nav-saved').classList.add('active');
-                document.getElementById('list-view').style.display='block';
-                document.getElementById('list-view').style.paddingTop = '0px';
-                document.getElementById('list-view').innerHTML = '<div class="page-header">Saved</div><div class="empty-state">No saved items.</div>';
-                updateToggleButton('Map', 'map');
-            } else if(tab === 'zmanim') {
-                document.getElementById('nav-zmanim').classList.add('active');
-                document.getElementById('zmanim-view').style.display='block';
-                document.getElementById('zmanim-view').style.paddingTop = '0px';
-                renderZmanim();
-            } else if(tab === 'settings') {
-                document.getElementById('nav-settings').classList.add('active');
-                document.getElementById('settings-view').style.display='block';
-                document.getElementById('settings-view').style.paddingTop = '0px';
+            // Load DB
+            try {
+                const res = await fetch("database.json");
+                if(!res.ok) throw new Error("x");
+                const data = await res.json();
+                processData(data);
+            } catch(e) {
+                // Fallback Data
+                processData([
+                    {id:1, name:"Bais Medrash Govoah", address:"617 6th St", city:"Lakewood", state:"NJ", lat:40.093, lng:-74.222, nusach:"Ashkenaz", shacharis:{week:["7:00a"]}, mincha:{week:["1:45p"]}, maariv:{week:["9:30p"]}},
+                    {id:2, name:"Satmar", address:"Forest Ave", city:"Lakewood", state:"NJ", lat:40.080, lng:-74.210, nusach:"Sefard", shacharis:{week:["8:00a"]}, mincha:{week:["2:00p"]}, maariv:{week:["9:00p"]}}
+                ]);
             }
+        });
+
+        // --- 4. MAP & LIST LOGIC ---
+        function processData(data) {
+            allMinyanim = [];
+            data.forEach(s => {
+                const add = (l,t) => { if(l) l.forEach(tm => allMinyanim.push({...s, tefillah:t, timeDisplay:tm})) };
+                add(s.shacharis?.week, 'Shacharis');
+                add(s.mincha?.week, 'Mincha');
+                add(s.maariv?.week, 'Maariv');
+            });
+            if(map) applyFilters();
         }
 
-        function toggleView() {
-            if(document.getElementById('map-view').style.display === 'block') switchTab('list');
-            else switchTab('map');
-        }
+        async function initApp() {
+            const { Map } = await google.maps.importLibrary("maps");
+            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+            
+            const auto = new PlaceAutocompleteElement();
+            document.getElementById("autocomplete-container").appendChild(auto);
 
-        function toggleFilters() {
-            const d = document.getElementById('filter-drawer');
-            d.style.display = (d.style.display === 'block') ? 'none' : 'block';
-        }
+            map = new Map(document.getElementById("map-view"), {
+                center: { lat: 40.091, lng: -74.218 }, zoom: 13,
+                disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+            });
 
-        function manualRadiusUpdate(v) {
-            currentRadius = v;
-            document.getElementById('rad-val').innerText = v;
-            applyFilters(google.maps.marker.AdvancedMarkerElement);
-        }
-
-        function updateToggleButton(text, icon) {
-            document.getElementById('nav-toggle-icon').innerText = icon;
-            document.getElementById('nav-toggle-text').innerText = text;
-        }
-
-        function useMyLocation() {
-            navigator.geolocation.getCurrentPosition(p => {
-                const l = { lat: p.coords.latitude, lng: p.coords.longitude };
-                map.setCenter(l);
-                map.setZoom(14);
+            map.addListener('idle', () => {
+                const c = map.getCenter();
+                searchCenter = { lat: c.lat(), lng: c.lng() };
+                document.getElementById('status-pill').innerText = "Near: Map Center";
+                // SYNC ZMANIM
+                ZmanimApp.updateLoc({lat:c.lat(), lng:c.lng(), name:"Map Location", elev:30, tz:"America/New_York"});
+                applyFilters();
+            });
+            
+            auto.addEventListener("gmp-select", async (e) => {
+                const p = e.placePrediction.toPlace();
+                await p.fetchFields({ fields: ["location"] });
+                map.setCenter(p.location);
             });
         }
 
-        // Math Utils
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 3958.8; // Radius of the Earth in miles
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        // Placeholders
-        function changeDate(d) {}
-        function saveProfile() {}
-        function showComingSoon() { alert("Coming Soon"); }
-        function shareApp() {}
+        function applyFilters() {
+            if(!searchCenter || !allMinyanim.length) return;
+            let res = allMinyanim.map(m => { m.dist = getDist(searchCenter.lat, searchCenter.lng, m.lat, m.lng); return m; });
+            const isMap = document.getElementById('map-view').style.display !== 'none';
+            
+            // Filter by Radius
+            res = res.filter(m => m.dist <= currentRadius);
+            
+            // Update Pills
+            const count = new Set(res.map(r=>r.id)).size;
+            document.getElementById('status-pill').style.display = 'block';
+            document.getElementById('count-pill').style.display = 'block';
+            document.getElementById('count-pill').innerText = isMap ? `${count} Shuls` : `${count} Shuls / ${res.length} Minyanim`;
+            document.getElementById('map-radius-pill').style.display = isMap ? 'block' : 'none';
+            document.getElementById('map-radius-pill').innerText = `Radius: ${currentRadius}mi`;
 
+            if(isMap) updateMarkers(res);
+            else renderList(res);
+        }
+
+        function updateMarkers(res) {
+            markers.forEach(m => m.map = null); markers = [];
+            const locs = {};
+            res.forEach(r => locs[r.lat+","+r.lng] = r); // Dedupe by loc
+            
+            Object.values(locs).forEach(m => {
+                const el = document.createElement('div');
+                el.className = 'custom-marker';
+                el.textContent = m.timeDisplay;
+                const mk = new google.maps.marker.AdvancedMarkerElement({
+                    map: map, position: {lat:m.lat, lng:m.lng}, content: el
+                });
+                markers.push(mk);
+            });
+        }
+
+        function renderList(res) {
+            const list = document.getElementById('list-view');
+            list.innerHTML = "";
+            res.forEach(m => {
+                const d = document.createElement('div');
+                d.className = 'minyan-card';
+                d.innerHTML = `
+                <div class="info-zone"><div class="shul-name">${m.name}</div><div class="shul-address">${m.address}</div><div class="nusach-tag-list">${m.nusach}</div></div>
+                <div class="map-zone">
+                    <div class="tefillah-label">${m.tefillah}</div>
+                    <div class="time-val-card">${m.timeDisplay}</div>
+                    <div class="dist-row"><span>${m.dist.toFixed(1)}mi</span></div>
+                </div>`;
+                list.appendChild(d);
+            });
+        }
+
+        // --- UTILS ---
+        function switchTab(t) {
+            currentTab = t;
+            document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+            ['map-view','list-view','zmanim-view','settings-view'].forEach(id=>document.getElementById(id).style.display='none');
+            document.getElementById('filter-header').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
+            
+            // Logic
+            if(t==='map') { document.getElementById('map-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('List','list'); applyFilters(); }
+            else if(t==='list') { document.getElementById('list-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('Map','map'); applyFilters(); }
+            else if(t==='zmanim') { document.getElementById('zmanim-view').style.display='block'; document.getElementById('nav-zmanim').classList.add('active'); }
+            else if(t==='recent') { document.getElementById('list-view').style.display='block'; document.getElementById('nav-recent').classList.add('active'); document.getElementById('list-view').innerHTML='<div class="page-header">Recent</div><div class="empty-state">No history</div>'; }
+            else if(t==='saved') { document.getElementById('list-view').style.display='block'; document.getElementById('nav-saved').classList.add('active'); document.getElementById('list-view').innerHTML='<div class="page-header">Saved</div><div class="empty-state">No saved</div>'; }
+            else if(t==='settings') { document.getElementById('settings-view').style.display='block'; document.getElementById('nav-settings').classList.add('active'); }
+        }
+
+        function toggleView() { if(document.getElementById('map-view').style.display==='block') switchTab('list'); else switchTab('map'); }
+        function toggleFilters() { const d=document.getElementById('filter-drawer'); d.style.display=d.style.display==='block'?'none':'block'; }
+        function updateToggle(t,i) { document.getElementById('nav-toggle-text').innerText=t; document.getElementById('nav-toggle-icon').innerText=i; }
+        function manualRadiusUpdate(v) { currentRadius=v; document.getElementById('map-radius-pill').innerText=`Radius: ${v}mi`; applyFilters(); }
+        function openLocModal() { document.getElementById('locModal').classList.add('active'); }
+        function useMyLocation() { navigator.geolocation.getCurrentPosition(p=>{ map.setCenter({lat:p.coords.latitude, lng:p.coords.longitude}); map.setZoom(14); }); }
+        function useMyLocationForZmanim() { navigator.geolocation.getCurrentPosition(p=>{ ZmanimApp.updateLoc({lat:p.coords.latitude, lng:p.coords.longitude, name:"GPS Location", elev:30, tz:"America/New_York"}); document.getElementById('locModal').classList.remove('active'); }); }
+        function getDist(lat1,lon1,lat2,lon2) { return 3958.8 * 2 * Math.atan2(Math.sqrt(Math.sin((lat2-lat1)*Math.PI/360)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin((lon2-lon1)*Math.PI/360)**2), Math.sqrt(1-Math.sin((lat2-lat1)*Math.PI/360)**2)); }
     </script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
