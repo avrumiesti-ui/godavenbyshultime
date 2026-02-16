@@ -3,129 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoDavenByShulTime</title>
+    <title>GoDavenByShulTime | Master Pro</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+
     <style>
         :root {
             --primary: #1a365d;
             --accent: #d4af37;
-            --bg: #f4f7f9;
+            --ashkenaz: #3b82f6; /* Blue */
+            --sefard: #10b981;   /* Green */
+            --edot: #f59e0b;     /* Orange */
+            --bg: #f1f5f9;
         }
 
-        body {
-            font-family: sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding-top: 140px; /* Header Height Offset */
-        }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
 
+        /* --- STICKY HEADER --- */
         header {
             position: fixed;
-            top: 0;
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 1000;
+            top: 0; width: 100%; height: 160px;
+            background: var(--primary); color: white;
+            z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        .header-wrap { max-width: 500px; margin: 0 auto; padding: 0 15px; }
+        .header-content { max-width: 1000px; margin: 0 auto; padding: 15px; text-align: center; }
         
-        h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--accent); }
+        h1 { margin: 0; font-size: 1.5rem; color: var(--accent); }
+        
+        .controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; justify-content: center; }
 
-        input#search {
-            width: 100%;
-            padding: 12px;
-            border-radius: 25px;
-            border: none;
-            font-size: 1rem;
-            outline: none;
+        input, select { 
+            padding: 10px; border-radius: 8px; border: none; font-size: 0.9rem;
+        }
+        #search { flex-grow: 1; min-width: 200px; }
+
+        /* --- LAYOUT --- */
+        #main-view {
+            display: flex;
+            height: calc(100vh - 160px);
+            margin-top: 160px;
         }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 10px; }
+        #map { flex: 1; height: 100%; }
 
-        .shul-card {
+        #sidebar {
+            width: 400px;
             background: white;
-            border-radius: 10px;
+            overflow-y: auto;
+            border-left: 1px solid #ddd;
             padding: 15px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-left: 6px solid var(--accent);
+            box-sizing: border-box;
         }
 
-        .shul-name { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
-        .shul-detail { margin: 4px 0; font-size: 0.9rem; color: #555; }
-        
-        .error-msg { color: red; text-align: center; margin-top: 20px; font-weight: bold; }
+        /* --- CARDS --- */
+        .shul-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            transition: 0.2s;
+            position: relative;
+            border-top: 5px solid #ccc;
+        }
+        .shul-card.Sefard { border-top-color: var(--sefard); }
+        .shul-card.Ashkenaz { border-top-color: var(--ashkenaz); }
+        .shul-card[data-nusach*="Edot"] { border-top-color: var(--edot); }
+
+        .shul-name { font-weight: bold; font-size: 1.1rem; color: var(--primary); }
+        .distance-tag { 
+            position: absolute; top: 15px; right: 15px; 
+            background: #edf2f7; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;
+        }
+
+        .zman-row { 
+            display: flex; justify-content: space-between; 
+            margin-top: 10px; padding: 8px; background: #f8fafc; border-radius: 6px; font-size: 0.85rem;
+        }
+
+        .zman-item { text-align: center; flex: 1; border-right: 1px solid #ddd; }
+        .zman-item:last-child { border-right: none; }
+        .zman-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+        .zman-time { font-weight: bold; color: #1e293b; }
+
+        @media (max-width: 800px) {
+            #main-view { flex-direction: column; }
+            #sidebar { width: 100%; height: 50%; }
+            #map { height: 50%; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-wrap">
+    <div class="header-content">
         <h1>GoDavenByShulTime</h1>
-        <input type="text" id="search" placeholder="Search Shul, Rabbi, or Nusach..." onkeyup="filterData()">
+        <div class="controls">
+            <input type="text" id="search" placeholder="Search Shul, Rabbi, or Street..." onkeyup="processAll()">
+            <select id="radius" onchange="processAll()">
+                <option value="1">1 Mile</option>
+                <option value="5" selected>5 Miles</option>
+                <option value="10">10 Miles</option>
+                <option value="25">25 Miles</option>
+            </select>
+            <div id="count-display" style="font-size: 0.9rem; margin-top: 5px;">Finding Shuls...</div>
+        </div>
     </div>
 </header>
 
-<div class="container" id="main-list">
-    <div id="status" style="text-align:center; padding:20px;">Loading Shul Data...</div>
+<div id="main-view">
+    <div id="map"></div>
+    <div id="sidebar">
+        <div id="shul-list"></div>
+    </div>
 </div>
 
 <script>
-    let allData = [];
+    let map, userMarker, shulLayer;
+    let allShuls = [];
+    let userCoords = [40.0912, -74.2221]; // Default Lakewood
 
-    // We pull the raw data directly from your GitHub
-    const DATA_URL = 'https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json';
+    // 1. INITIALIZE APP
+    async function init() {
+        initMap();
+        await loadData();
+        getLocation();
+    }
 
-    async function loadShuls() {
-        const status = document.getElementById('status');
-        try {
-            const response = await fetch(DATA_URL);
-            if (!response.ok) throw new Error("Could not find database.json");
-            
-            allData = await response.json();
-            
-            if (allData.length === 0) {
-                status.innerHTML = "The database is currently empty.";
-            } else {
-                status.style.display = 'none';
-                render(allData);
-            }
-        } catch (err) {
-            status.innerHTML = `<div class="error-msg">Error: ${err.message}<br>Make sure your file is named database.json</div>`;
+    function initMap() {
+        map = L.map('map').setView(userCoords, 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        shulLayer = L.layerGroup().addTo(map);
+        userMarker = L.circleMarker(userCoords, { color: 'red', radius: 8 }).addTo(map).bindPopup("You are here");
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                userCoords = [position.coords.latitude, position.coords.longitude];
+                userMarker.setLatLng(userCoords);
+                map.setView(userCoords, 13);
+                processAll();
+            });
         }
     }
 
-    function render(data) {
-        const container = document.getElementById('main-list');
-        // Clear previous results
-        const loadingStatus = document.getElementById('status');
-        if(loadingStatus) loadingStatus.style.display = 'none';
+    // 2. DATA PULL
+    async function loadData() {
+        try {
+            // Using your raw GitHub link to ensure it works everywhere
+            const response = await fetch('https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json');
+            allShuls = await response.json();
+            processAll();
+        } catch (err) {
+            document.getElementById('shul-list').innerHTML = "Error loading database.json";
+        }
+    }
+
+    // 3. CORE LOGIC (Distance, Filter, Zmanim)
+    function processAll() {
+        const searchTerm = document.getElementById('search').value.toLowerCase();
+        const radiusLimit = parseFloat(document.getElementById('radius').value);
         
-        // We use your EXACT JSON keys here: shul_name, address, rabbi_name, nusach
-        container.innerHTML = data.map(shul => `
-            <div class="shul-card">
-                <div class="shul-name">${shul.shul_name || 'Unknown Shul'}</div>
-                <div class="shul-detail">📍 ${shul.address || 'No address provided'}</div>
-                <div class="shul-detail">👳 Rabbi: ${shul.rabbi_name || 'N/A'}</div>
-                <div class="shul-detail">📖 Nusach: ${shul.nusach || 'N/A'}</div>
+        shulLayer.clearLayers();
+        const listContainer = document.getElementById('shul-list');
+        listContainer.innerHTML = '';
+
+        const filtered = allShuls.filter(shul => {
+            const dist = getDistance(userCoords[0], userCoords[1], shul.lat, shul.lng);
+            shul.currentDist = dist;
+
+            const matchesSearch = shul.shul_name.toLowerCase().includes(searchTerm) || 
+                                 shul.rabbi_name.toLowerCase().includes(searchTerm);
+            const matchesRadius = dist <= radiusLimit;
+
+            return matchesSearch && matchesRadius;
+        });
+
+        // Sort by distance
+        filtered.sort((a, b) => a.currentDist - b.currentDist);
+
+        document.getElementById('count-display').innerText = `${filtered.length} Shuls within ${radiusLimit} miles`;
+
+        filtered.forEach(shul => {
+            addMapMarker(shul);
+            addListCard(shul);
+        });
+    }
+
+    // 4. ZMANIM CALCULATOR
+    function getShulZmanim(lat, lng) {
+        const times = SunCalc.getTimes(new Date(), lat, lng);
+        
+        const format = (date, offsetMinutes = 0) => {
+            const d = new Date(date.getTime() + offsetMinutes * 60000);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        };
+
+        // Standard logic: Shacharis (Sunrise), Mincha (20m before sunset), Maariv (30m after sunset)
+        return {
+            shacharis: format(times.sunrise),
+            mincha: format(times.sunset, -20),
+            maariv: format(times.sunset, 30)
+        };
+    }
+
+    // 5. HELPER FUNCTIONS
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 3958.8; // Miles
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function addMapMarker(shul) {
+        const color = shul.nusach === 'Sefard' ? 'green' : (shul.nusach === 'Ashkenaz' ? 'blue' : 'orange');
+        L.circleMarker([shul.lat, shul.lng], {
+            color: color,
+            fillOpacity: 0.8,
+            radius: 10
+        }).addTo(shulLayer).bindPopup(`<b>${shul.shul_name}</b><br>${shul.nusach}`);
+    }
+
+    function addListCard(shul) {
+        const z = getShulZmanim(shul.lat, shul.lng);
+        const card = document.createElement('div');
+        card.className = `shul-card ${shul.nusach}`;
+        card.innerHTML = `
+            <div class="distance-tag">${shul.currentDist.toFixed(1)} mi</div>
+            <div class="shul-name">${shul.shul_name}</div>
+            <div style="font-size:0.85rem; color:#666;">📍 ${shul.address}</div>
+            <div style="font-size:0.85rem; margin-top:5px;">👳 ${shul.rabbi_name} | 📖 ${shul.nusach}</div>
+            
+            <div class="zman-row">
+                <div class="zman-item">
+                    <div class="zman-label">Shacharis</div>
+                    <div class="zman-time">${z.shacharis}</div>
+                </div>
+                <div class="zman-item">
+                    <div class="zman-label">Mincha</div>
+                    <div class="zman-time">${z.mincha}</div>
+                </div>
+                <div class="zman-item">
+                    <div class="zman-label">Maariv</div>
+                    <div class="zman-time">${z.maariv}</div>
+                </div>
             </div>
-        `).join('');
+        `;
+        document.getElementById('shul-list').appendChild(card);
     }
 
-    function filterData() {
-        const term = document.getElementById('search').value.toLowerCase();
-        const filtered = allData.filter(shul => 
-            (shul.shul_name && shul.shul_name.toLowerCase().includes(term)) ||
-            (shul.rabbi_name && shul.rabbi_name.toLowerCase().includes(term)) ||
-            (shul.nusach && shul.nusach.toLowerCase().includes(term))
-        );
-        render(filtered);
-    }
-
-    window.onload = loadShuls;
+    window.onload = init;
 </script>
 
 </body>
