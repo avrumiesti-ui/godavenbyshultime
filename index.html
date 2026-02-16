@@ -5,80 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoDavenByShulTime</title>
     <style>
-        /* --- THE LOOK & COLORS --- */
         :root {
-            --primary: #1a365d; /* Deep Blue */
-            --accent: #d4af37;  /* Gold */
+            --primary: #1a365d;
+            --accent: #d4af37;
             --bg: #f4f7f9;
-            --text: #333;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding-top: 130px; /* This maintains the "Recent Heights" sticky space */
-            color: var(--text);
+            padding-top: 140px; /* Header Height Offset */
         }
 
-        /* --- STICKY HEADER --- */
         header {
             position: fixed;
             top: 0;
             width: 100%;
             background: var(--primary);
             color: white;
-            padding: 15px 0;
+            padding: 20px 0;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             z-index: 1000;
         }
 
-        .header-wrap { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+        .header-wrap { max-width: 500px; margin: 0 auto; padding: 0 15px; }
         
-        h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
+        h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--accent); }
 
         input#search {
             width: 100%;
             padding: 12px;
             border-radius: 25px;
             border: none;
-            outline: none;
             font-size: 1rem;
+            outline: none;
         }
 
-        /* --- SHUL CARDS --- */
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        .container { max-width: 500px; margin: 0 auto; padding: 10px; }
 
         .shul-card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-left: 8px solid var(--accent);
-            position: relative;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 6px solid var(--accent);
         }
 
-        .shul-name { font-size: 1.3rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
-        .shul-detail { margin: 5px 0; font-size: 0.95rem; display: flex; align-items: center; }
-        .icon { margin-right: 10px; width: 20px; text-align: center; }
-
-        /* --- SAVES (FAVORITES) --- */
-        .save-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            opacity: 0.3;
-            transition: 0.3s;
-        }
-        .save-btn.active { opacity: 1; filter: drop-shadow(0 0 2px gold); }
-
-        .loading-msg { text-align: center; margin-top: 50px; font-weight: bold; color: var(--primary); }
+        .shul-name { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .shul-detail { margin: 4px 0; font-size: 0.9rem; color: #555; }
+        
+        .error-msg { color: red; text-align: center; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -86,73 +65,67 @@
 <header>
     <div class="header-wrap">
         <h1>GoDavenByShulTime</h1>
-        <input type="text" id="search" placeholder="🔍 Search Shul, Rabbi, or Nusach..." onkeyup="filterShuls()">
+        <input type="text" id="search" placeholder="Search Shul, Rabbi, or Nusach..." onkeyup="filterData()">
     </div>
 </header>
 
-<div class="container" id="list-container">
-    <div class="loading-msg" id="status">Connecting to Database...</div>
+<div class="container" id="main-list">
+    <div id="status" style="text-align:center; padding:20px;">Loading Shul Data...</div>
 </div>
 
 <script>
-    let shuls = [];
-    let saved = JSON.parse(localStorage.getItem('myShuls')) || [];
+    let allData = [];
 
-    // THE MAGIC: This pulls directly from your GitHub Raw link to bypass local blocks
+    // We pull the raw data directly from your GitHub
     const DATA_URL = 'https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json';
 
-    async function loadData() {
+    async function loadShuls() {
         const status = document.getElementById('status');
         try {
             const response = await fetch(DATA_URL);
-            if (!response.ok) throw new Error("Could not pull data");
+            if (!response.ok) throw new Error("Could not find database.json");
             
-            shuls = await response.json();
-            status.style.display = 'none';
-            displayShuls(shuls);
+            allData = await response.json();
+            
+            if (allData.length === 0) {
+                status.innerHTML = "The database is currently empty.";
+            } else {
+                status.style.display = 'none';
+                render(allData);
+            }
         } catch (err) {
-            status.innerHTML = "❌ Error loading data. Please refresh.";
-            console.error(err);
+            status.innerHTML = `<div class="error-msg">Error: ${err.message}<br>Make sure your file is named database.json</div>`;
         }
     }
 
-    function displayShuls(data) {
-        const container = document.getElementById('list-container');
-        container.innerHTML = data.map(shul => {
-            const isSaved = saved.includes(shul.name);
-            return `
-                <div class="shul-card">
-                    <button class="save-btn ${isSaved ? 'active' : ''}" onclick="toggleSave('${shul.name}')">⭐</button>
-                    <div class="shul-name">${shul.name}</div>
-                    <div class="shul-detail"><span class="icon">📍</span> ${shul.address}</div>
-                    <div class="shul-detail"><span class="icon">👳</span> Rabbi: ${shul.rabbi}</div>
-                    <div class="shul-detail"><span class="icon">📖</span> Nusach: ${shul.nusach}</div>
-                </div>
-            `;
-        }).join('');
+    function render(data) {
+        const container = document.getElementById('main-list');
+        // Clear previous results
+        const loadingStatus = document.getElementById('status');
+        if(loadingStatus) loadingStatus.style.display = 'none';
+        
+        // We use your EXACT JSON keys here: shul_name, address, rabbi_name, nusach
+        container.innerHTML = data.map(shul => `
+            <div class="shul-card">
+                <div class="shul-name">${shul.shul_name || 'Unknown Shul'}</div>
+                <div class="shul-detail">📍 ${shul.address || 'No address provided'}</div>
+                <div class="shul-detail">👳 Rabbi: ${shul.rabbi_name || 'N/A'}</div>
+                <div class="shul-detail">📖 Nusach: ${shul.nusach || 'N/A'}</div>
+            </div>
+        `).join('');
     }
 
-    function filterShuls() {
+    function filterData() {
         const term = document.getElementById('search').value.toLowerCase();
-        const filtered = shuls.filter(s => 
-            s.name.toLowerCase().includes(term) || 
-            s.rabbi.toLowerCase().includes(term) || 
-            s.nusach.toLowerCase().includes(term)
+        const filtered = allData.filter(shul => 
+            (shul.shul_name && shul.shul_name.toLowerCase().includes(term)) ||
+            (shul.rabbi_name && shul.rabbi_name.toLowerCase().includes(term)) ||
+            (shul.nusach && shul.nusach.toLowerCase().includes(term))
         );
-        displayShuls(filtered);
+        render(filtered);
     }
 
-    function toggleSave(name) {
-        if (saved.includes(name)) {
-            saved = saved.filter(item => item !== name);
-        } else {
-            saved.push(name);
-        }
-        localStorage.setItem('myShuls', JSON.stringify(saved));
-        displayShuls(shuls); // Refresh icons
-    }
-
-    window.onload = loadData;
+    window.onload = loadShuls;
 </script>
 
 </body>
