@@ -77,7 +77,13 @@
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; display: none; }
 
-    /* STICKY LIQUID HEADER (For Recent/Saved) */
+    /* VIEWS */
+    #list-view { position: absolute; inset: 0; padding-bottom: 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none; }
+    #map-view { position: absolute; inset: 0; z-index: 5; }
+    #zmanim-view { position: absolute; inset: 0; background: var(--bg); z-index: 15; overflow-y: auto; display: none; padding-bottom: 120px; }
+    #settings-view { position: absolute; inset: 0; padding: 0 12px 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none; }
+
+    /* STICKY HEADER FOR LISTS */
     .sticky-header {
         position: fixed; top: 0; left: 0; right: 0; height: 60px;
         background: rgba(242, 244, 248, 0.85);
@@ -91,22 +97,13 @@
     }
     .sticky-header.visible { opacity: 1; pointer-events: auto; }
 
-    /* VIEWS */
-    #list-view, #settings-view, #zmanim-view { 
-        position: absolute; inset: 0; 
-        padding-bottom: 120px; /* Space for toolbar */
-        overflow-y: auto; background: var(--bg); 
-        z-index: 10; display: none;
-    }
-    #map-view { position: absolute; inset: 0; z-index: 5; }
-
-    /* PAGE HEADERS (Big Titles) */
+    /* PAGE HEADERS */
     .list-page-header {
         font-size: 34px; font-weight: 800; color: var(--primary);
-        margin-top: 40px; margin-bottom: 15px; padding-left: 12px;
+        margin-top: 40px; margin-bottom: 15px; padding-left: 5px;
     }
 
-    /* ZMANIM STYLES */
+    /* ZMANIM HEADER */
     .zman-header-section {
         background: #fff; padding: 15px 15px 10px 15px;
         border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20;
@@ -132,8 +129,7 @@
     .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
     .zman-sub { font-size: 10px; color: #999; margin-top: 2px; text-transform: uppercase; }
     .card-select { display: block; margin-top: 4px; font-size: 10px; background: #f0f0f0; border: none; padding: 2px 6px; border-radius: 4px; color: #555; font-weight: 600; }
-
-    /* GLOSSARY */
+    
     .glossary-section { padding: 0 15px; margin-bottom: 100px; }
     details { background: #fff; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
     summary { padding: 12px; font-size: 14px; font-weight: 600; background: #fafafa; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; outline: none; }
@@ -210,7 +206,7 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - 45px BUFFER */
+    /* RIGHT SIDE LAYOUT - 45px BUFFER (No Cutoff) */
     .tefillah-label { 
         position: absolute; top: 8px; right: 45px; text-align: right;
         font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
