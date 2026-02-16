@@ -7,17 +7,24 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-    /* --- 1. GLOBAL VARIABLES & COLORS (NUSACH BASED) --- */
+    /* --- 1. GLOBAL VARIABLES & COLORS --- */
     :root { 
         --primary: #0D2B4F; 
         --bg: #F2F4F8; 
         
-        /* NUSACH PALETTE */
-        --ashkenaz-text: #1565C0; --ashkenaz-bg: #E3F2FD;
-        --sefard-text: #2E7D32;   --sefard-bg: #E8F5E9;
-        --ari-text: #7B1FA2;      --ari-bg: #F3E5F5;
-        --chabad-text: #E65100;   --chabad-bg: #FFF3E0;
-        --other-text: #616161;    --other-bg: #F5F5F5;
+        /* TEFILLAH COLORS */
+        --color-Shacharis: #2E7D32; 
+        --color-Mincha: #E65100;    
+        --color-Maariv: #1565C0;    
+
+        /* NUSACH THEMES */
+        --bg-Ashkenaz: #E3F2FD; --text-Ashkenaz: #1565C0;
+        --bg-Sefard: #E8F5E9;   --text-Sefard: #2E7D32;
+        --bg-Ari: #F3E5F5;      --text-Ari: #7B1FA2;
+        --bg-Chabad: #FFF8E1;   --text-Chabad: #F57F17;
+        /* Updated Edot HaMizrach to be distinct (Deep Rust/Orange) */
+        --bg-Edot-HaMizrach: #FBE9E7; --text-Edot-HaMizrach: #D84315; 
+        --bg-Other: #F5F5F5;    --text-Other: #616161;
     }
     
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
@@ -71,7 +78,7 @@
         pointer-events: none; display: none;
     }
 
-    /* --- 4. MINYAN CARDS (COLOR CODED BY NUSACH) --- */
+    /* --- 4. MINYAN CARDS --- */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -86,42 +93,45 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     
     .nusach-tag { font-size: 10px; padding: 3px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
+    .nusach-Ashkenaz { background: var(--bg-Ashkenaz); color: var(--text-Ashkenaz); }
+    .nusach-Sefard { background: var(--bg-Sefard); color: var(--text-Sefard); }
+    .nusach-Ari { background: var(--bg-Ari); color: var(--text-Ari); }
+    .nusach-Chabad { background: var(--bg-Chabad); color: var(--text-Chabad); }
+    .nusach-Edot-HaMizrach { background: var(--bg-Edot-HaMizrach); color: var(--text-Edot-HaMizrach); }
+    .nusach-Other { background: var(--bg-Other); color: var(--text-Other); }
+
+    /* Right Side Elements - TIGHTER PADDING (12px) */
+    .tefillah-label { position: absolute; top: 8px; right: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
+    .time-val-card { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; }
     
-    /* Right Side Elements */
-    .tefillah-label { position: absolute; top: 8px; right: 40px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: #555; } 
-    .time-val-card { position: absolute; top: 50%; right: 40px; transform: translateY(-50%); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; }
-    
-    .dist-row { position: absolute; bottom: 8px; right: 40px; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #666; }
+    .type-Shacharis .tefillah-label { color: var(--color-Shacharis); }
+    .type-Shacharis .time-val-card { background: #E8F5E9; color: var(--color-Shacharis); }
+    .type-Mincha .tefillah-label { color: var(--color-Mincha); }
+    .type-Mincha .time-val-card { background: #FFF3E0; color: var(--color-Mincha); }
+    .type-Maariv .tefillah-label { color: var(--color-Maariv); }
+    .type-Maariv .time-val-card { background: #E3F2FD; color: var(--color-Maariv); }
+
+    .dist-row { position: absolute; bottom: 8px; right: 12px; display: flex; align-items: center; gap: 6px; }
+    .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
     
     .map-circle { 
-        position: absolute; top: 50%; right: 5px; transform: translateY(-50%);
-        width: 28px; height: 28px; border-radius: 50%; background: #fff; 
+        width: 24px; height: 24px; border-radius: 50%; background: #fff; 
         display: flex; align-items: center; justify-content: center; border: 1px solid #eee; 
         box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
     }
-    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
+    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 16px !important; font-weight: bold; }
     
     /* CUSTOM MARKER */
     .custom-marker { padding: 4px 9px; border-radius: 12px; background: white; font-weight: 800; font-size: 13px; box-shadow: 0 3px 8px rgba(0,0,0,0.3); border: 2px solid #eee; position: relative; top: -10px; }
     .custom-marker::after { content: ""; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: white transparent transparent transparent; }
     
-    /* DYNAMIC NUSACH COLORS */
-    .n-Ashkenaz .time-val-card, .n-Ashkenaz.nusach-tag, .chip-Ashkenaz { background: var(--ashkenaz-bg) !important; color: var(--ashkenaz-text) !important; border-color: var(--ashkenaz-text) !important; }
-    .marker-Ashkenaz { border-color: var(--ashkenaz-text) !important; color: var(--ashkenaz-text) !important; }
-    
-    .n-Sefard .time-val-card, .n-Sefard.nusach-tag, .chip-Sefard { background: var(--sefard-bg) !important; color: var(--sefard-text) !important; border-color: var(--sefard-text) !important; }
-    .marker-Sefard { border-color: var(--sefard-text) !important; color: var(--sefard-text) !important; }
-    
-    .n-Ari .time-val-card, .n-Ari.nusach-tag, .chip-Ari { background: var(--ari-bg) !important; color: var(--ari-text) !important; border-color: var(--ari-text) !important; }
-    .marker-Ari { border-color: var(--ari-text) !important; color: var(--ari-text) !important; }
-    
-    .n-Chabad .time-val-card, .n-Chabad.nusach-tag, .chip-Chabad { background: var(--chabad-bg) !important; color: var(--chabad-text) !important; border-color: var(--chabad-text) !important; }
-    .marker-Chabad { border-color: var(--chabad-text) !important; color: var(--chabad-text) !important; }
+    /* Marker Colors */
+    .marker-Ashkenaz { border-color: var(--text-Ashkenaz); color: var(--text-Ashkenaz); }
+    .marker-Sefard { border-color: var(--text-Sefard); color: var(--text-Sefard); }
+    .marker-Ari { border-color: var(--text-Ari); color: var(--text-Ari); }
+    .marker-Edot-HaMizrach { border-color: var(--text-Edot-HaMizrach); color: var(--text-Edot-HaMizrach); }
 
-    .n-Other .time-val-card, .n-Other.nusach-tag, .chip-Other { background: var(--other-bg) !important; color: var(--other-text) !important; border-color: var(--other-text) !important; }
-    .marker-Other { border-color: var(--other-text) !important; color: var(--other-text) !important; }
-
-    /* --- 5. ZMANIM MODULE STYLES (Isolated) --- */
+    /* --- 5. ZMANIM MODULE STYLES --- */
     .z-header { background: #fff; padding: 40px 20px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; }
     .z-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .z-app-title { font-size: 32px; font-weight: 800; color: var(--primary); margin: 0; }
@@ -147,13 +157,21 @@
     .z-glossary div { padding: 15px; font-size: 13px; line-height: 1.5; color: #666; border-top: 1px solid #eee; }
 
     /* --- 6. DRAWER & FILTER --- */
-    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: 0 auto; }
+    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; }
     .filter-section { margin-bottom: 15px; }
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
     .chip.active { box-shadow: 0 2px 4px rgba(0,0,0,0.15); transform: scale(1.05); }
-    .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    /* Chip Colors */
+    .chip-Ashkenaz { color: var(--text-Ashkenaz); border-color: var(--text-Ashkenaz); }
+    .chip-Ashkenaz.active { background: var(--text-Ashkenaz); color: white; }
+    .chip-Sefard { color: var(--text-Sefard); border-color: var(--text-Sefard); }
+    .chip-Sefard.active { background: var(--text-Sefard); color: white; }
+    .chip-Edot-HaMizrach { color: var(--text-Edot-HaMizrach); border-color: var(--text-Edot-HaMizrach); }
+    .chip-Edot-HaMizrach.active { background: var(--text-Edot-HaMizrach); color: white; }
+
+    .radius-row { display: flex; align-items: center; gap: 10px; }
     .time-inputs-row { display: flex; gap: 8px; }
     .time-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 15px; font-weight: 600; }
     .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 10px; border-radius: 15px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 6px; }
@@ -233,16 +251,23 @@
         <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
             <div class="radius-row">
-                <input type="range" min="0.1" max="50" value="20" style="flex:1" oninput="manualRadiusUpdate(this.value)">
+                <input type="range" min="1" max="50" value="20" style="flex:1" oninput="manualRadiusUpdate(this.value)">
                 <span id="rad-val" style="font-weight:700; width:30px; text-align:center;">20</span>
             </div>
             <div class="chip-group">
                 <div class="chip" onclick="manualRadiusUpdate(1)">1</div>
-                <div class="chip" onclick="manualRadiusUpdate(2)">2</div>
                 <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
-                <div class="chip" onclick="manualRadiusUpdate(10)">10</div>
                 <div class="chip" onclick="manualRadiusUpdate(20)">20</div>
                 <div class="chip" onclick="manualRadiusUpdate(50)">50</div>
+            </div>
+        </div>
+        <div class="filter-section">
+            <label class="filter-label">Tefillah</label>
+            <div class="chip-group">
+                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)" style="color:var(--color-Shacharis);border-color:var(--color-Shacharis)">Shacharis</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)" style="color:var(--color-Mincha);border-color:var(--color-Mincha)">Mincha</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)" style="color:var(--color-Maariv);border-color:var(--color-Maariv)">Maariv</div>
             </div>
         </div>
         <div class="filter-section">
@@ -287,10 +312,6 @@
             <div class="input-group"><label class="input-label">Name</label><input type="text" class="settings-input" id="profile-name" placeholder="Your Name" oninput="saveProfile()"></div>
             <div class="input-group"><label class="input-label">Phone</label><input type="tel" class="settings-input" id="profile-phone" placeholder="Phone Number" oninput="saveProfile()"></div>
         </div>
-        <div class="settings-card" style="padding: 0 20px;">
-            <a class="settings-link" onclick="showComingSoon()"><span class="settings-link-text">Privacy Policy</span><i class="material-icons">chevron_right</i></a>
-            <a class="settings-link" onclick="showComingSoon()"><span class="settings-link-text">Rate App</span><i class="material-icons">star_rate</i></a>
-        </div>
     </div>
 
     <div id="details-drawer">
@@ -312,9 +333,9 @@
         <div class="modal-card">
             <h3 style="margin-top:0;">Change Location</h3>
             <input type="text" id="loc-search" class="modal-input" placeholder="City Name">
-            <button class="modal-btn" onclick="ZmanimApp.searchCity()">Search</button>
+            <button class="circle-btn" style="width:100%; border-radius:12px; background:var(--primary); color:white;" onclick="ZmanimApp.searchCity()">Search</button>
             <div id="loc-results" style="margin-top:10px;"></div>
-            <button class="close-btn" style="border:none;width:100%;padding:10px;" onclick="document.getElementById('locModal').classList.remove('active')">Close</button>
+            <button class="circle-btn" style="width:100%; border-radius:12px; background:#eee; color:#333; margin-top:10px;" onclick="document.getElementById('locModal').classList.remove('active')">Close</button>
         </div>
     </div>
     
@@ -322,7 +343,7 @@
     <div id="sticky-header"></div>
     <div id="scrim" onclick="closeDetails()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:2500;"></div>
     
-    <button class="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
+    <button class="fab-location" id="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
 
     <div class="floating-toolbar">
         <button class="nav-item" id="nav-recent" onclick="switchTab('recent')"><i class="material-icons">history</i>Recent</button>
@@ -340,7 +361,7 @@
         let allNusachs = new Set();
         let selectedShul = null;
 
-        // --- 2. ZMANIM MODULE ---
+        // --- 2. ZMANIM MODULE (ISOLATED) ---
         const ZmanimApp = {
             date: new Date(),
             loc: { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' },
@@ -404,6 +425,10 @@
         // --- 3. MAIN APP INIT ---
         document.addEventListener("DOMContentLoaded", async () => {
             ZmanimApp.init(); 
+            // Default time to full day
+            document.getElementById('time-start').value = "00:00";
+            document.getElementById('time-end').value = "23:59";
+
             document.getElementById('list-view').addEventListener('scroll', function() {
                 const header = document.getElementById('sticky-header');
                 if(this.scrollTop > 40 && (currentTab === 'recent' || currentTab === 'saved')) {
@@ -419,7 +444,8 @@
             } catch(e) {
                 processData([
                     {id:1, name:"Bais Medrash Govoah", address:"617 6th St", city:"Lakewood", state:"NJ", lat:40.093, lng:-74.222, nusach:"Ashkenaz", rabbi:"Rabbi Olshin", phone:"732-367-1060", email:"info@bmg.edu", shacharis:{week:["7:00a"]}, mincha:{week:["1:45p"]}, maariv:{week:["9:30p"]}},
-                    {id:2, name:"Satmar", address:"Forest Ave", city:"Lakewood", state:"NJ", lat:40.080, lng:-74.210, nusach:"Sefard", rabbi:"Rabbi Teitelbaum", shacharis:{week:["8:00a"]}, mincha:{week:["2:00p"]}, maariv:{week:["9:00p"]}}
+                    {id:2, name:"Satmar", address:"Forest Ave", city:"Lakewood", state:"NJ", lat:40.080, lng:-74.210, nusach:"Sefard", rabbi:"Rabbi Teitelbaum", shacharis:{week:["8:00a"]}, mincha:{week:["2:00p"]}, maariv:{week:["9:00p"]}},
+                    {id:3, name:"Ohr Chaim", address:"123 Main", city:"Lakewood", state:"NJ", lat:40.085, lng:-74.219, nusach:"Edot HaMizrach", rabbi:"Rabbi Cohen", shacharis:{week:["6:30a"]}, mincha:{week:["3:00p"]}, maariv:{week:["8:00p"]}}
                 ]);
             }
         });
@@ -444,7 +470,7 @@
             g.innerHTML = `<div class="chip active" onclick="setFilter('nusach', '', this)">All</div>`;
             Array.from(allNusachs).forEach(n => {
                 const c = document.createElement('div');
-                c.className = `chip chip-${n}`;
+                c.className = `chip chip-${n.replace(/ /g,'-')}`;
                 c.innerText = n;
                 c.onclick = () => setFilter('nusach', n, c);
                 g.appendChild(c);
@@ -461,7 +487,8 @@
 
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 }, zoom: 13,
-                disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+                disableDefaultUI: true, mapId: "DEMO_MAP_ID",
+                styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
             });
 
             map.addListener('idle', () => {
@@ -510,7 +537,8 @@
             
             Object.values(locs).forEach(m => {
                 const el = document.createElement('div');
-                el.className = `custom-marker marker-${m.nusach}`;
+                const nSafe = m.nusach.replace(/ /g,'-');
+                el.className = `custom-marker marker-${nSafe}`;
                 el.textContent = m.timeDisplay;
                 const mk = new google.maps.marker.AdvancedMarkerElement({
                     map: map, position: {lat:m.lat, lng:m.lng}, content: el
@@ -524,16 +552,17 @@
             const list = document.getElementById('list-view');
             list.innerHTML = "";
             res.forEach(m => {
+                const nSafe = m.nusach.replace(/ /g,'-');
                 const d = document.createElement('div');
-                d.className = `minyan-card n-${m.nusach} type-${m.tefillah}`;
+                d.className = `minyan-card n-${nSafe} type-${m.tefillah}`;
                 d.innerHTML = `
                 <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
-                    <div class="shul-name">${m.name}</div><div class="shul-address">${m.address}</div><div class="nusach-tag n-${m.nusach}">${m.nusach}</div>
+                    <div class="shul-name">${m.name}</div><div class="shul-address">${m.address}</div><div class="nusach-tag n-${nSafe}">${m.nusach}</div>
                 </div>
                 <div class="map-zone" onclick="window.open('http://maps.google.com/?q=${m.lat},${m.lng}')">
                     <div class="tefillah-label">${m.tefillah}</div>
                     <div class="time-val-card">${m.timeDisplay}</div>
-                    <div class="dist-row"><span>${m.dist.toFixed(1)}mi</span><div class="map-circle"><i class="material-icons google-maps-icon" style="font-size:16px;">place</i></div></div>
+                    <div class="dist-row"><span>${m.dist ? m.dist.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon" style="font-size:16px;">place</i></div></div>
                 </div>`;
                 list.appendChild(d);
             });
@@ -546,7 +575,8 @@
             ['map-view','list-view','zmanim-view','settings-view'].forEach(id=>document.getElementById(id).style.display='none');
             document.getElementById('filter-header').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
             document.querySelector('.status-area').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
-            
+            document.getElementById('fab-location').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
+
             if(t==='map') { document.getElementById('map-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('List','list'); applyFilters(); }
             else if(t==='list') { document.getElementById('list-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('Map','map'); applyFilters(); }
             else if(t==='zmanim') { document.getElementById('zmanim-view').style.display='block'; document.getElementById('nav-zmanim').classList.add('active'); }
@@ -565,7 +595,6 @@
         function useMyLocationForZmanim() { navigator.geolocation.getCurrentPosition(p=>{ ZmanimApp.updateLoc({lat:p.coords.latitude, lng:p.coords.longitude, name:"GPS Location", elev:30, tz:"America/New_York"}); document.getElementById('locModal').classList.remove('active'); }); }
         function getDist(lat1,lon1,lat2,lon2) { return 3958.8 * 2 * Math.atan2(Math.sqrt(Math.sin((lat2-lat1)*Math.PI/360)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin((lon2-lon1)*Math.PI/360)**2), Math.sqrt(1-Math.sin((lat2-lat1)*Math.PI/360)**2)); }
         
-        // --- DETAILS DRAWER LOGIC ---
         function openDetails(m) {
             selectedShul = m;
             addToRecents(m);
@@ -576,22 +605,24 @@
             
             // Build Colored Schedule (Nusach Color)
             let sched = "";
-            const nClass = `n-${m.nusach}`;
+            const nSafe = m.nusach.replace(/ /g,'-');
+            const nClass = `n-${nSafe}`;
             const row = (lbl, arr) => { if(arr) sched += `<div class="schedule-item"><div class="schedule-day">${lbl}</div>${arr.map(t=>`<span class="schedule-time ${nClass} nusach-tag">${t}</span>`).join('')}</div>`; };
             row("Shacharis", m.shacharis?.week);
             row("Mincha", m.mincha?.week);
             row("Maariv", m.maariv?.week);
             
-            // Contact Pills
+            // Contact Pills (One Line)
             let contact = "";
             if(m.phone) contact += `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`;
             if(m.email) contact += `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:14px">email</i> Email</a>`;
             contact += `<a href="#" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>`;
+            contact += `<a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
 
             document.getElementById('drawer-content').innerHTML = `
                 <div class="drawer-sub">
                     <div class="drawer-rabbi"><i class="material-icons" style="font-size:16px">person</i> ${m.rabbi || "Rabbi Info N/A"}</div>
-                    <div class="nusach-tag n-${m.nusach}">${m.nusach}</div>
+                    <div class="nusach-tag n-${nSafe}">${m.nusach}</div>
                 </div>
                 <div class="contact-row">${contact}</div>
                 <div class="schedule-section">
@@ -644,11 +675,12 @@
         }
         function renderListCards(res, container) {
             res.forEach(m => {
+                const nSafe = m.nusach.replace(/ /g,'-');
                 const d = document.createElement('div');
-                d.className = `minyan-card n-${m.nusach} type-${m.tefillah}`;
+                d.className = `minyan-card n-${nSafe} type-${m.tefillah}`;
                 d.innerHTML = `
                 <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
-                    <div class="shul-name">${m.name}</div><div class="shul-address">${m.address}</div><div class="nusach-tag n-${m.nusach}">${m.nusach}</div>
+                    <div class="shul-name">${m.name}</div><div class="shul-address">${m.address}</div><div class="nusach-tag n-${nSafe}">${m.nusach}</div>
                 </div>
                 <div class="map-zone" onclick="window.open('http://maps.google.com/?q=${m.lat},${m.lng}')">
                     <div class="tefillah-label">${m.tefillah}</div>
