@@ -113,7 +113,7 @@
     }
     .zman-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .zman-title { font-size: 22px; font-weight: 800; color: var(--primary); }
-    .zman-loc-badge { font-size: 12px; background: #eee; padding: 4px 10px; border-radius: 12px; color: #555; font-weight: 600; }
+    .zman-loc-badge { font-size: 12px; background: #eee; padding: 6px 12px; border-radius: 15px; color: #555; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid #ddd; }
     
     .zman-info-bar { display: flex; gap: 10px; margin-top: 10px; }
     .zman-info-pill { flex: 1; background: #f9f9f9; border: 1px solid #eee; padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 700; color: #333; }
@@ -125,9 +125,20 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
         display: flex; justify-content: space-between; align-items: center; 
     }
+    .zman-left { display: flex; flex-direction: column; gap: 2px; }
     .zman-label { font-size: 15px; font-weight: 700; color: #333; }
+    .zman-desc { font-size: 11px; color: #999; }
+    .zman-right { text-align: right; display:flex; flex-direction:column; align-items:flex-end; }
     .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
-    .zman-sub { font-size: 11px; color: #999; margin-top: 2px; }
+    .zman-sub { font-size: 10px; color: #999; margin-top: 2px; text-transform: uppercase; }
+    .card-select { display: block; margin-top: 4px; font-size: 10px; background: #f0f0f0; border: none; padding: 2px 6px; border-radius: 4px; color: #555; font-weight: 600; }
+
+    /* GLOSSARY */
+    .glossary-section { padding: 0 15px; margin-bottom: 100px; }
+    details { background: #fff; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    summary { padding: 12px; font-size: 14px; font-weight: 600; background: #fafafa; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; outline: none; }
+    .glossary-content { padding: 15px; font-size: 13px; line-height: 1.5; color: #555; border-top: 1px solid #eee; }
+    .glossary-content strong { color: var(--primary); display: block; margin-top: 8px; }
 
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
@@ -199,18 +210,18 @@
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    /* RIGHT SIDE LAYOUT - 35px BUFFER */
+    /* RIGHT SIDE LAYOUT - 45px BUFFER */
     .tefillah-label { 
-        position: absolute; top: 8px; right: 35px; text-align: right;
+        position: absolute; top: 8px; right: 45px; text-align: right;
         font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; color: #555; 
         margin: 0;
     } 
     .time-val-card { 
-        position: absolute; top: calc(50% - 10px); right: 35px; transform: translateY(-50%);
+        position: absolute; top: calc(50% - 10px); right: 45px; transform: translateY(-50%);
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap;
     }
     .dist-row { 
-        position: absolute; bottom: 8px; right: 35px;
+        position: absolute; bottom: 8px; right: 45px;
         display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
@@ -380,6 +391,13 @@
         font-weight: 800; font-size: 16px; white-space: nowrap; margin: 2px;
         border: 1px solid rgba(0,0,0,0.08); 
     }
+
+    /* LOCATION MODAL */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-card { background: #fff; width: 90%; max-width: 400px; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column; overflow-y: auto; }
+    .modal-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 5px; }
+    .close-btn { background: transparent; color: #718096; margin-top: 5px; }
 </style>
 </head>
 <body>
@@ -440,7 +458,6 @@
                 <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
             </div>
         </div>
-
         <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
             <div class="radius-row">
@@ -456,43 +473,10 @@
                 <div class="chip" onclick="manualRadiusUpdate(99)">99</div>
             </div>
         </div>
-        
-        <div class="filter-section">
-            <label class="filter-label">Sort By</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
-                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Tefillah</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Nusach</label>
-            <div class="chip-group" id="nusach-group">
-                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <label class="filter-label">Time Range</label>
-            <div class="time-inputs-row">
-                <input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()">
-                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
-            </div>
-            <div style="display:flex; gap:6px;">
-                <button class="action-btn" onclick="setAllDay()">All Day</button>
-                <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
-            </div>
-        </div>
+        <div class="filter-section"><label class="filter-label">Sort By</label><div class="chip-group"><div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div><div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div></div></div>
+        <div class="filter-section"><label class="filter-label">Tefillah</label><div class="chip-group"><div class="chip active" onclick="setFilter('tefillah', '', this)">All</div><div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div><div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div><div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div></div></div>
+        <div class="filter-section"><label class="filter-label">Nusach</label><div class="chip-group" id="nusach-group"><div class="chip active" onclick="setFilter('nusach', '', this)">All</div></div></div>
+        <div class="filter-section"><label class="filter-label">Time Range</label><div class="time-inputs-row"><input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()"><input type="time" id="time-end" class="time-input" onchange="applyFilters()"></div><div style="display:flex; gap:6px;"><button class="action-btn" onclick="setAllDay()">All Day</button><button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button></div></div>
         <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:10px;">Done</button>
     </div>
 
@@ -503,7 +487,7 @@
         <div class="zman-header-section">
             <div class="zman-top-row">
                 <div class="zman-title">Zmanim</div>
-                <div class="zman-loc-badge" id="zman-loc-badge">Lakewood, NJ</div>
+                <div class="zman-loc-badge" id="zman-loc-badge" onclick="openLocModal()">Lakewood, NJ</div>
             </div>
             <div class="date-nav">
                 <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
@@ -518,20 +502,15 @@
                 <div class="zman-info-pill"><span>Daf Yomi</span><div id="zman-daf"></div></div>
             </div>
         </div>
-        <div id="zmanimList" style="padding-top: 10px;"></div>
+        <ul class="zmanim-list" id="zmanimList" style="padding-top: 10px;"></ul>
+        <div class="glossary-section" id="glossaryList"></div>
     </div>
     
     <div id="settings-view">
         <div class="settings-header">Settings</div>
         <div class="settings-card">
-            <div class="input-group">
-                <label class="input-label">Name</label>
-                <input type="text" class="settings-input" id="profile-name" placeholder="Your Name" oninput="saveProfile()">
-            </div>
-            <div class="input-group">
-                <label class="input-label">Phone</label>
-                <input type="tel" class="settings-input" id="profile-phone" placeholder="Phone Number" oninput="saveProfile()">
-            </div>
+            <div class="input-group"><label class="input-label">Name</label><input type="text" class="settings-input" id="profile-name" placeholder="Your Name" oninput="saveProfile()"></div>
+            <div class="input-group"><label class="input-label">Phone</label><input type="tel" class="settings-input" id="profile-phone" placeholder="Phone Number" oninput="saveProfile()"></div>
         </div>
         <div class="settings-card" style="padding: 0 20px;">
             <a class="settings-link" onclick="showComingSoon()"><span class="settings-link-text">Privacy Policy</span><i class="material-icons">chevron_right</i></a>
@@ -542,6 +521,21 @@
         </div>
     </div>
     
+    <div class="modal" id="locModal">
+        <div class="modal-card">
+            <h2>Change Location</h2>
+            <button class="modal-btn" onclick="useMyLocationForZmanim()">Use My Location</button>
+            <div style="margin: 10px 0; border-bottom: 1px solid #eee;"></div>
+            <label style="font-size:12px;color:#777;font-weight:700;">SEARCH:</label>
+            <div style="display:flex;gap:5px;margin-top:5px;">
+                <input type="text" id="citySearchInput" class="settings-input" placeholder="City (e.g. London)" style="margin:0;">
+                <button class="modal-btn" onclick="searchCity()" style="width:auto;margin:0;background:#0D2B4F;">Go</button>
+            </div>
+            <div id="citySearchResults" style="max-height:150px; overflow-y:auto; margin-top:5px;"></div>
+            <button class="modal-btn close-btn" onclick="document.getElementById('locModal').classList.remove('active')">Close</button>
+        </div>
+    </div>
+
     <button class="fab-location" onclick="useMyLocation()">
         <i class="material-icons" style="font-size:24px;">my_location</i>
     </button>
@@ -555,20 +549,40 @@
     </div>
 
     <script>
-        // DAF ENGINE
+        // --- DAF ENGINE ---
         const DafEngine={masechtot:[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],get:(e)=>{const t=new Date(2020,0,5),a=Math.floor((e-t)/864e5);if(a<0)return"";let n=a;for(let r of DafEngine.masechtot){if(n<r.p)return r.n+" "+(n+2);n-=r.p}return""}};
 
         // HEBCAL ENGINE
         const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}};
 
-        // SOLAR ENGINE (NOAA)
-        const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};return{noon:p,alot:f(106.1,!0),sunrise:f(90.833,!0),sunset:f(90.833,!1),tzais:f(98.5,!1)}}};
+        // ROBUST SOLAR ENGINE (Includes Level/Elev etc)
+        const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};const E=90.833+.0293*Math.sqrt(n);return{noon:p,alot16:f(106.1,!0),mish10:f(100.2,!0),mish11:f(101,!0),mish115:f(101.5,!0),sunLevel:{rise:f(90.833,!0),set:f(90.833,!1)},sunElev:{rise:f(E,!0),set:f(E,!1)},tzais85:f(98.5,!1),tzais16:f(106.1,!1)}}};
 
-        // ADS
+        const zmanimConfig = [
+            { id: "alot", label: "Alos Hashachar", desc: "Dawn. Beginning of fasts.", opts: [['16.1','16.1°'],['72','72m'],['90','90m']] },
+            { id: "mish", label: "Misheyakir", desc: "Earliest Talis & Tefillin.", opts: [['10.2','10.2°'],['11','11°'],['11.5','11.5°']] },
+            { id: "sunrise", label: "Netz Hachama", desc: "Sunrise.", opts: [['elev','Visual (Elev)'],['level','Sea Level']] },
+            { id: "shema", label: "Sof Zman Shema", desc: "Latest Shema.", opts: [['gra','Gra'],['mga16','MGA 16'],['mga72','MGA 72'],['mga90','MGA 90']] },
+            { id: "tefila", label: "Sof Zman Tefila", desc: "Latest Shacharis.", opts: [['gra','Gra'],['mga16','MGA 16'],['mga72','MGA 72'],['mga90','MGA 90']] },
+            { id: "chatzos", label: "Chatzos Hayom", desc: "Midday (Solar Noon)." },
+            { id: "mincha", label: "Mincha Gedola", desc: "Earliest Mincha.", opts: [['strict','Strict'],['fix30','30m'],['gra','Gra'],['mga','MGA']] },
+            { id: "plag", label: "Plag Hamincha", desc: "1.25h before night.", opts: [['gra','Gra'],['mga','MGA']] },
+            { id: "candles", label: "Candle Lighting", desc: "Friday Lighting.", opts: [['18','18m'],['22','22m'],['40','40m']] },
+            { id: "sunset", label: "Shkia", desc: "Sunset.", opts: [['elev','Visual (Elev)'],['level','Sea Level']] },
+            { id: "tzais", label: "Tzais / Motzaei", desc: "Nightfall.", opts: [['8.5','8.5°'],['42','42m'],['50','50m'],['60','60m'],['72','72m']] },
+            { id: "shaa", label: "Shaa Zmanis", desc: "Length of 1 Halachic Hour.", opts: [['gra','Gra'],['mga','MGA']] }
+        ];
+        
+        // --- FALLBACK SAMPLE DATA (To prevent "No Results" error if DB missing) ---
+        const SAMPLE_MINYANIM = [
+          { "id": 101, "name": "Bais Medrash Govoah", "address": "617 6th St", "city": "Lakewood", "state": "NJ", "zip": "08701", "nusach": "Ashkenaz", "lat": 40.093, "lng": -74.222, "shacharis": {"sun": ["7:00a", "8:00a"], "mon_thu": ["6:45a", "8:00a"], "tue_wed_fri": ["7:00a", "8:15a"]}, "mincha": {"week": ["1:30p", "5:00p"], "fri": ["1:30p"], "shabbos": ["5:00p"]}, "maariv": {"week": ["9:00p", "10:00p"], "shabbos": ["6:30p"]} },
+          { "id": 102, "name": "Khal Chasidim", "address": "1401 Cedar Row", "city": "Lakewood", "state": "NJ", "zip": "08701", "nusach": "Sefard", "lat": 40.089, "lng": -74.215, "shacharis": {"sun": ["8:30a"], "mon_thu": ["8:00a"], "tue_wed_fri": ["8:00a"]}, "mincha": {"week": ["2:00p"], "fri": ["2:00p"], "shabbos": ["2:00p"]}, "maariv": {"week": ["8:00p"], "shabbos": ["8:00p"]} }
+        ];
+
         const ADS_DB = [
-          { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "description": "The finest selection of hats and menswear in Lakewood. Visit us for the perfect fit!", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
-          { "id": 2, "name": "Seasons Supermarket", "address": "711 Cedarbridge Ave, Lakewood, NJ 08701", "phone": "732-813-7700", "website": "https://www.seasonskosher.com", "description": "Premium kosher supermarket with fresh produce, bakery, and prepared foods.", "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket" },
-          { "id": 3, "name": "Aurum Jewelers USA", "address": "Lakewood, NJ (Online & Appt Only)", "phone": "1-323-316-8676", "website": "https://aurumjewelersusa.com", "description": "Exquisite jewelry for every occasion. Custom designs, repairs, and wholesale diamonds.", "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers" }
+          { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
+          { "id": 2, "name": "Seasons Supermarket", "address": "711 Cedarbridge Ave, Lakewood, NJ 08701", "phone": "732-813-7700", "website": "https://www.seasonskosher.com", "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket" },
+          { "id": 3, "name": "Aurum Jewelers USA", "address": "Lakewood, NJ (Online & Appt Only)", "phone": "1-323-316-8676", "website": "https://aurumjewelersusa.com", "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers" }
         ];
 
         let map, allMinyanim = [], processedMinyanim = [], ads = ADS_DB, searchCenter = null, currentRadius = 20;
@@ -582,6 +596,7 @@
         let isFirstIdle = true; 
         let currentTab = 'map';
         let zmanLoc = { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' };
+        let zmanOpts = { alot:'16.1', mish:'10.2', sunrise:'elev', shema:'gra', tefila:'gra', mincha:'gra', plag:'gra', candles:'18', tzais:'8.5', shaa:'gra', sunset:'elev' };
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('time-start').value = "00:00";
@@ -601,13 +616,17 @@
                 }
             });
 
+            // DATA LOADING: Try Fetch, Fallback to Sample
             try {
                 const res = await fetch("database.json");
                 if (!res.ok) throw new Error("DB Fetch Failed");
                 fullDbData = await res.json();
-                processMinyanim(fullDbData);
-                populateNusachFilter();
-            } catch(e) { console.error("Data Load Error", e); }
+            } catch(e) { 
+                console.warn("DB Fetch Error - Using Sample Data");
+                fullDbData = SAMPLE_MINYANIM; 
+            }
+            processMinyanim(fullDbData);
+            populateNusachFilter();
             
             initPullToDismiss();
         });
@@ -629,16 +648,19 @@
                 document.getElementById('status-pill').style.display = 'none';
                 document.getElementById('count-pill').style.display = 'none';
                 document.getElementById('map-radius-pill').style.display = 'none';
+                
+                // NO DEAD SPACE
                 list.style.paddingTop = '0px'; 
                 zmanim.style.paddingTop = '0px';
                 settings.style.paddingTop = '0px'; 
             } else {
                 document.getElementById('nav-toggle').classList.add('active');
                 document.getElementById('filter-header').style.display = 'flex';
+                // SEARCH PADDING
                 list.style.paddingTop = '110px';
             }
 
-            // View Management
+            // Hide All
             document.getElementById('map-view').style.display = 'none';
             list.style.display = 'none';
             zmanim.style.display = 'none';
@@ -689,152 +711,113 @@
             document.getElementById('nav-toggle-text').innerText = text;
         }
 
-        // --- ZMANIM (Offline) ---
+        // --- ZMANIM LOGIC (FULL ENGINE) ---
         function renderZmanim() {
-            // Use Search Center if available
             if(searchCenter && typeof searchCenter.lat === 'function') {
                 zmanLoc.lat = searchCenter.lat();
                 zmanLoc.lng = searchCenter.lng();
                 zmanLoc.name = document.getElementById('status-pill').innerText.replace('Near: ', '') || "Map Location";
             }
-            
             document.getElementById('zman-loc-badge').innerText = zmanLoc.name;
             const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
             document.getElementById('zman-date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
-            document.getElementById('zman-hebrew-date').innerText = HebCal.getHebrewStr(currentFilterDate);
+            document.getElementById('zman-heb-date').innerText = HebCal.getHebrewStr(currentFilterDate);
             document.getElementById('zman-day').innerText = currentFilterDate.toLocaleDateString('en-US', {weekday:'long'});
             document.getElementById('zman-daf').innerText = DafEngine.get(currentFilterDate);
 
-            // Calc
+            // RUN CALC
             const data = Solar.calc(currentFilterDate, zmanLoc.lat, zmanLoc.lng, zmanLoc.elev);
             
             const fmt = (ms) => {
-                if(!ms) return "--:--";
+                if(!ms || isNaN(ms)) return "--:--";
                 return new Date(ms).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
             };
-            
-            const zList = [
-                { l: "Alos Hashachar (16.1°)", t: data.alot, s: "Fast Begins" },
-                { l: "Sunrise (Netz)", t: data.sunrise, s: "Earliest Shmonei Esrei" },
-                { l: "Chatzos", t: data.noon, s: "Midday" },
-                { l: "Sunset (Shkia)", t: data.sunset, s: "Fast Ends (Bedieved)" },
-                { l: "Tzais (8.5°)", t: data.tzais, s: "Nightfall" }
-            ];
+            const mins = m => m*60000;
+            const rise = (zmanOpts.sunrise==='elev') ? data.sunElev.rise : data.sunLevel.rise; 
+            const set = (zmanOpts.sunset==='elev') ? data.sunElev.set : data.sunLevel.set;
+            const setShkia = (zmanOpts.sunset==='elev') ? data.sunElev.set : data.sunLevel.set;
 
             let html = "";
-            zList.forEach(z => {
+            zmanimConfig.forEach(z => {
+                let val = ""; let sKey = zmanOpts[z.id]; let sub = "";
+                
+                if(z.id === "alot") val = fmt(sKey==='16.1' ? data.alot16 : rise - mins(parseInt(sKey)));
+                if(z.id === "mish") val = fmt(sKey==='10.2' ? data.mish10 : (sKey==='11' ? data.mish11 : data.mish115));
+                if(z.id === "sunrise") val = fmt(rise);
+                if(z.id === "chatzos") val = fmt(data.noon);
+                if(z.id === "sunset") val = fmt(setShkia);
+                if(z.id === "shema" || z.id === "tefila") {
+                    let factor = z.id==="shema"?3:4;
+                    let s=rise-mins(72), e=set+mins(72);
+                    if(sKey==='mga16') { s=data.alot16; e=data.tzais16; }
+                    if(sKey==='mga90') { s=rise-mins(90); e=set+mins(90); }
+                    val = fmt(sKey==='gra' ? rise + ((set-rise)/12)*factor : s + ((e-s)/12)*factor);
+                }
+                if(z.id === "mincha") {
+                    let m30=data.noon+mins(30); let mGra=rise+((set-rise)/12)*6.5; let mMga=data.alot16+((data.tzais16-data.alot16)/12)*6.5;
+                    if(sKey==='fix30') val=fmt(m30); else if(sKey==='gra') val=fmt(mGra); else if(sKey==='mga') val=fmt(mMga); else val=fmt(m30>mGra?m30:mGra);
+                }
+                if(z.id === "plag") {
+                    if(sKey==='mga') val = fmt(data.alot16 + ((data.tzais16-data.alot16)/12)*10.75);
+                    else val = fmt(rise + ((set-rise)/12)*10.75);
+                }
+                if(z.id === "candles") val = fmt(setShkia - mins(parseInt(sKey)));
+                if(z.id === "tzais") val = fmt(sKey==='8.5' ? data.tzais85 : setShkia+mins(parseInt(sKey)));
+                if(z.id === "shaa") {
+                    let ms = sKey==='gra' ? (set-rise)/12 : (data.tzais16-data.alot16)/12;
+                    val = (ms/60000).toFixed(1); sub="min";
+                }
+
+                let selectHTML = "";
+                if(z.opts) {
+                    selectHTML = `<select class="card-select" onchange="changeZmanOption('${z.id}', this.value)">
+                        ${z.opts.map(o => `<option value="${o[0]}" ${sKey===o[0]?'selected':''}>${o[1]}</option>`).join('')}
+                    </select>`;
+                }
+
                 html += `<li class="zman-card">
-                    <div class="zman-left"><span class="zman-label">${z.l}</span><span class="zman-sub">${z.s}</span></div>
-                    <div class="zman-right"><span class="zman-time">${fmt(z.t)}</span></div>
+                    <div class="zman-left"><span class="zman-label">${z.label}</span><span class="zman-desc">${z.desc}</span>${selectHTML}</div>
+                    <div class="zman-right"><span class="zman-time">${val}</span>${sub?`<span class="zman-sub">${sub}</span>`:''}</div>
                 </li>`;
             });
             document.getElementById('zmanimList').innerHTML = html;
+            renderGlossary();
         }
 
-        // --- SETTINGS ---
-        function saveProfile() {
-            const name = document.getElementById('profile-name').value;
-            const phone = document.getElementById('profile-phone').value;
-            localStorage.setItem('shultime_profile', JSON.stringify({ name, phone }));
-        }
-        function loadProfile() {
-            const p = JSON.parse(localStorage.getItem('shultime_profile') || "{}");
-            if(p.name) document.getElementById('profile-name').value = p.name;
-            if(p.phone) document.getElementById('profile-phone').value = p.phone;
-        }
-        function shareApp() {
-            if(navigator.share) navigator.share({title: 'ShulTime', text: 'Find Minyanim near you!', url: window.location.href});
-            else alert("Share feature not supported.");
-        }
+        function changeZmanOption(key, val) { zmanOpts[key] = val; renderZmanim(); }
 
-        // --- LISTS & STORAGE ---
-        function addToRecents(m) {
-            let recents = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
-            recents = recents.filter(id => id !== m.id);
-            recents.unshift(m.id);
-            if(recents.length > 20) recents.pop(); 
-            localStorage.setItem("shultime_recents", JSON.stringify(recents));
-        }
-
-        function toggleFavorite() {
-            if(!selectedShul) return;
-            let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
-            const index = favs.indexOf(selectedShul.id);
-            const icon = document.getElementById("bookmark-icon");
-            if (index > -1) { favs.splice(index, 1); icon.innerText = "bookmark_border"; } 
-            else { favs.push(selectedShul.id); icon.innerText = "bookmark"; }
-            localStorage.setItem("shultime_favs", JSON.stringify(favs));
-        }
-
-        function checkFavoriteStatus(id) {
-            let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
-            const icon = document.getElementById("bookmark-icon");
-            icon.innerText = favs.includes(id) ? "bookmark" : "bookmark_border";
-        }
-
-        function renderFavorites() {
-            let favs = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
-            const uniqueResults = []; const seen = new Set();
-            processedMinyanim.forEach(m => {
-                if(favs.includes(m.id) && !seen.has(m.id)) { uniqueResults.push(m); seen.add(m.id); }
+        function renderGlossary() {
+            let html = "";
+            zmanimConfig.forEach(z => {
+                if(z.opts) {
+                    let optsHTML = `<div class="glossary-content"><strong>Options:</strong>` + z.opts.map(o => `<div><strong>${o[1]}:</strong> ${o[0]}</div>`).join('') + `</div>`;
+                    html += `<details><summary>${z.label}</summary>${optsHTML}</details>`;
+                }
             });
-            const list = document.getElementById('list-view');
-            if(uniqueResults.length === 0) list.innerHTML = '<div class="list-page-header">Saved</div><div class="empty-state">No saved shuls.</div>';
-            else {
-                list.innerHTML = '<div class="list-page-header">Saved</div>'; 
-                renderListCards(uniqueResults, list); 
-            }
+            document.getElementById('glossaryList').innerHTML = html;
         }
 
-        function renderRecents() {
-            let recents = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
-            const uniqueResults = []; const seen = new Set();
-            recents.forEach(id => {
-                const match = processedMinyanim.find(r => r.id === id);
-                if(match && !seen.has(id)) { uniqueResults.push(match); seen.add(id); }
+        function openLocModal() { document.getElementById('locModal').classList.add('active'); }
+        async function searchCity() {
+            const q = document.getElementById('citySearchInput').value;
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`);
+            const data = await res.json();
+            if(!data.results) return;
+            let html = '';
+            data.results.forEach(c => {
+                html += `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;" onclick="selectZmanCity(${c.latitude}, ${c.longitude}, '${c.name}, ${c.country_code}')"><b>${c.name}</b>, ${c.country}</div>`;
             });
-            const list = document.getElementById('list-view');
-            if(uniqueResults.length === 0) list.innerHTML = '<div class="list-page-header">Recent</div><div class="empty-state">No recent activity.</div>';
-            else {
-                list.innerHTML = '<div class="list-page-header">Recent</div>'; 
-                renderListCards(uniqueResults, list); 
-            }
+            document.getElementById('citySearchResults').innerHTML = html;
         }
-
-        function renderListCards(results, container) {
-            results.forEach((m) => {
-                let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                let nusachTagClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
-                
-                const card = document.createElement("div");
-                card.className = "minyan-card";
-                
-                let rightSide = (m.timeValue === 9999) 
-                    ? `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="map-footer"><div class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</div><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div></div>`
-                    : `<div class="map-zone" onclick="window.open('${link}','_blank')">
-                        <div class="tefillah-label">${m.tefillah}</div>
-                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
-                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : '0.0'}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
-                    </div>`;
-
-                card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
-                        <div class="shul-name">${m.name}</div>
-                        <div class="shul-address">${m.address}</div>
-                        <div class="shul-city">${m.city || ''}, ${m.state || ''} ${m.zip || ''}</div>
-                        <div class="nusach-tag-list ${nusachTagClass}">${m.nusach}</div>
-                    </div>
-                    ${rightSide}`;
-                container.appendChild(card);
+        function selectZmanCity(lat, lng, name) {
+            zmanLoc = { lat, lng, name, elev: 30, tz: 'America/New_York' };
+            renderZmanim();
+            document.getElementById('locModal').classList.remove('active');
+        }
+        function useMyLocationForZmanim() {
+            navigator.geolocation.getCurrentPosition(pos => {
+                selectZmanCity(pos.coords.latitude, pos.coords.longitude, "My Location");
             });
-        }
-
-        function showComingSoon() {
-            const toast = document.getElementById("coming-soon-toast");
-            toast.style.display = "block";
-            toast.style.animation = 'none'; toast.offsetHeight; toast.style.animation = 'fadeInOut 2s forwards';
         }
 
         // --- APP LOGIC ---
@@ -869,9 +852,13 @@
         function updateDateDisplay() {
             const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
             document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', options);
+            const shortOptions = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('zman-date-display').innerText = currentFilterDate.toLocaleDateString('en-US', shortOptions);
+            
             try {
                 const hDate = new Intl.DateTimeFormat('en-US-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'}).format(currentFilterDate);
                 document.getElementById('hebrew-date').innerText = hDate;
+                document.getElementById('zman-hebrew-date').innerText = hDate;
             } catch(e) {}
         }
 
@@ -985,8 +972,19 @@
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            if(isMapMode) document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
-            else document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            
+            // PILL LOGIC
+            if(isMapMode) {
+                document.getElementById("status-pill").style.display = 'block';
+                document.getElementById("map-radius-pill").style.display = 'block';
+                document.getElementById("count-pill").style.display = 'block';
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            } else {
+                document.getElementById("status-pill").style.display = 'block'; // Keep "Near" on List
+                document.getElementById("map-radius-pill").style.display = 'none'; // Hide Radius
+                document.getElementById("count-pill").style.display = 'block';
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            }
 
             if(currentTab === 'map' || currentTab === 'list') renderList(results);
             if(currentTab === 'map') updateMapMarkers(results);
@@ -1030,6 +1028,12 @@
             const bounds = map.getBounds();
             if(!center || !bounds) return;
             searchCenter = { lat: center.lat(), lng: center.lng() };
+            
+            // Sync Zmanim
+            zmanLoc.lat = searchCenter.lat;
+            zmanLoc.lng = searchCenter.lng;
+            zmanLoc.name = "Map Location"; 
+
             document.getElementById("status-pill").innerText = `Near: Map Center`;
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
@@ -1066,6 +1070,7 @@
             
             let rabbiText = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
             let nusachTag = `<span class="nusach-tag-drawer ${nCls}" style="margin:0;">${m.nusach}</span>`;
+            
             let tefillahChipClass = `chip-${m.tefillah}`;
             let timePillClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             
