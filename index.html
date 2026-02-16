@@ -631,6 +631,7 @@
             const sticky = document.getElementById('sticky-header');
             sticky.classList.remove('visible');
             
+            // Padding & Header Management
             if(tab !== 'map' && tab !== 'list') {
                 document.getElementById(`nav-${tab}`).classList.add('active');
                 document.getElementById('filter-header').style.display = 'none'; 
@@ -961,8 +962,19 @@
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
             const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
-            if(isMapMode) document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
-            else document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            
+            // PILL LOGIC
+            if(isMapMode) {
+                document.getElementById("status-pill").style.display = 'block';
+                document.getElementById("map-radius-pill").style.display = 'block';
+                document.getElementById("count-pill").style.display = 'block';
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            } else {
+                document.getElementById("status-pill").style.display = 'block'; // Keep "Near" on List
+                document.getElementById("map-radius-pill").style.display = 'none'; // Hide Radius
+                document.getElementById("count-pill").style.display = 'block';
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${results.length} Minyanim`;
+            }
 
             if(currentTab === 'map' || currentTab === 'list') renderList(results);
             if(currentTab === 'map') updateMapMarkers(results);
