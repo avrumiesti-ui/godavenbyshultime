@@ -3,79 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoDavenByShulTime | Shul Directory</title>
+    <title>GoDavenByShulTime</title>
     <style>
+        /* --- THE LOOK & COLORS --- */
         :root {
-            --primary-blue: #1a365d;
-            --accent-gold: #d4af37;
-            --light-bg: #f8fafc;
-            --card-white: #ffffff;
-            --text-dark: #1e293b;
+            --primary: #1a365d; /* Deep Blue */
+            --accent: #d4af37;  /* Gold */
+            --bg: #f4f7f9;
+            --text: #333;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--light-bg);
-            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
             margin: 0;
-            padding-top: 140px; /* Space for the "Sticky" Header */
+            padding-top: 130px; /* This maintains the "Recent Heights" sticky space */
+            color: var(--text);
         }
 
-        /* --- STICKY HEADER & RECENT HEIGHTS --- */
+        /* --- STICKY HEADER --- */
         header {
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
-            background: var(--primary-blue);
+            width: 100%;
+            background: var(--primary);
             color: white;
-            padding: 1rem;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            height: 110px; /* Fixed height for consistency */
         }
 
-        .header-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .header-wrap { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+        
+        h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
 
-        h1 { margin: 0 0 10px 0; font-size: 1.5rem; text-align: center; color: var(--accent-gold); }
-
-        #searchBar {
+        input#search {
             width: 100%;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 25px;
             border: none;
+            outline: none;
             font-size: 1rem;
-            box-sizing: border-box;
         }
 
-        /* --- MAIN CONTENT --- */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 10px;
-        }
+        /* --- SHUL CARDS --- */
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
 
         .shul-card {
-            background: var(--card-white);
+            background: white;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--primary-blue);
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 8px solid var(--accent);
             position: relative;
-            transition: transform 0.2s;
         }
 
-        .shul-card:hover { transform: translateY(-2px); }
+        .shul-name { font-size: 1.3rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .shul-detail { margin: 5px 0; font-size: 0.95rem; display: flex; align-items: center; }
+        .icon { margin-right: 10px; width: 20px; text-align: center; }
 
-        .shul-name { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; color: var(--primary-blue); }
-        .shul-info { font-size: 0.95rem; margin: 4px 0; color: #475569; }
-
-        /* --- FAVORITES / SAVES --- */
-        .fav-btn {
+        /* --- SAVES (FAVORITES) --- */
+        .save-btn {
             position: absolute;
             top: 15px;
             right: 15px;
@@ -83,95 +73,86 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            filter: grayscale(1);
+            opacity: 0.3;
+            transition: 0.3s;
         }
+        .save-btn.active { opacity: 1; filter: drop-shadow(0 0 2px gold); }
 
-        .fav-btn.active { filter: grayscale(0); }
-
-        .status-msg { text-align: center; padding: 20px; font-weight: bold; }
+        .loading-msg { text-align: center; margin-top: 50px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-content">
+    <div class="header-wrap">
         <h1>GoDavenByShulTime</h1>
-        <input type="text" id="searchBar" placeholder="Search Shul, Rabbi, or Nusach..." onkeyup="filterShuls()">
+        <input type="text" id="search" placeholder="🔍 Search Shul, Rabbi, or Nusach..." onkeyup="filterShuls()">
     </div>
 </header>
 
-<div class="container" id="shul-list">
-    <div class="status-msg">Pulling data from database...</div>
+<div class="container" id="list-container">
+    <div class="loading-msg" id="status">Connecting to Database...</div>
 </div>
 
 <script>
-    let allShuls = [];
-    let favorites = JSON.parse(localStorage.getItem('shulFavs')) || [];
+    let shuls = [];
+    let saved = JSON.parse(localStorage.getItem('myShuls')) || [];
 
-    // 1. THE DATA PULL (FETCH)
-    async function fetchShuls() {
-        const container = document.getElementById('shul-list');
+    // THE MAGIC: This pulls directly from your GitHub Raw link to bypass local blocks
+    const DATA_URL = 'https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json';
+
+    async function loadData() {
+        const status = document.getElementById('status');
         try {
-            // This pulls the data from your database.json file in GitHub
-            const response = await fetch('./database.json');
-            if (!response.ok) throw new Error("File not found");
+            const response = await fetch(DATA_URL);
+            if (!response.ok) throw new Error("Could not pull data");
             
-            allShuls = await response.json();
-            renderShuls(allShuls);
+            shuls = await response.json();
+            status.style.display = 'none';
+            displayShuls(shuls);
         } catch (err) {
-            container.innerHTML = `<div class="status-msg" style="color:red">Error pulling data: ${err.message}. <br>Make sure 'database.json' is in your GitHub folder!</div>`;
+            status.innerHTML = "❌ Error loading data. Please refresh.";
+            console.error(err);
         }
     }
 
-    // 2. RENDER SHULS TO PAGE
-    function renderShuls(data) {
-        const container = document.getElementById('shul-list');
-        container.innerHTML = '';
-
-        if (data.length === 0) {
-            container.innerHTML = '<div class="status-msg">No Shuls match your search.</div>';
-            return;
-        }
-
-        data.forEach((shul, index) => {
-            const isFav = favorites.includes(shul.name);
-            const card = document.createElement('div');
-            card.className = 'shul-card';
-            card.innerHTML = `
-                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${shul.name}')">⭐</button>
-                <div class="shul-name">${shul.name}</div>
-                <div class="shul-info">📍 ${shul.address || 'No Address'}</div>
-                <div class="shul-info">👳 Rabbi: ${shul.rabbi || 'N/A'}</div>
-                <div class="shul-info">📖 Nusach: ${shul.nusach || 'N/A'}</div>
+    function displayShuls(data) {
+        const container = document.getElementById('list-container');
+        container.innerHTML = data.map(shul => {
+            const isSaved = saved.includes(shul.name);
+            return `
+                <div class="shul-card">
+                    <button class="save-btn ${isSaved ? 'active' : ''}" onclick="toggleSave('${shul.name}')">⭐</button>
+                    <div class="shul-name">${shul.name}</div>
+                    <div class="shul-detail"><span class="icon">📍</span> ${shul.address}</div>
+                    <div class="shul-detail"><span class="icon">👳</span> Rabbi: ${shul.rabbi}</div>
+                    <div class="shul-detail"><span class="icon">📖</span> Nusach: ${shul.nusach}</div>
+                </div>
             `;
-            container.appendChild(card);
-        });
+        }).join('');
     }
 
-    // 3. SEARCH FILTER
     function filterShuls() {
-        const term = document.getElementById('searchBar').value.toLowerCase();
-        const filtered = allShuls.filter(s => 
+        const term = document.getElementById('search').value.toLowerCase();
+        const filtered = shuls.filter(s => 
             s.name.toLowerCase().includes(term) || 
-            (s.rabbi && s.rabbi.toLowerCase().includes(term)) ||
-            (s.nusach && s.nusach.toLowerCase().includes(term))
+            s.rabbi.toLowerCase().includes(term) || 
+            s.nusach.toLowerCase().includes(term)
         );
-        renderShuls(filtered);
+        displayShuls(filtered);
     }
 
-    // 4. SAVE FAVORITES
-    function toggleFav(shulName) {
-        if (favorites.includes(shulName)) {
-            favorites = favorites.filter(n => n !== shulName);
+    function toggleSave(name) {
+        if (saved.includes(name)) {
+            saved = saved.filter(item => item !== name);
         } else {
-            favorites.push(shulName);
+            saved.push(name);
         }
-        localStorage.setItem('shulFavs', JSON.stringify(favorites));
-        renderShuls(allShuls); // Refresh view
+        localStorage.setItem('myShuls', JSON.stringify(saved));
+        displayShuls(shuls); // Refresh icons
     }
 
-    // Start on load
-    window.onload = fetchShuls;
+    window.onload = loadData;
 </script>
 
 </body>
