@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-    /* --- 1. GLOBAL VARIABLES & COLORS --- */
+    /* --- 1. GLOBAL VARIABLES & NUSACH COLORS --- */
     :root { 
         --primary: #0D2B4F; 
         --bg: #F2F4F8; 
         
-        /* NUSACH COLORS (Backgrounds & Text) */
+        /* NUSACH PALETTE (Background / Text / Border) */
         --ashkenaz-bg: #E3F2FD; --ashkenaz-text: #1565C0;
         --sefard-bg: #E8F5E9;   --sefard-text: #2E7D32;
         --ari-bg: #F3E5F5;      --ari-text: #7B1FA2;
@@ -40,22 +40,8 @@
         width: 50px; height: 50px; flex-shrink: 0;
         border-radius: 50%; background: #fff; border: none;
         box-shadow: 0 4px 15px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--primary); transition: transform 0.1s;
+        cursor: pointer; color: var(--primary); 
     }
-    .circle-btn:active { transform: scale(0.95); }
-
-    /* STATUS PILLS (Map Overlay) */
-    .status-area {
-        position: fixed; top: 80px; left: 0; right: 0;
-        display: flex; justify-content: center; align-items: center; gap: 8px;
-        z-index: 800; pointer-events: none;
-    }
-    .status-pill {
-        padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
-        background: #fff; color: var(--primary); border: 1px solid var(--primary);
-    }
-    #status-pill-loc { background: rgba(13, 43, 79, 0.95); color: #fff; border: none; }
 
     /* --- 3. VIEWS LAYOUT --- */
     .view-container { 
@@ -63,11 +49,10 @@
         padding-bottom: 120px; /* Space for bottom bar */
         overflow-y: auto; background: var(--bg); 
         display: none; z-index: 10;
-        -webkit-overflow-scrolling: touch;
     }
-    #map-view { padding: 0; z-index: 5; } /* Map takes full screen */
+    #map-view { padding: 0; z-index: 5; } 
 
-    /* --- 4. LIST CARDS (With Color Coding) --- */
+    /* --- 4. LIST CARDS (COLOR CODED) --- */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -104,7 +89,7 @@
     .time-val-card { 
         position: absolute; top: 50%; right: 40px; transform: translateY(-50%); 
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; 
-        /* Color will be injected by Nusach class */
+        /* Color injected by n-Class */
     }
     .dist-row { position: absolute; bottom: 8px; right: 40px; display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; color: #666; }
     
@@ -116,7 +101,7 @@
     }
     .google-maps-icon { font-size: 16px !important; color: #4285F4; }
 
-    /* --- 5. CUSTOM MARKERS ON MAP --- */
+    /* CUSTOM MARKERS */
     .custom-marker { 
         padding: 4px 8px; border-radius: 8px; background: white; 
         font-weight: 800; font-size: 12px; box-shadow: 0 3px 6px rgba(0,0,0,0.3); 
@@ -124,10 +109,66 @@
     }
     .custom-marker::after { content: ""; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: white transparent transparent transparent; }
     
-    /* --- 6. ZMANIM STYLES --- */
+    /* --- 5. DETAILS DRAWER (Redesigned) --- */
+    #details-drawer {
+        position: fixed; bottom: -100%; left: 10px; right: 10px; height: 70vh;
+        background: #fff; border-radius: 25px; 
+        z-index: 3000; margin-bottom: 15px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        display: flex; flex-direction: column; overflow: hidden;
+    }
+    #details-drawer.open { bottom: 0; transform: translateY(0); }
+
+    .drawer-header {
+        padding: 20px; border-bottom: 1px solid #f0f0f0;
+        display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .drawer-titles { flex: 1; padding-right: 10px; }
+    .drawer-h1 { font-size: 22px; font-weight: 800; color: var(--primary); margin: 0 0 4px 0; line-height: 1.1; }
+    .drawer-addr { font-size: 13px; color: #666; font-weight: 500; }
+    
+    .drawer-actions { display: flex; gap: 8px; }
+    .action-circle { 
+        width: 40px; height: 40px; border-radius: 50%; 
+        background: #f5f5f5; border: 1px solid #eee; color: #555;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+    /* Info Row (Rabbi & Nusach) */
+    .d-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .d-rabbi { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #444; font-size: 14px; }
+    .d-nusach-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+    /* Contact Buttons */
+    .d-contact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+    .d-contact-btn { 
+        background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 12px; 
+        text-align: center; font-size: 12px; font-weight: 700; color: #333; 
+        text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+
+    /* Schedule */
+    .d-schedule-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; }
+    .d-schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .d-sched-item { margin-bottom: 5px; }
+    .d-sched-day { font-size: 11px; color: #999; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+    .d-sched-times { display: flex; flex-wrap: wrap; gap: 4px; }
+    .d-time-pill { padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; }
+
+    /* --- 6. PAGE HEADERS (Recent/Saved) --- */
+    .page-title-block {
+        padding: 50px 20px 15px; /* High top padding */
+        background: var(--bg);
+    }
+    .page-main-title { font-size: 36px; font-weight: 800; color: var(--primary); margin: 0; }
+    .empty-state { text-align: center; color: #888; margin-top: 40px; font-size: 15px; }
+
+    /* --- 7. ZMANIM --- */
     .z-header { background: #fff; padding: 40px 20px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; }
-    .z-title { font-size: 32px; font-weight: 800; color: var(--primary); margin: 0 0 10px 0; display:flex; justify-content:space-between; align-items:center;}
-    .z-loc-badge { font-size: 12px; background: #E3F2FD; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: 700; }
+    .z-title { font-size: 34px; font-weight: 800; color: var(--primary); margin: 0 0 10px 0; display:flex; justify-content:space-between; align-items:center;}
+    .z-loc-badge { font-size: 12px; background: #E3F2FD; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; }
     
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 6px; border-radius: 12px; margin-top: 10px; border: 1px solid #eee; cursor: pointer; }
     .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; display:flex; align-items:center; }
@@ -140,57 +181,52 @@
     .z-label { font-size: 15px; font-weight: 700; color: #333; }
     .z-time { font-size: 18px; font-weight: 800; color: var(--primary); font-family: monospace; }
     .z-select { display: block; margin-top: 2px; font-size: 10px; background: #f1f5f9; border: none; padding: 2px 6px; border-radius: 4px; color: #555; font-weight: 700; }
-
-    /* --- 7. DETAILS DRAWER --- */
-    #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
-    #details-drawer.open { bottom: 0; transform: translateY(0); }
-    .drawer-head { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; }
-    .drawer-title { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.1; margin-bottom: 4px; }
-    .drawer-addr { font-size: 13px; color: #666; }
-    .drawer-actions { display: flex; gap: 8px; }
-    .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     
-    .drawer-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .rabbi-label { font-size: 13px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 4px; }
-    
-    .contact-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; }
-    .contact-pill { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #333; text-decoration: none; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+    /* --- 8. STATUS PILLS --- */
+    .status-area {
+        position: fixed; top: 80px; left: 0; right: 0;
+        display: flex; justify-content: center; align-items: center; gap: 8px;
+        z-index: 800; pointer-events: none;
+    }
+    .status-pill {
+        padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
+        background: #fff; color: var(--primary); border: 1px solid var(--primary);
+    }
+    #status-pill-loc { background: rgba(13, 43, 79, 0.95); color: #fff; border: none; }
 
-    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .schedule-block { margin-bottom: 8px; }
-    .schedule-label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 4px; }
-    .schedule-pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-right: 4px; margin-bottom: 4px; }
-
-    /* --- 8. FILTER DRAWER --- */
+    /* --- 9. FILTER DRAWER --- */
     #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; }
-    .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; display: block; margin-bottom: 5px; }
-    .chip-container { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; }
+    .filter-section { margin-bottom: 15px; }
+    .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
     .chip.active { box-shadow: 0 2px 4px rgba(0,0,0,0.15); transform: scale(1.05); }
-    .time-row { display: flex; gap: 8px; margin-bottom: 8px; }
-    .time-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 12px; font-weight: 600; font-family: inherit; }
-    .action-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; background: #eee; font-weight: 700; font-size: 12px; cursor: pointer; }
-    .primary-btn { background: var(--primary); color: white; width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .radius-row { display: flex; align-items: center; gap: 10px; }
+    .time-inputs-row { display: flex; gap: 8px; }
+    .time-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 15px; font-weight: 600; font-family: inherit; }
+    .action-btn { width: 100%; background: #eee; color: #333; border: none; padding: 10px; border-radius: 15px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+    .primary-btn { background: var(--primary); color: white; width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
-    /* --- 9. NAVIGATION & UTILS --- */
+    /* --- 10. MODALS --- */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-card { background: #fff; width: 85%; padding: 20px; border-radius: 16px; }
+    .modal-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; }
+    
+    /* --- 11. TOOLBAR & FAB --- */
     .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; padding: 10px 15px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .nav-item { display: flex; flex-direction: column; align-items: center; border: none; background: none; color: #999; font-size: 10px; font-weight: 600; flex: 1; cursor: pointer; }
     .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; margin-bottom: 2px; }
     #nav-toggle { font-weight: 800; color: var(--primary); }
-
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
-    
-    .sticky-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(242, 244, 248, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 900; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; font-weight: 800; font-size: 17px; color: var(--primary); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .sticky-header.visible { opacity: 1; pointer-events: auto; }
-    .page-title { padding: 40px 20px 15px; font-size: 34px; font-weight: 800; color: var(--primary); }
-    .empty-state { text-align: center; color: #777; margin-top: 50px; }
-    
-    /* MODALS */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; }
-    .modal.active { display: flex; }
-    .modal-card { background: #fff; width: 85%; padding: 20px; border-radius: 16px; }
-    .modal-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; }
+
+    /* SETTINGS STYLES */
+    .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin: 0 15px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+    .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; margin-bottom:15px; }
+    .settings-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; color: #333; text-decoration: none; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -199,13 +235,15 @@
         <div class="search-container">
             <div id="autocomplete-container" style="flex:1; height:100%;"></div>
         </div>
-        <button class="circle-btn" onclick="toggleFilters()"><i class="material-icons">tune</i></button>
+        <button class="circle-btn" onclick="toggleFilters()">
+            <i class="material-icons">tune</i>
+        </button>
     </div>
 
     <div class="status-area">
-        <div id="status-pill"></div>
-        <div id="count-pill"></div>
-        <div id="map-radius-pill"></div>
+        <div id="status-pill" class="status-pill" style="background:var(--primary);color:white;border:none;"></div>
+        <div id="count-pill" class="status-pill"></div>
+        <div id="map-radius-pill" class="status-pill" style="background:#2E7D32;color:white;border:none;"></div>
     </div>
 
     <div id="filter-drawer">
@@ -222,11 +260,11 @@
         </div>
         <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div class="radius-row">
                 <input type="range" min="1" max="50" value="20" style="flex:1" oninput="manualRadiusUpdate(this.value)">
                 <span id="rad-val" style="font-weight:700;">20</span>
             </div>
-            <div class="chip-container" style="display:flex;gap:6px;">
+            <div class="chip-group">
                 <div class="chip" onclick="manualRadiusUpdate(1)">1</div>
                 <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
                 <div class="chip" onclick="manualRadiusUpdate(20)">20</div>
@@ -234,23 +272,13 @@
             </div>
         </div>
         <div class="filter-section">
-            <label class="filter-label">Nusach</label>
-            <div class="chip-container" id="nusach-group" style="display:flex;gap:6px;flex-wrap:wrap;">
-                <div class="chip active" onclick="setFilter('nusach','',this)">All</div>
+            <label class="filter-label">Nusach (Color Key)</label>
+            <div class="chip-group" id="nusach-group">
+                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
             </div>
         </div>
-        <div class="filter-section">
-            <label class="filter-label">Time</label>
-            <div class="time-inputs-row">
-                <input type="time" id="time-start" class="time-input" onchange="onTimeChange()">
-                <input type="time" id="time-end" class="time-input" onchange="applyFilters()">
-            </div>
-            <div style="display:flex;gap:6px;margin-top:6px;">
-                <button class="action-btn" onclick="setAllDay()">All Day</button>
-                <button class="action-btn" style="background:var(--primary);color:white;" onclick="setNextHour()">Next Hour</button>
-            </div>
-        </div>
-        <button class="primary-btn" style="margin-top:15px;" onclick="toggleFilters()">Done</button>
+        <div class="filter-section"><label class="filter-label">Time</label><div class="time-inputs-row"><input type="time" id="time-start" class="time-input" onchange="onStartTimeChange()"><input type="time" id="time-end" class="time-input" onchange="applyFilters()"></div><div style="display:flex; gap:6px; margin-top:6px;"><button class="action-btn" onclick="setAllDay()">All Day</button><button class="action-btn" style="background:var(--primary);color:white;" onclick="setNextHour()">Next Hour</button></div></div>
+        <button class="primary-btn" onclick="toggleFilters()">Done</button>
     </div>
 
     <div id="map-view" class="view-container"></div>
@@ -260,7 +288,7 @@
         <div class="z-header">
             <div class="z-title">
                 <span>Zmanim</span>
-                <button class="z-loc-btn" id="z-loc-label" onclick="openLocModal()">Lakewood, NJ</button>
+                <button class="z-loc-badge" id="z-loc-label" onclick="openLocModal()">Lakewood, NJ</button>
             </div>
             <div class="date-nav" onclick="openDateModal()">
                 <i class="material-icons" onclick="event.stopPropagation(); changeDate(-1)">chevron_left</i>
@@ -270,29 +298,38 @@
                 </div>
                 <i class="material-icons" onclick="event.stopPropagation(); changeDate(1)">chevron_right</i>
             </div>
+            <div class="z-info-row">
+                <div class="z-info-pill"><span class="z-label-sm">Day</span><div class="z-val-lg" id="z-day"></div></div>
+                <div class="z-info-pill"><span class="z-label-sm">Daf Yomi</span><div class="z-val-lg" id="z-daf"></div></div>
+            </div>
         </div>
         <ul class="z-list" id="z-list"></ul>
-        <div class="z-glossary" id="z-glossary"></div>
     </div>
 
     <div id="settings-view" class="view-container" style="padding:0; padding-bottom:120px;">
-        <div class="page-title">Settings</div>
-        <div style="padding:0 20px;">
-            <input type="text" id="p-name" class="modal-input" placeholder="Name" oninput="saveProfile()">
-            <input type="tel" id="p-phone" class="modal-input" placeholder="Phone" oninput="saveProfile()">
+        <div class="page-title-block"><h1 class="page-main-title">Settings</h1></div>
+        <div class="settings-card">
+            <label class="input-label">Name</label>
+            <input type="text" id="p-name" class="settings-input" placeholder="Your Name" oninput="saveProfile()">
+            <label class="input-label">Phone</label>
+            <input type="tel" id="p-phone" class="settings-input" placeholder="Phone Number" oninput="saveProfile()">
+        </div>
+        <div class="settings-card" style="padding:0 20px;">
+            <a class="settings-link" onclick="alert('Coming soon')"><span>Privacy Policy</span><i class="material-icons">chevron_right</i></a>
+            <a class="settings-link" onclick="alert('Coming soon')"><span>Rate App</span><i class="material-icons">star_rate</i></a>
         </div>
     </div>
 
     <div id="details-drawer">
         <div class="drawer-header">
-            <div class="drawer-title-container">
-                <div class="drawer-title" id="drawer-title"></div>
+            <div class="drawer-titles">
+                <div class="drawer-h1" id="drawer-title"></div>
                 <div class="drawer-addr" id="drawer-addr"></div>
             </div>
             <div class="drawer-actions">
-                <button class="circle-btn" style="width:40px;height:40px;border:1px solid #eee;" onclick="toggleFavorite()"><i class="material-icons" id="bookmark-icon">bookmark_border</i></button>
-                <button class="circle-btn" style="width:40px;height:40px;border:1px solid #eee;" onclick="shareShul()"><i class="material-icons">ios_share</i></button>
-                <button class="circle-btn" style="width:40px;height:40px;border:1px solid #eee;" onclick="closeDetails()"><i class="material-icons">close</i></button>
+                <div class="action-circle" onclick="toggleFavorite()"><i class="material-icons" id="bookmark-icon">bookmark_border</i></div>
+                <div class="action-circle" onclick="shareShul()"><i class="material-icons">ios_share</i></div>
+                <div class="action-circle" onclick="closeDetails()"><i class="material-icons">close</i></div>
             </div>
         </div>
         <div id="drawer-content" class="drawer-body"></div>
@@ -319,7 +356,6 @@
 
     <div id="center-marker"></div>
     <div id="scrim" onclick="closeDetails()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:2500;"></div>
-    <div id="sticky-header" class="sticky-header"></div>
     <button class="fab-location" id="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
 
     <div class="floating-toolbar">
@@ -331,35 +367,36 @@
     </div>
 
     <script>
-        // --- 1. CORE VARIABLES ---
+        // --- 1. SHULTIME CORE VARIABLES ---
         let map, allMinyanim=[], searchCenter=null, currentRadius=20, currentTab='map';
         let filters = { tefillah: '', nusach: '' };
         let markers = [], allNusachs = new Set();
         let selectedShul = null;
         let currentDate = new Date();
 
-        // --- 2. ZMANIM MODULE (Isolated) ---
+        // --- 2. ZMANIM MODULE (ISOLATED) ---
         const ZmanimApp = {
             date: new Date(),
-            loc: { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30 },
+            loc: { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' },
             opts: { alot:'16.1', mish:'10.2', sunrise:'elev', shema:'gra', tefila:'gra', mincha:'gra', plag:'gra', candles:'18', tzais:'8.5', shaa:'gra', sunset:'elev' },
             config: [
                 {id:"alot", label:"Alos", desc:"Dawn", opts:[['16.1','16.1°'],['72','72m']]},
-                {id:"sunrise", label:"Sunrise", desc:"Netz", opts:[['elev','Elev']]},
+                {id:"sunrise", label:"Sunrise", desc:"Netz", opts:[['elev','Visual']]},
                 {id:"shema", label:"Shema", desc:"Sof Zman", opts:[['gra','Gra'],['mga','MGA']]},
                 {id:"tefila", label:"Tefila", desc:"Sof Zman", opts:[['gra','Gra']]},
                 {id:"chatzos", label:"Chatzos", desc:"Midday"},
                 {id:"mincha", label:"Mincha", desc:"Gedola"},
                 {id:"candles", label:"Candles", desc:"18m"},
-                {id:"sunset", label:"Sunset", desc:"Shkia", opts:[['elev','Elev']]},
+                {id:"sunset", label:"Sunset", desc:"Shkia", opts:[['elev','Visual']]},
                 {id:"tzais", label:"Tzais", desc:"Nightfall", opts:[['8.5','8.5°'],['72','72m']]}
             ],
             // Engines
+            Daf: { get: (d) => { const s=new Date(2020,0,5), a=Math.floor((d-s)/864e5); if(a<0)return""; let n=a; const m=[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104}]; for(let r of m){if(n<r.p)return r.n+" "+(n+2);n-=r.p} return "Sanhedrin 22"; } },
             Heb: { get: (d) => new Intl.DateTimeFormat('en-US-u-ca-hebrew',{day:'numeric',month:'long',year:'numeric'}).format(d) },
             Solar: { calc: (d, lat, lng) => {
                 const base = new Date(d).setHours(6,0,0,0);
                 const add = m => new Date(base + m*60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-                return { alot:add(0), sun:add(60), noon:add(360), set:add(720), tzais:add(760) }; // Mock for Demo
+                return { alot:add(0), sun:add(60), noon:add(360), set:add(720), tzais:add(760) }; 
             }},
             init: function() { this.render(); },
             setDate: function(d) { this.date = d; this.render(); },
@@ -370,6 +407,8 @@
                 const dateStr = this.date.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
                 document.getElementById('z-date-civ').innerText = dateStr;
                 document.getElementById('z-date-heb').innerText = this.Heb.get(this.date);
+                document.getElementById('z-day').innerText = this.date.toLocaleDateString('en-US', {weekday:'long'});
+                document.getElementById('z-daf').innerText = this.Daf.get(this.date);
                 
                 const t = this.Solar.calc(this.date, this.loc.lat, this.loc.lng);
                 let h = "";
@@ -394,12 +433,6 @@
             document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59";
             updateDateDisplay();
             loadProfile();
-
-            document.getElementById('list-view').addEventListener('scroll', function() {
-                const h = document.getElementById('sticky-header');
-                if(this.scrollTop>40 && (currentTab==='recent'||currentTab==='saved')) { h.classList.add('visible'); h.innerText = currentTab.charAt(0).toUpperCase()+currentTab.slice(1); }
-                else h.classList.remove('visible');
-            });
 
             try {
                 const res = await fetch("database.json");
@@ -455,7 +488,7 @@
                 const c = map.getCenter();
                 searchCenter = { lat: c.lat(), lng: c.lng() };
                 document.getElementById('status-pill').innerText = "Near: Map Center";
-                ZmanimApp.updateLoc({lat:c.lat(), lng:c.lng(), name:"Map Location"});
+                ZmanimApp.updateLoc({lat:c.lat(), lng:c.lng(), name:"Map Location", elev:30, tz:"America/New_York"});
                 applyFilters();
             });
             
@@ -514,7 +547,7 @@
                 <div class="map-zone" onclick="window.open('http://maps.google.com/?q=${m.lat},${m.lng}')">
                     <div class="tefillah-label">${m.tefillah}</div>
                     <div class="time-val-card n-${nSafe}">${m.timeDisplay}</div>
-                    <div class="dist-row"><span>${m.dist ? m.dist.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
+                    <div class="dist-row"><span>${m.dist ? m.dist.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon" style="font-size:16px;">place</i></div></div>
                 </div>`;
                 list.appendChild(d);
             });
@@ -528,7 +561,7 @@
             document.getElementById('filter-header').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
             document.querySelector('.status-area').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
             document.getElementById('fab-location').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
-            
+
             if(t==='map') { document.getElementById('map-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('List','list'); applyFilters(); }
             else if(t==='list') { document.getElementById('list-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('Map','map'); applyFilters(); }
             else if(t==='zmanim') { document.getElementById('zmanim-view').style.display='block'; document.getElementById('nav-zmanim').classList.add('active'); }
@@ -541,12 +574,21 @@
         function toggleFilters() { const d=document.getElementById('filter-drawer'); d.style.display=d.style.display==='block'?'none':'block'; }
         function setFilter(t, v, btn) { filters[t] = v; btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); btn.classList.add('active'); applyFilters(); }
         function updateToggle(t,i) { document.getElementById('nav-toggle-text').innerText=t; document.getElementById('nav-toggle-icon').innerText=i; }
-        function manualRadiusUpdate(v) { currentRadius=v; document.getElementById('rad-val').innerText=v; applyFilters(); }
+        function manualRadiusUpdate(v) { currentRadius=v; document.getElementById('rad-val').innerText=v; document.getElementById('map-radius-pill').innerText=`Radius: ${v}mi`; applyFilters(); }
         function openLocModal() { document.getElementById('locModal').classList.add('active'); }
+        function openDateModal() { document.getElementById('dateModal').classList.add('active'); document.getElementById('datePicker').value = currentDate.toISOString().split('T')[0]; }
+        function setDateFromPicker() {
+            currentDate = new Date(document.getElementById('datePicker').value);
+            updateDateDisplay();
+            ZmanimApp.setDate(currentDate);
+            processMinyanim(allMinyanim); // Reload schedule for new day
+            document.getElementById('dateModal').classList.remove('active');
+        }
+
         function useMyLocation() { navigator.geolocation.getCurrentPosition(p=>{ map.setCenter({lat:p.coords.latitude, lng:p.coords.longitude}); map.setZoom(14); }); }
         function getDist(lat1,lon1,lat2,lon2) { return 3958.8 * 2 * Math.atan2(Math.sqrt(Math.sin((lat2-lat1)*Math.PI/360)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin((lon2-lon1)*Math.PI/360)**2), Math.sqrt(1-Math.sin((lat2-lat1)*Math.PI/360)**2)); }
         
-        // --- DETAILS DRAWER & SAVED LOGIC ---
+        // --- DETAILS & STORAGE ---
         function openDetails(m) {
             selectedShul = m;
             addToRecents(m);
@@ -556,35 +598,34 @@
             document.getElementById('drawer-addr').innerText = m.address + ", " + m.city;
             checkFavoriteStatus();
             
-            // Colored Schedule
+            // Nusach Colored Pills
             let sched = "";
             const nSafe = m.nusach.replace(/ /g,'-');
             const nClass = `n-${nSafe}`;
-            const row = (lbl, arr) => { if(arr) sched += `<div class="schedule-item"><div class="schedule-day">${lbl}</div>${arr.map(t=>`<span class="schedule-pill ${nClass}">${t}</span>`).join('')}</div>`; };
+            const row = (lbl, arr) => { if(arr) sched += `<div class="schedule-item"><div class="schedule-day">${lbl}</div>${arr.map(t=>`<span class="schedule-time ${nClass} nusach-tag">${t}</span>`).join('')}</div>`; };
             row("Shacharis", m.shacharis?.week); row("Mincha", m.mincha?.week); row("Maariv", m.maariv?.week);
             
-            // Contact
             let contact = "";
             if(m.phone) contact += `<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>`;
             if(m.email) contact += `<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:14px">email</i> Email</a>`;
             contact += `<a href="#" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>`;
 
             document.getElementById('drawer-content').innerHTML = `
-                <div class="drawer-info-row">
-                    <div class="drawer-rabbi"><i class="material-icons" style="font-size:16px">person</i> ${m.rabbi || "N/A"}</div>
+                <div class="d-info-row">
+                    <div class="d-rabbi"><i class="material-icons" style="font-size:16px">person</i> ${m.rabbi || "N/A"}</div>
                     <div class="nusach-tag n-${nSafe}">${m.nusach}</div>
                 </div>
                 <div class="contact-row">${contact}</div>
-                <div class="schedule-grid">${sched}</div>`;
+                <div class="d-schedule-title">Schedule</div>
+                <div class="schedule-grid">${sched || 'No schedule'}</div>`;
         }
         
         function closeDetails() { document.getElementById('details-drawer').classList.remove('open'); document.getElementById('scrim').style.display = 'none'; }
         function shareShul() { if(navigator.share) navigator.share({title:selectedShul.name, text:selectedShul.address}); }
         function saveProfile() { localStorage.setItem('shultime_profile', JSON.stringify({name:document.getElementById('p-name').value, phone:document.getElementById('p-phone').value})); }
         function loadProfile() { const p = JSON.parse(localStorage.getItem('shultime_profile') || "{}"); if(p.name) document.getElementById('p-name').value = p.name; if(p.phone) document.getElementById('p-phone').value = p.phone; }
-        function showComingSoon() { alert("Coming soon!"); }
-
-        // --- STORAGE ---
+        
+        // Local Storage
         function addToRecents(m) {
             let r = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
             r = r.filter(i => i.id !== m.id); r.unshift(m); if(r.length > 20) r.pop();
@@ -605,37 +646,31 @@
         function renderFavorites() {
             let f = JSON.parse(localStorage.getItem("shultime_favs") || "[]");
             const l = document.getElementById('list-view');
-            l.innerHTML = '<div class="page-title">Saved</div>';
-            if(f.length===0) l.innerHTML += '<div class="empty-state">No saved shuls.</div>'; else renderListCards(f, l);
+            l.innerHTML = '<div class="page-title-block"><h1 class="page-main-title">Saved</h1></div>';
+            if(f.length===0) l.innerHTML += '<div class="empty-state">No favorites yet.</div>'; else renderListCards(f, l);
         }
         function renderRecents() {
             let r = JSON.parse(localStorage.getItem("shultime_recents") || "[]");
             const l = document.getElementById('list-view');
-            l.innerHTML = '<div class="page-title">Recent</div>';
+            l.innerHTML = '<div class="page-title-block"><h1 class="page-main-title">Recent</h1></div>';
             if(r.length===0) l.innerHTML += '<div class="empty-state">No history.</div>'; else renderListCards(r, l);
         }
-
-        // --- DATE LOGIC ---
+        
         function changeDate(days) {
             currentDate.setDate(currentDate.getDate() + days);
             updateDateDisplay();
-            ZmanimApp.setDate(currentDate);
-            processMinyanim(allMinyanim); // Refresh list for day of week
+            if(currentTab === 'zmanim') { ZmanimApp.setDate(currentDate); }
+            else { applyFilters(); } // Refresh list
         }
         function updateDateDisplay() {
-            const str = currentDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+            const str = currentDate.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric', year:'numeric'});
             document.getElementById('filter-date-civ').innerText = str;
             document.getElementById('filter-date-heb').innerText = ZmanimApp.Heb.get(currentDate);
+            document.getElementById('z-date-civ').innerText = str;
+            document.getElementById('z-date-heb').innerText = ZmanimApp.Heb.get(currentDate);
             document.getElementById('datePicker').value = currentDate.toISOString().split('T')[0];
         }
-        function openDateModal() { document.getElementById('dateModal').classList.add('active'); }
-        function setDateFromPicker() {
-            currentDate = new Date(document.getElementById('datePicker').value);
-            updateDateDisplay();
-            ZmanimApp.setDate(currentDate);
-            document.getElementById('dateModal').classList.remove('active');
-        }
-        
+
         function setAllDay() { document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59"; applyFilters(); }
         function setNextHour() { 
             const d=new Date(); const pad=n=>String(n).padStart(2,'0'); 
