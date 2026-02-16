@@ -1,249 +1,723 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoDavenByShulTime Pro</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>ShulTime</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+    :root { --primary: #0D2B4F; --bg: #F2F4F8; --glass: rgba(255, 255, 255, 0.95); }
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; background: var(--bg); overflow: hidden; -webkit-font-smoothing: antialiased; }
+    
+    /* LIQUID HEADER (iOS Style) */
+    .floating-header {
+        position: fixed; top: 0; left: 0; right: 0;
+        padding: 15px 15px 10px;
+        z-index: 1000; display: flex; gap: 10px; align-items: center; 
+        background: linear-gradient(180deg, rgba(242,244,248,1) 0%, rgba(242,244,248,0.9) 80%, rgba(242,244,248,0) 100%);
+        pointer-events: none; /* Let touches pass through margins */
+    }
+    .floating-header > * { pointer-events: auto; }
 
-    <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #d4af37;
-            --ashkenaz: #2563eb;
-            --sefard: #059669;
-            --edot: #d97706;
-            --bg-gray: #f8fafc;
-        }
+    .search-container {
+        flex: 1; display: flex; align-items: center;
+        background: #fff; height: 50px; border-radius: 25px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08); padding: 0 15px;
+        overflow: hidden; transition: transform 0.2s ease;
+    }
+    .search-container:active { transform: scale(0.98); }
 
-        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Inter', system-ui, sans-serif; background: var(--bg-gray); overflow: hidden; }
+    /* GOOGLE FIXES */
+    gmp-place-autocomplete { width: 100%; --gmp-filled-input-container-color: transparent; }
+    gmp-place-autocomplete::part(input) { background: transparent; padding: 0; font-size: 17px; font-weight: 500; color: #111; }
+    .pac-container { border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: none; margin-top: 10px; font-family: inherit; }
+    .pac-item { padding: 12px; font-size: 15px; border-top: 1px solid #f5f5f5; }
 
-        /* --- STICKY PRO HEADER --- */
-        header {
-            position: fixed; top: 0; width: 100%; height: 140px;
-            background: var(--primary); color: white;
-            z-index: 2000; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column; justify-content: center;
-        }
+    .circle-btn {
+        width: 50px; height: 50px; flex-shrink: 0;
+        border-radius: 50%; background: #fff; border: none;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: var(--primary); transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .circle-btn:active { transform: scale(0.9); }
+    .circle-btn.active { background: var(--primary); color: #fff; box-shadow: 0 8px 25px rgba(13, 43, 79, 0.3); }
 
-        .header-content { max-width: 1200px; margin: 0 auto; width: 100%; padding: 0 20px; box-sizing: border-box; }
-        
-        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        h1 { margin: 0; font-size: 1.4rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-        #stats { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; }
+    /* STATUS PILLS */
+    .status-area {
+        position: fixed; top: 80px; left: 0; right: 0;
+        display: flex; justify-content: center; gap: 8px; z-index: 800; pointer-events: none;
+    }
+    .status-pill {
+        padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); backdrop-filter: blur(10px);
+        display: none;
+    }
+    #status-pill { background: rgba(13, 43, 79, 0.9); color: #fff; }
+    #count-pill { background: rgba(255,255,255,0.9); color: var(--primary); }
+    #map-radius-pill { background: rgba(46, 125, 50, 0.9); color: #fff; }
 
-        .search-row { display: flex; gap: 10px; }
-        input, select { 
-            padding: 12px; border-radius: 8px; border: 1px solid #334155; 
-            background: #1e293b; color: white; font-size: 1rem; outline: none;
-        }
-        input:focus { border-color: var(--accent); }
-        #search { flex-grow: 1; }
+    /* LIST VIEW */
+    #list-view { 
+        position: absolute; inset: 0; 
+        padding: 120px 15px 100px; /* Top pad for header, bot for FAB */
+        overflow-y: auto; -webkit-overflow-scrolling: touch;
+        z-index: 10;
+    }
+    #map-view { position: absolute; inset: 0; z-index: 5; }
 
-        /* --- MAIN SPLIT VIEW --- */
-        #app-container {
-            display: flex; height: calc(100vh - 140px); margin-top: 140px;
-        }
+    #center-marker {
+        position: fixed; top: 50%; left: 50%; width: 18px; height: 18px;
+        background: #007AFF; border: 3px solid #fff; border-radius: 50%;
+        transform: translate(-50%, -50%); z-index: 20; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: none; pointer-events: none;
+    }
 
-        #map { flex: 1.2; height: 100%; z-index: 1; }
+    /* CARD DESIGN */
+    .minyan-card {
+        background: #fff; border-radius: 16px; margin-bottom: 12px;
+        display: flex; justify-content: space-between; align-items: stretch;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow: hidden; 
+        min-height: 85px; transition: transform 0.1s;
+    }
+    .minyan-card:active { transform: scale(0.98); }
 
-        #sidebar {
-            flex: 0.8; height: 100%; overflow-y: auto;
-            background: white; border-left: 1px solid #e2e8f0;
-            padding: 20px; box-sizing: border-box;
-        }
+    .info-zone { 
+        flex: 1; padding: 12px 15px; cursor: pointer; 
+        display: flex; flex-direction: column; justify-content: center; min-width: 0;
+    }
+    .shul-name { font-weight: 800; font-size: 17px; color: #111; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shul-address { font-size: 14px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .map-zone { 
+        width: 110px; background: #fafafa; border-left: 1px solid #f0f0f0;
+        display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;
+        padding: 10px 12px; flex-shrink: 0; cursor: pointer;
+    }
+    
+    .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+    .time-val { font-weight: 800; font-size: 19px; color: var(--primary); margin: 2px 0; }
+    
+    .dist-row { display: flex; align-items: flex-end; gap: 6px; }
+    .dist-val { font-size: 12px; font-weight: 700; color: #999; margin-bottom: 4px; }
+    .mini-map-icon {
+        width: 28px; height: 28px; border-radius: 50%; background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid #eee;
+        color: var(--primary);
+    }
 
-        /* --- SHUL CARDS --- */
-        .shul-card {
-            background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 6px solid #cbd5e1;
-            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
-        }
-        .shul-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        
-        /* Nusach Colors */
-        .shul-card.Ashkenaz { border-left-color: var(--ashkenaz); }
-        .shul-card.Sefard { border-left-color: var(--sefard); }
-        .shul-card.Edot { border-left-color: var(--edot); }
+    /* TAGS */
+    .nusach-tag { 
+        font-size: 10px; padding: 4px 10px; border-radius: 12px; 
+        display: inline-block; font-weight: 800; text-transform: uppercase; margin-top: 6px; 
+    }
+    
+    /* Color Palette */
+    .cls-Ashkenaz { background: #E3F2FD; color: #1565C0; }
+    .cls-Sefard { background: #E8F5E9; color: #2E7D32; }
+    .cls-Ari { background: #F3E5F5; color: #7B1FA2; }
+    .cls-Edot-HaMizrach { background: #FFF3E0; color: #E65100; }
+    .cls-Chabad { background: #FFF8E1; color: #F9A825; }
+    .cls-Other { background: #F5F5F5; color: #616161; }
 
-        .shul-name { font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
-        .rabbi { color: #64748b; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
-        .address { font-size: 0.85rem; color: #475569; display: flex; align-items: center; gap: 5px; }
-        
-        /* TIMES SECTION */
-        .times-grid { 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; 
-            margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;
-        }
-        .time-box { text-align: center; background: #f8fafc; padding: 8px; border-radius: 6px; }
-        .time-label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
-        .time-value { font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-top: 2px; }
+    .txt-Shacharis { color: #2E7D32; } 
+    .txt-Mincha { color: #E65100; } 
+    .txt-Maariv { color: #1565C0; }
 
-        .distance-badge {
-            float: right; font-size: 0.75rem; background: #f1f5f9; 
-            padding: 4px 8px; border-radius: 6px; color: #475569; font-weight: bold;
-        }
+    /* FILTERS */
+    #filter-drawer {
+        display: none; position: fixed; top: 85px; left: 15px; right: 15px;
+        background: rgba(255,255,255,0.98); border-radius: 24px; padding: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2); z-index: 2000;
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        max-width: 500px; margin: 0 auto;
+    }
+    .filter-group { margin-bottom: 15px; }
+    .f-label { font-size: 11px; font-weight: 800; color: #aaa; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
+    
+    .chip-container { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { 
+        padding: 8px 14px; border-radius: 20px; border: 1px solid #eee; 
+        background: #fff; font-size: 13px; font-weight: 600; color: #444; 
+        cursor: pointer; transition: all 0.2s;
+    }
+    .chip.active { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-color: transparent !important; }
+    
+    /* Colored Active Chips */
+    .chip.active.c-Ashkenaz { background: #1565C0; color: #fff; }
+    .chip.active.c-Sefard { background: #2E7D32; color: #fff; }
+    .chip.active.c-Ari { background: #7B1FA2; color: #fff; }
+    .chip.active.c-Edot-HaMizrach { background: #E65100; color: #fff; }
+    .chip.active.c-Chabad { background: #F9A825; color: #fff; }
+    
+    .chip.active.c-Shacharis { background: #2E7D32; color: #fff; }
+    .chip.active.c-Mincha { background: #E65100; color: #fff; }
+    .chip.active.c-Maariv { background: #1565C0; color: #fff; }
+    .chip.active.c-All { background: var(--primary); color: #fff; }
 
-        /* Responsive */
-        @media (max-width: 900px) {
-            #app-container { flex-direction: column; }
-            #sidebar { width: 100%; height: 60%; order: 2; }
-            #map { width: 100%; height: 40%; order: 1; }
-        }
-    </style>
+    /* DATE PICKER */
+    .date-row { display: flex; align-items: center; justify-content: space-between; background: #f7f9fc; padding: 8px; border-radius: 16px; margin-bottom: 15px; }
+    .date-btn { background: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; color: var(--primary); }
+    .date-text { font-weight: 700; font-size: 14px; color: #333; }
+
+    /* DRAWER */
+    #details-drawer {
+        position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh;
+        background: #fff; border-radius: 28px 28px 0 0; /* Only top rounded per request? No, user said round bottom too? "round it out". I'll do fully rounded floating */
+        border-radius: 32px; margin-bottom: 15px;
+        z-index: 3000; box-shadow: 0 10px 50px rgba(0,0,0,0.25);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex; flex-direction: column; overflow: hidden;
+    }
+    #details-drawer.open { bottom: 0; transform: translateY(0); }
+    
+    .drawer-header { 
+        padding: 20px 25px; background: #fff; border-bottom: 1px solid #f5f5f5;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        position: sticky; top: 0; z-index: 10;
+    }
+    .dh-title { font-size: 24px; font-weight: 800; color: var(--primary); line-height: 1.1; max-width: 70%; }
+    .dh-rabbi { font-size: 14px; color: #666; margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    
+    .drawer-actions { display: flex; gap: 10px; }
+    .icon-action { 
+        width: 38px; height: 38px; border-radius: 50%; background: #f2f4f8; 
+        border: none; display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; color: #333; transition: background 0.2s;
+    }
+    .icon-action:active { background: #e0e0e0; }
+
+    .drawer-content { flex: 1; overflow-y: auto; padding: 20px 25px 30px; }
+    
+    .contact-grid { display: flex; gap: 10px; margin-bottom: 25px; }
+    .contact-item { 
+        flex: 1; background: #F7F9FC; border-radius: 14px; padding: 12px; 
+        text-align: center; color: #333; text-decoration: none; font-weight: 600; font-size: 13px;
+        display: flex; flex-direction: column; align-items: center; gap: 5px;
+        transition: background 0.2s;
+    }
+    .contact-item:active { background: #ecf0f5; }
+    .contact-item i { font-size: 20px; color: var(--primary); }
+
+    .sched-block { margin-bottom: 20px; }
+    .sched-header { font-size: 13px; font-weight: 800; color: #aaa; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+    .sched-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+    .sched-label { font-weight: 600; color: #555; }
+    .sched-times { font-weight: 400; color: #111; text-align: right; max-width: 60%; }
+
+    #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 2500; display: none; backdrop-filter: blur(2px); }
+
+    .fab {
+        position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px;
+        background: #fff; border-radius: 50%; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        display: flex; align-items: center; justify-content: center; color: var(--primary);
+        z-index: 900; cursor: pointer; transition: transform 0.2s;
+    }
+    .fab:active { transform: scale(0.9); }
+
+    /* Map Markers */
+    .gm-style-iw { display: none !important; } /* Hide default info windows */
+</style>
 </head>
 <body>
 
-<header>
-    <div class="header-content">
-        <div class="top-row">
-            <h1>GoDavenByShulTime</h1>
-            <div id="stats">Finding Shuls...</div>
+    <div class="floating-header" onclick="scrollToTop()">
+        <div class="search-container" onclick="event.stopPropagation()">
+            <div id="autocomplete-container" style="flex:1; height:100%;"></div>
         </div>
-        <div class="search-row">
-            <input type="text" id="search" placeholder="Search by name, rabbi, or street..." onkeyup="updateUI()">
-            <select id="radius" onchange="updateUI()">
-                <option value="5">5 Miles</option>
-                <option value="10" selected>10 Miles</option>
-                <option value="25">25 Miles</option>
-                <option value="50">50 Miles</option>
-            </select>
+        <button class="circle-btn" onclick="toggleFilters(); event.stopPropagation()">
+            <i class="material-icons">tune</i>
+        </button>
+        <button class="circle-btn" id="view-toggle-btn" onclick="toggleView(); event.stopPropagation()">
+            <i class="material-icons" id="view-icon">map</i>
+        </button>
+    </div>
+
+    <div class="status-area">
+        <div id="status-pill" class="status-pill"></div>
+        <div id="count-pill" class="status-pill"></div>
+        <div id="map-radius-pill" class="status-pill"></div>
+    </div>
+
+    <div id="filter-drawer">
+        <div class="filter-group">
+            <label class="f-label">Date</label>
+            <div class="date-row">
+                <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
+                <div class="date-text" id="date-display">Today</div>
+                <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label class="f-label">Radius</label>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <input type="range" min="0.5" max="50" step="0.5" id="radius-slider" style="flex:1; accent-color:var(--primary)" oninput="manualRadius(this.value)">
+                <input type="number" id="radius-input" style="width:50px; padding:8px; border-radius:10px; border:1px solid #ddd; text-align:center; font-weight:bold;" value="20" onchange="manualRadius(this.value)">
+            </div>
+            <div class="chip-container">
+                <div class="chip" onclick="manualRadius(1)">1m</div>
+                <div class="chip" onclick="manualRadius(2)">2m</div>
+                <div class="chip" onclick="manualRadius(3)">3m</div>
+                <div class="chip" onclick="manualRadius(5)">5m</div>
+                <div class="chip" onclick="manualRadius(10)">10m</div>
+                <div class="chip" onclick="manualRadius(25)">25m</div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label class="f-label">Tefillah</label>
+            <div class="chip-container">
+                <div class="chip active c-All" onclick="setFilter('tefillah', '', this)">All</div>
+                <div class="chip c-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
+                <div class="chip c-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
+                <div class="chip c-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label class="f-label">Nusach</label>
+            <div class="chip-container" id="nusach-group"></div>
+        </div>
+
+        <button onclick="toggleFilters()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:16px; font-weight:700; font-size:15px; margin-top:10px;">Done</button>
+    </div>
+
+    <div id="list-view">
+        <div class="empty-state">
+            <i class="material-icons" style="font-size:60px; margin-bottom:20px; color: var(--primary); opacity: 0.3;">temple_buddhist</i><br>
+            <strong>Welcome to ShulTime</strong><br><br>
+            Start by searching for a city<br>or tapping the location button.
         </div>
     </div>
-</header>
+    
+    <div id="map-view"></div>
+    <div id="center-marker"></div>
 
-<div id="app-container">
-    <div id="map"></div>
-    <div id="sidebar">
-        <div id="shul-list"></div>
+    <div class="fab" onclick="useMyLocation()">
+        <i class="material-icons">my_location</i>
     </div>
-</div>
 
-<script>
-    let map, markers = [], allData = [];
-    let userLoc = [40.7128, -74.0060]; // Default NY
+    <div id="scrim" onclick="closeDetails()"></div>
 
-    // 1. START THE APP
-    async function start() {
-        initMap();
-        await fetchData();
-        getUserLocation();
-    }
+    <div id="details-drawer">
+        <div class="drawer-header">
+            <div style="flex:1">
+                <div class="dh-title" id="d-name"></div>
+                <div class="dh-rabbi" id="d-rabbi"></div>
+            </div>
+            <div class="drawer-actions">
+                <button class="icon-action" onclick="shareShul()">
+                    <i class="material-icons" style="font-size:18px">ios_share</i>
+                </button>
+                <button class="icon-action" onclick="closeDetails()">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+        </div>
+        <div class="drawer-content">
+            <div style="font-size:15px; color:#555; margin-bottom:15px;" id="d-address"></div>
+            <div class="contact-grid" id="d-contacts"></div>
+            <div class="sched-block">
+                <div class="sched-header">Weekday</div>
+                <div id="d-sched-week"></div>
+            </div>
+            <div class="sched-block">
+                <div class="sched-header">Shabbos</div>
+                <div id="d-sched-shab"></div>
+            </div>
+        </div>
+    </div>
 
-    function initMap() {
-        map = L.map('map', { zoomControl: false }).setView(userLoc, 12);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
-    }
+    <script src="database.js"></script>
 
-    async function fetchData() {
-        try {
-            const res = await fetch('https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json');
-            allData = await res.json();
-            updateUI();
-        } catch (e) {
-            document.getElementById('shul-list').innerHTML = "Failed to load database.json. Check your GitHub file.";
+    <script>
+        let map, allMinyanim = [], processedMinyanim = [], searchCenter = null, currentRadius = 20;
+        let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
+        let selectedShul = null;
+        let markers = [];
+        let isProgrammaticMove = false;
+        let allNusachs = new Set();
+        let currentDate = new Date();
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            updateDateUI();
+            // RAW_DB comes from database.js
+            if(typeof RAW_DB !== 'undefined') {
+                processMinyanim(RAW_DB);
+                populateNusachFilter();
+            } else {
+                alert("Error: database.js not found. Please ensure both files are in the same folder.");
+            }
+        });
+
+        function getTodayKey() {
+            const d = currentDate.getDay(); 
+            if (d === 0) return 'sun';
+            if (d === 1 || d === 4) return 'mon_thu';
+            return 'tue_wed_fri';
         }
-    }
 
-    function getUserLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                userLoc = [pos.coords.latitude, pos.coords.longitude];
-                L.circleMarker(userLoc, { color: 'red', radius: 10 }).addTo(map).bindPopup("You are here");
-                map.setView(userLoc, 12);
-                updateUI();
+        function updateDateUI() {
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            document.getElementById("date-display").innerText = currentDate.toLocaleDateString('en-US', options);
+        }
+
+        function changeDate(days) {
+            currentDate.setDate(currentDate.getDate() + days);
+            updateDateUI();
+            if(typeof RAW_DB !== 'undefined') {
+                processMinyanim(RAW_DB);
+                if(searchCenter) applyFilters();
+            }
+        }
+
+        function processMinyanim(data){
+            processedMinyanim = [];
+            allNusachs = new Set();
+            const todayKey = getTodayKey();
+
+            data.forEach(shul => {
+                if(!shul.name) return;
+                if(shul.nusach) allNusachs.add(shul.nusach.trim());
+
+                let hasTimes = false;
+                
+                // Add Today's times
+                if (shul.shacharis && shul.shacharis[todayKey]) {
+                    shul.shacharis[todayKey].forEach(t => { addMinyan(shul, 'Shacharis', t); hasTimes = true; });
+                }
+                if (shul.mincha && shul.mincha.week) {
+                    shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t); hasTimes = true; });
+                }
+                if (shul.maariv && shul.maariv.week) {
+                    shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t); hasTimes = true; });
+                }
+
+                // If no times today, add a placeholder so it still shows up
+                if (!hasTimes) {
+                    processedMinyanim.push({
+                        ...shul, tefillah: 'Info', timeDisplay: '--:--', ampm: '', timeValue: 9999
+                    });
+                }
+            });
+            allMinyanim = processedMinyanim;
+        }
+
+        function addMinyan(shul, type, tStr) {
+            if(!tStr) return;
+            let raw = tStr.trim().replace(/[^0-9:]/g,"");
+            if(!raw) return;
+            let [h,m] = raw.split(":").map(Number);
+            
+            // Logic for PM
+            let isPM = (type === "Maariv" || (type === "Mincha" && h < 9) || (type === "Mincha" && h === 12) || (type==="Shacharis" && h < 4)); // Very early shacharis check
+            
+            let sortH = h;
+            if(type === "Mincha" && h < 9) sortH += 12;
+            if(type === "Maariv" && h < 4) sortH += 24; // Late night maariv
+
+            // Format 7:00a
+            let suffix = (h >= 12 || (type!=="Shacharis" && h < 9)) ? "p" : "a"; // Rough guess
+            if(type === "Shacharis") suffix = "a"; 
+            if(type === "Maariv") suffix = "p";
+            if(type === "Mincha") suffix = "p";
+
+            let h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+            let mStr = String(m).padStart(2,"0");
+            
+            processedMinyanim.push({
+                ...shul, tefillah: type, timeDisplay: `${h12}:${mStr}${suffix}`, timeValue: (sortH * 60) + m
             });
         }
-    }
 
-    // 2. LOGIC ENGINE
-    function updateUI() {
-        const query = document.getElementById('search').value.toLowerCase();
-        const rad = parseFloat(document.getElementById('radius').value);
-        const list = document.getElementById('shul-list');
-        
-        // Clear Map
-        markers.forEach(m => map.removeLayer(m));
-        markers = [];
-        list.innerHTML = '';
+        function manualRadius(val) {
+            currentRadius = parseFloat(val);
+            document.getElementById("radius-input").value = currentRadius;
+            document.getElementById("radius-slider").value = currentRadius;
+            if(searchCenter) applyFilters();
+        }
 
-        const filtered = allData.filter(shul => {
-            const d = getDist(userLoc[0], userLoc[1], shul.lat, shul.lng);
-            shul.dist = d;
-
-            const matchesSearch = shul.name.toLowerCase().includes(query) || 
-                                 (shul.rabbi && shul.rabbi.toLowerCase().includes(query)) ||
-                                 (shul.address && shul.address.toLowerCase().includes(query));
+        function applyFilters(){
+            if(!searchCenter || !allMinyanim.length) return;
             
-            return matchesSearch && d <= rad;
-        }).sort((a,b) => a.dist - b.dist);
+            let results = allMinyanim.map(m => {
+                m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
+                return m;
+            }).filter(m => m.distance <= currentRadius);
 
-        document.getElementById('stats').innerText = `${filtered.length} Shuls within ${rad} miles`;
-
-        filtered.forEach(shul => {
-            createMarker(shul);
-            createCard(shul);
-        });
-    }
-
-    // 3. UI GENERATORS
-    function createMarker(shul) {
-        const color = shul.nusach === 'Sefard' ? '#059669' : (shul.nusach === 'Ashkenaz' ? '#2563eb' : '#d97706');
-        const m = L.circleMarker([shul.lat, shul.lng], {
-            radius: 8, color: color, fillOpacity: 0.8, weight: 2
-        }).addTo(map).bindPopup(`<b>${shul.name}</b><br>${shul.address}`);
-        markers.push(m);
-    }
-
-    function createCard(shul) {
-        const container = document.getElementById('shul-list');
-        
-        // Extract first time from Shacharis (handle your nested object)
-        const shacharis = shul.shacharis ? (shul.shacharis.sun ? shul.shacharis.sun[0] : 'N/A') : 'N/A';
-        const mincha = shul.mincha ? (shul.mincha.week ? shul.mincha.week[0] : 'N/A') : 'N/A';
-        const maariv = shul.maariv ? (shul.maariv.week ? shul.maariv.week[0] : 'N/A') : 'N/A';
-
-        const card = document.createElement('div');
-        card.className = `shul-card ${shul.nusach}`;
-        card.innerHTML = `
-            <span class="distance-badge">${shul.dist.toFixed(1)} mi</span>
-            <div class="shul-name">${shul.name}</div>
-            <div class="rabbi">Rabbi: ${shul.rabbi || 'Contact Shul'}</div>
-            <div class="address">📍 ${shul.address}, ${shul.city}</div>
+            if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
+            if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             
-            <div class="times-grid">
-                <div class="time-box">
-                    <div class="time-label">Shacharis</div>
-                    <div class="time-value">${shacharis}</div>
-                </div>
-                <div class="time-box">
-                    <div class="time-label">Mincha</div>
-                    <div class="time-value">${mincha || 'Sunset'}</div>
-                </div>
-                <div class="time-box">
-                    <div class="time-label">Maariv</div>
-                    <div class="time-value">${maariv || 'Night'}</div>
-                </div>
-            </div>
-        `;
-        card.onclick = () => map.flyTo([shul.lat, shul.lng], 15);
-        container.appendChild(card);
-    }
+            if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
+            else results.sort((a,b) => a.timeValue - b.timeValue);
+            
+            const unique = new Set(results.map(r => r.id)).size;
+            
+            document.getElementById("status-pill").innerText = `Results: ${unique} Shuls`;
+            document.getElementById("status-pill").style.display = "block";
+            document.getElementById("map-radius-pill").innerText = `Radius: ${currentRadius}mi`;
+            document.getElementById("map-radius-pill").style.display = "block";
 
-    // Distance Helper
-    function getDist(lat1, lon1, lat2, lon2) {
-        const R = 3958.8;
-        const dLat = (lat2-lat1)*Math.PI/180;
-        const dLon = (lon2-lon1)*Math.PI/180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
+            renderList(results);
+            updateMapMarkers(results);
+        }
 
-    window.onload = start;
-</script>
+        function renderList(results){
+            const list = document.getElementById("list-view");
+            list.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found.<br>Try increasing the radius.</div>';
+            
+            results.forEach(m => {
+                const safeNusach = (m.nusach || 'Other').replace(/\s+/g, '-');
+                const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
+                const link = `https://www.godaven.com/shul-details/${godavenId}`;
+                
+                const card = document.createElement("div");
+                card.className = "minyan-card";
+                card.innerHTML = `
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
+                        <div class="shul-name">${m.name}</div>
+                        <div class="shul-address">${m.address}</div>
+                        <div class="nusach-tag cls-${safeNusach}">${m.nusach}</div>
+                    </div>
+                    <div class="map-zone" onclick="window.open('${link}','_blank')">
+                        <div class="tefillah-label txt-${m.tefillah}">${m.tefillah}</div>
+                        <div class="time-val">${m.timeDisplay}</div>
+                        <div class="dist-row">
+                            <div class="dist-val">${m.distance.toFixed(1)}mi</div>
+                            <div class="mini-map-icon"><i class="material-icons" style="font-size:16px;">place</i></div>
+                        </div>
+                    </div>`;
+                list.appendChild(card);
+            });
+        }
 
+        async function updateMapMarkers(results) {
+            if (!map) return;
+            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+            
+            markers.forEach(m => m.map = null); markers = [];
+            
+            // Group by location
+            const groups = {};
+            results.forEach(r => {
+                const key = r.lat + "," + r.lng;
+                if (!groups[key] || r.timeValue < groups[key].timeValue) groups[key] = r;
+            });
+
+            Object.values(groups).forEach(m => {
+                const pin = document.createElement("div");
+                pin.className = "custom-marker";
+                // Style based on Nusach
+                let color = "#616161";
+                if(m.nusach === "Ashkenaz") color = "#1565C0";
+                if(m.nusach === "Sefard") color = "#2E7D32";
+                if(m.nusach === "Ari") color = "#7B1FA2";
+                if(m.nusach === "Edot-HaMizrach") color = "#E65100";
+                
+                pin.style.background = color;
+                pin.textContent = (m.timeValue === 9999) ? "info" : m.timeDisplay;
+
+                const marker = new AdvancedMarkerElement({
+                    map: map,
+                    position: { lat: m.lat, lng: m.lng },
+                    content: pin,
+                    title: m.name
+                });
+                marker.element.addEventListener("click", () => openDetails(m));
+                markers.push(marker);
+            });
+        }
+
+        function openDetails(m) {
+            selectedShul = m;
+            document.getElementById("d-name").innerText = m.name;
+            document.getElementById("d-address").innerText = m.address + ", " + m.city;
+            
+            const rDiv = document.getElementById("d-rabbi");
+            if(m.rabbi && m.rabbi !== "Rabbi Not Listed") {
+                rDiv.innerHTML = `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}`;
+            } else { rDiv.innerHTML = ""; }
+
+            // Contacts
+            const cDiv = document.getElementById("d-contacts");
+            cDiv.innerHTML = "";
+            
+            if(m.phone) cDiv.innerHTML += `<a href="tel:${m.phone}" class="contact-item"><i class="material-icons">call</i>Call</a>`;
+            if(m.email) cDiv.innerHTML += `<a href="mailto:${m.email}" class="contact-item"><i class="material-icons">email</i>Email</a>`;
+            
+            const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
+            cDiv.innerHTML += `<a href="https://www.godaven.com/shul-details/${godavenId}" target="_blank" class="contact-item"><i class="material-icons">open_in_new</i>GoDaven</a>`;
+
+            // Schedule
+            const wDiv = document.getElementById("d-sched-week");
+            wDiv.innerHTML = `
+                <div class="sched-row"><span class="sched-label">Sun Shacharis</span><span class="sched-times">${fmt(m.shacharis?.sun)}</span></div>
+                <div class="sched-row"><span class="sched-label">M/Th Shacharis</span><span class="sched-times">${fmt(m.shacharis?.mon_thu)}</span></div>
+                <div class="sched-row"><span class="sched-label">T/W/F Shacharis</span><span class="sched-times">${fmt(m.shacharis?.tue_wed_fri)}</span></div>
+                <div class="sched-row"><span class="sched-label">Mincha</span><span class="sched-times">${fmt(m.mincha?.week)}</span></div>
+                <div class="sched-row"><span class="sched-label">Maariv</span><span class="sched-times">${fmt(m.maariv?.week)}</span></div>
+            `;
+            
+            document.getElementById("d-sched-shab").innerHTML = `
+                <div class="sched-row"><span class="sched-label">Fri Mincha</span><span class="sched-times">${fmt(m.mincha?.fri)}</span></div>
+                <div class="sched-row"><span class="sched-label">Shab Mincha</span><span class="sched-times">${fmt(m.mincha?.shabbos)}</span></div>
+                <div class="sched-row"><span class="sched-label">Motzei Maariv</span><span class="sched-times">${fmt(m.maariv?.shabbos)}</span></div>
+            `;
+
+            document.getElementById("details-drawer").classList.add("open");
+            document.getElementById("scrim").style.display = "block";
+        }
+        
+        function fmt(list) { return (!list || list.length===0) ? "See Details" : list.join(", "); }
+
+        function closeDetails() {
+            document.getElementById("details-drawer").classList.remove("open");
+            document.getElementById("scrim").style.display = "none";
+        }
+
+        async function shareShul() {
+            if(!selectedShul) return;
+            const link = `https://www.godaven.com/shul-details/${selectedShul.godaven_link ? selectedShul.godaven_link.split('/').pop() : selectedShul.id}`;
+            const text = `Check out ${selectedShul.name} on ShulTime!\n${selectedShul.address}\n\n${link}`;
+            if(navigator.share) {
+                try { await navigator.share({ title: selectedShul.name, text: text, url: link }); } 
+                catch(e) {}
+            } else {
+                navigator.clipboard.writeText(text);
+                alert("Copied to clipboard!");
+            }
+        }
+
+        function scrollToTop() {
+            document.getElementById('list-view').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleFilters() {
+            const d = document.getElementById('filter-drawer');
+            d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function populateNusachFilter() {
+            const group = document.getElementById("nusach-group");
+            group.innerHTML = `<div class="chip active c-All" onclick="setFilter('nusach', '', this)">All</div>`;
+            Array.from(allNusachs).sort().forEach(n => {
+                if(!n) return;
+                const safe = n.replace(/\s+/g, '-');
+                // We add 'c-NusachName' class which we defined in CSS for colors
+                const div = document.createElement("div");
+                div.className = `chip c-${safe}`;
+                div.innerText = n;
+                div.onclick = function() { setFilter('nusach', n, this); };
+                group.appendChild(div);
+            });
+        }
+
+        function setFilter(type, val, btn) {
+            filters[type] = val;
+            const group = btn.parentElement;
+            group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function toggleView() {
+            document.getElementById('filter-drawer').style.display = 'none';
+            const list = document.getElementById("list-view");
+            const btn = document.getElementById("view-toggle-btn");
+            const icon = document.getElementById("view-icon");
+            const mapPill = document.getElementById("map-radius-pill");
+            const dot = document.getElementById("center-marker");
+
+            if (list.style.display === "none") {
+                list.style.display = "block";
+                icon.innerText = "map";
+                btn.classList.remove("active");
+                mapPill.style.display = "none";
+                dot.style.display = "none";
+            } else {
+                list.style.display = "none";
+                icon.innerText = "list";
+                btn.classList.add("active");
+                mapPill.style.display = "block";
+                dot.style.display = "block";
+                if(map && searchCenter && !isProgrammaticMove) {
+                    isProgrammaticMove = true;
+                    map.panTo(searchCenter);
+                }
+            }
+        }
+
+        function onMapIdle() {
+            if(isProgrammaticMove) { isProgrammaticMove = false; return; }
+            if(!map) return;
+            const center = map.getCenter();
+            searchCenter = { lat: center.lat(), lng: center.lng() };
+            
+            const bounds = map.getBounds();
+            const ne = bounds.getNorthEast();
+            const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
+            
+            manualRadius(r.toFixed(1));
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2){
+            const R = 3958.8; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+        }
+
+        function setSearchLocation(lat, lng, name) {
+            searchCenter = { lat, lng };
+            document.getElementById("status-pill").style.display = "block";
+            document.getElementById("status-pill").innerText = `Near: ${name}`;
+            
+            if(map) {
+                isProgrammaticMove = true;
+                map.setCenter({ lat, lng });
+                map.setZoom(13);
+            }
+            applyFilters();
+        }
+
+        function useMyLocation() {
+            navigator.geolocation.getCurrentPosition(pos => {
+                setSearchLocation(pos.coords.latitude, pos.coords.longitude, "Current Location");
+            }, e => alert("Please enable Location Services."));
+        }
+
+        function clearSearch(){
+            searchCenter = null;
+            document.getElementById("list-view").innerHTML = `<div class="empty-state">Start by searching...</div>`;
+        }
+
+        async function initApp(){
+            const { Map } = await google.maps.importLibrary("maps");
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+            
+            const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.setAttribute("types", "(cities)");
+            document.getElementById("autocomplete-container").appendChild(autocomplete);
+
+            map = new Map(document.getElementById("map-view"), {
+                center: { lat: 40.091, lng: -74.218 },
+                zoom: 12, disableDefaultUI: true, mapId: "DEMO_MAP_ID"
+            });
+            map.addListener('idle', onMapIdle);
+
+            autocomplete.addEventListener('gmp-select', async (e) => {
+                if (e.placePrediction) {
+                    const place = e.placePrediction.toPlace();
+                    await place.fetchFields({ fields: ["displayName", "location"] });
+                    setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
+                }
+            });
+        }
+    </script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
