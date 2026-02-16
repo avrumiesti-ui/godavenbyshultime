@@ -20,7 +20,7 @@
         --edot-bg: #FBE9E7;     --edot-text: #D84315;
         --other-bg: #EEEEEE;    --other-text: #616161;
         
-        /* TEFILLAH COLORS */
+        /* TEFILLAH COLORS (Text Only) */
         --color-Shacharis: #2E7D32; 
         --color-Mincha: #E65100;    
         --color-Maariv: #1565C0; 
@@ -65,14 +65,14 @@
     /* --- 3. VIEWS LAYOUT --- */
     .view-container { 
         position: absolute; inset: 0; 
-        padding-bottom: 120px; 
+        padding-bottom: 120px; /* Space for bottom bar */
         overflow-y: auto; background: var(--bg); 
         display: none; z-index: 10;
         -webkit-overflow-scrolling: touch;
     }
     #map-view { padding: 0; z-index: 5; } 
 
-    /* --- 4. LIST CARDS --- */
+    /* --- 4. LIST CARDS (COLOR CODED) --- */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -80,7 +80,7 @@
         height: 85px; box-sizing: border-box; position: relative;
     }
     .info-zone { 
-        width: 60%; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; 
+        width: 60%; padding: 8px 12px; display: flex; flex-direction: column; justify-content: flex-start; 
         border-right: 1px solid #f0f0f0; cursor:pointer; 
     }
     .map-zone { 
@@ -91,7 +91,7 @@
     .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     
-    /* DYNAMIC COLORS */
+    /* DYNAMIC COLOR CLASSES */
     .n-Ashkenaz { background: var(--ashkenaz-bg) !important; color: var(--ashkenaz-text) !important; border-color: var(--ashkenaz-text) !important; }
     .n-Sefard { background: var(--sefard-bg) !important; color: var(--sefard-text) !important; border-color: var(--sefard-text) !important; }
     .n-Ari { background: var(--ari-bg) !important; color: var(--ari-text) !important; border-color: var(--ari-text) !important; }
@@ -106,6 +106,8 @@
 
     /* RIGHT SIDE LAYOUT (40px Buffer) */
     .tefillah-label { position: absolute; top: 8px; right: 40px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
+    
+    /* Type Colors for Label Only */
     .type-Shacharis .tefillah-label { color: var(--color-Shacharis); }
     .type-Mincha .tefillah-label { color: var(--color-Mincha); }
     .type-Maariv .tefillah-label { color: var(--color-Maariv); }
@@ -113,6 +115,7 @@
     .time-val-card { 
         position: absolute; top: 50%; right: 40px; transform: translateY(-50%); 
         padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; 
+        /* Color injected by n-Class */
     }
     .dist-row { position: absolute; bottom: 8px; right: 40px; display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; color: #666; }
     
@@ -131,6 +134,8 @@
         border: 2px solid #555; position: relative; top: -10px; cursor: pointer;
     }
     .custom-marker::after { content: ""; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: white transparent transparent transparent; }
+    
+    /* Marker Colors */
     .marker-Ashkenaz { border-color: var(--ashkenaz-text); color: var(--ashkenaz-text); }
     .marker-Sefard { border-color: var(--sefard-text); color: var(--sefard-text); }
     .marker-Ari { border-color: var(--ari-text); color: var(--ari-text); }
@@ -165,10 +170,12 @@
 
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
 
+    /* Info Row (Rabbi & Nusach) */
     .d-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .d-rabbi { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #444; font-size: 14px; }
     .d-nusach-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 
+    /* Contact Buttons */
     .d-contact-grid { display: flex; gap: 10px; margin-bottom: 25px; overflow-x:auto; }
     .d-contact-btn { 
         background: #fff; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; 
@@ -176,6 +183,7 @@
         text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; white-space:nowrap;
     }
 
+    /* Schedule */
     .d-schedule-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; }
     .d-schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .d-sched-item { margin-bottom: 5px; }
@@ -183,9 +191,9 @@
     .d-sched-times { display: flex; flex-wrap: wrap; gap: 4px; }
     .d-time-pill { padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; }
 
-    /* --- 6. PAGE HEADERS (Top Layout) --- */
+    /* --- 6. PAGE HEADERS (Recent/Saved) --- */
     .page-title-block {
-        padding: 50px 20px 15px; /* High top padding for non-map pages */
+        padding: 50px 20px 15px; /* High top padding */
         background: var(--bg);
     }
     .page-main-title { font-size: 36px; font-weight: 800; color: var(--primary); margin: 0; }
@@ -238,12 +246,16 @@
     #nav-toggle { font-weight: 800; color: var(--primary); }
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
     
+    /* UTILS */
+    .sticky-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(242, 244, 248, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 900; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; font-weight: 800; font-size: 17px; color: var(--primary); opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+    .sticky-header.visible { opacity: 1; pointer-events: auto; }
+    
     /* MODALS */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; }
     .modal.active { display: flex; }
     .modal-card { background: #fff; width: 85%; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .modal-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; }
-    
+
     /* SETTINGS STYLES */
     .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin: 0 15px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
@@ -263,9 +275,9 @@
     </div>
 
     <div class="status-area">
-        <div id="status-pill"></div>
-        <div id="count-pill"></div>
-        <div id="map-radius-pill"></div>
+        <div id="status-pill" class="status-pill" style="background:var(--primary);color:white;border:none;"></div>
+        <div id="count-pill" class="status-pill"></div>
+        <div id="map-radius-pill" class="status-pill" style="background:#2E7D32;color:white;border:none;"></div>
     </div>
 
     <div id="filter-drawer">
@@ -319,6 +331,10 @@
                     <div class="date-heb" id="z-date-heb"></div>
                 </div>
                 <i class="material-icons" onclick="event.stopPropagation(); changeDate(1)">chevron_right</i>
+            </div>
+            <div class="z-info-row">
+                <div class="z-info-pill"><span class="z-label-sm">Day</span><div class="z-val-lg" id="z-day"></div></div>
+                <div class="z-info-pill"><span class="z-label-sm">Daf Yomi</span><div class="z-val-lg" id="z-daf"></div></div>
             </div>
         </div>
         <ul class="z-list" id="z-list"></ul>
@@ -388,10 +404,9 @@
 
     <script>
         // --- 1. SHULTIME CORE VARIABLES ---
-        let map, allMinyanim=[], searchCenter=null, currentRadius=20, currentTab='map';
+        let map, allMinyanim=[], fullDbData=[], searchCenter=null, currentRadius=20, currentTab='map';
         let filters = { tefillah: '', nusach: '' };
-        let markers = [];
-        let allNusachs = new Set();
+        let markers = [], allNusachs = new Set();
         let selectedShul = null;
         let currentDate = new Date();
 
@@ -417,7 +432,7 @@
             Solar: { calc: (d, lat, lng, elev) => {
                 const base = new Date(d).setHours(6,0,0,0);
                 const add = m => new Date(base + m*60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-                return { alot:add(0), sun:add(60), noon:add(360), set:add(720), tzais:add(760) }; 
+                return { alot:add(0), mish:add(30), sun:add(60), noon:add(360), set:add(720), tzais:add(760) }; 
             }},
             init: function() { this.render(); },
             setDate: function(d) { this.date = d; this.render(); },
@@ -428,6 +443,8 @@
                 const dateStr = this.date.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
                 document.getElementById('z-date-civ').innerText = dateStr;
                 document.getElementById('z-date-heb').innerText = this.Heb.get(this.date);
+                document.getElementById('z-day').innerText = this.date.toLocaleDateString('en-US', {weekday:'long'});
+                document.getElementById('z-daf').innerText = this.Daf.get(this.date);
                 
                 const t = this.Solar.calc(this.date, this.loc.lat, this.loc.lng);
                 let h = "";
@@ -469,14 +486,16 @@
             try {
                 const res = await fetch("database.json");
                 if(!res.ok) throw new Error("x");
-                const data = await res.json();
-                processData(data);
+                fullDbData = await res.json();
+                processData(fullDbData);
             } catch(e) {
-                processData([
+                // Fallback
+                fullDbData = [
                     {id:1, name:"Bais Medrash Govoah", address:"617 6th St", city:"Lakewood", state:"NJ", lat:40.093, lng:-74.222, nusach:"Ashkenaz", rabbi:"Rabbi Olshin", phone:"7323671060", email:"info@bmg.edu", shacharis:{week:["7:00a"]}, mincha:{week:["1:45p"]}, maariv:{week:["9:30p"]}},
                     {id:2, name:"Satmar", address:"Forest Ave", city:"Lakewood", state:"NJ", lat:40.080, lng:-74.210, nusach:"Sefard", rabbi:"Rabbi Teitelbaum", shacharis:{week:["8:00a"]}, mincha:{week:["2:00p"]}, maariv:{week:["9:00p"]}},
                     {id:3, name:"Ohr Chaim", address:"123 Main", city:"Lakewood", state:"NJ", lat:40.085, lng:-74.219, nusach:"Edot HaMizrach", rabbi:"Rabbi Cohen", shacharis:{week:["6:30a"]}, mincha:{week:["3:00p"]}, maariv:{week:["8:00p"]}}
-                ]);
+                ];
+                processData(fullDbData);
             }
         });
 
@@ -559,7 +578,6 @@
             markers.forEach(m => m.map = null); markers = [];
             const locs = {};
             res.forEach(r => locs[r.lat+","+r.lng] = r); 
-            
             Object.values(locs).forEach(m => {
                 const el = document.createElement('div');
                 const nSafe = m.nusach.replace(/ /g,'-');
@@ -601,7 +619,7 @@
             document.getElementById('filter-header').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
             document.querySelector('.status-area').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
             document.getElementById('fab-location').style.display = (t==='map'||t==='list') ? 'flex' : 'none';
-
+            
             if(t==='map') { document.getElementById('map-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('List','list'); applyFilters(); }
             else if(t==='list') { document.getElementById('list-view').style.display='block'; document.getElementById('nav-toggle').classList.add('active'); updateToggle('Map','map'); applyFilters(); }
             else if(t==='zmanim') { document.getElementById('zmanim-view').style.display='block'; document.getElementById('nav-zmanim').classList.add('active'); }
@@ -621,7 +639,7 @@
             currentDate = new Date(document.getElementById('datePicker').value);
             updateDateDisplay();
             ZmanimApp.setDate(currentDate);
-            processMinyanim(allMinyanim); // Reload schedule for new day
+            processMinyanim(fullDbData); // Reload schedule for new day
             document.getElementById('dateModal').classList.remove('active');
         }
 
@@ -695,22 +713,24 @@
             l.innerHTML = '<div class="page-title-block"><h1 class="page-main-title">Recent</h1></div>';
             if(r.length===0) l.innerHTML += '<div class="empty-state">No history.</div>'; else renderListCards(r, l);
         }
+        function renderListCards(res, container) {
+            res.forEach(m => {
+                const nSafe = m.nusach.replace(/ /g,'-');
+                const d = document.createElement('div');
+                d.className = `minyan-card n-${nSafe} type-${m.tefillah}`;
+                d.innerHTML = `
+                <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
+                    <div class="shul-name">${m.name}</div><div class="shul-address">${m.address}</div><div class="nusach-tag n-${nSafe}">${m.nusach}</div>
+                </div>
+                <div class="map-zone" onclick="window.open('http://maps.google.com/?q=${m.lat},${m.lng}')">
+                    <div class="tefillah-label">${m.tefillah}</div>
+                    <div class="time-val-card n-${nSafe}">${m.timeDisplay}</div>
+                    <div class="dist-row"><span>${m.dist ? m.dist.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon" style="font-size:16px;">place</i></div></div>
+                </div>`;
+                container.appendChild(d);
+            });
+        }
         
-        function changeDate(days) {
-            currentDate.setDate(currentDate.getDate() + days);
-            updateDateDisplay();
-            if(currentTab === 'zmanim') { ZmanimApp.setDate(currentDate); }
-            else { applyFilters(); } // Refresh list
-        }
-        function updateDateDisplay() {
-            const str = currentDate.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric', year:'numeric'});
-            document.getElementById('filter-date-civ').innerText = str;
-            document.getElementById('filter-date-heb').innerText = ZmanimApp.Heb.get(currentDate);
-            document.getElementById('z-date-civ').innerText = str;
-            document.getElementById('z-date-heb').innerText = ZmanimApp.Heb.get(currentDate);
-            document.getElementById('datePicker').value = currentDate.toISOString().split('T')[0];
-        }
-
         function setAllDay() { document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59"; applyFilters(); }
         function setNextHour() { 
             const d=new Date(); const pad=n=>String(n).padStart(2,'0'); 
