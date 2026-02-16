@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-    /* --- 1. GLOBAL VARIABLES & COLORS --- */
+    /* --- GLOBAL VARIABLES --- */
     :root { 
         --primary: #0D2B4F; 
         --bg: #F2F4F8; 
         
-        /* NUSACH PALETTE */
+        /* NUSACH PALETTE (Background / Text / Border) */
         --ashkenaz-bg: #E3F2FD; --ashkenaz-text: #1565C0;
         --sefard-bg: #E8F5E9;   --sefard-text: #2E7D32;
         --ari-bg: #F3E5F5;      --ari-text: #7B1FA2;
@@ -29,7 +29,7 @@
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; color: #333; -webkit-tap-highlight-color: transparent; }
     
-    /* --- 2. HEADER & SEARCH --- */
+    /* --- HEADER & SEARCH --- */
     .floating-header {
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
@@ -48,7 +48,7 @@
         cursor: pointer; color: var(--primary); 
     }
 
-    /* STATUS PILLS */
+    /* --- STATUS PILLS --- */
     .status-area {
         position: fixed; top: 75px; left: 0; right: 0;
         display: flex; justify-content: center; align-items: center; gap: 8px;
@@ -62,17 +62,17 @@
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; border: none; }
     #map-radius-pill { background: #2E7D32; color: #fff; border: none; }
 
-    /* --- 3. VIEWS LAYOUT --- */
+    /* --- VIEWS LAYOUT --- */
     .view-container { 
         position: absolute; inset: 0; 
-        padding-bottom: 120px; 
+        padding-bottom: 120px; /* Space for bottom bar */
         overflow-y: auto; background: var(--bg); 
         display: none; z-index: 10;
         -webkit-overflow-scrolling: touch;
     }
     #map-view { padding: 0; z-index: 5; } 
 
-    /* --- 4. LIST CARDS (COLOR CODED) --- */
+    /* --- LIST CARDS (FULL SPEC) --- */
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
@@ -91,12 +91,7 @@
     .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
     .shul-city { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
     
-    .nusach-tag { 
-        font-size: 10px; padding: 2px 8px; border-radius: 6px; 
-        display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; 
-    }
-    
-    /* DYNAMIC COLORS */
+    /* DYNAMIC COLOR CLASSES */
     .n-Ashkenaz { background: var(--ashkenaz-bg) !important; color: var(--ashkenaz-text) !important; border-color: var(--ashkenaz-text) !important; }
     .n-Sefard { background: var(--sefard-bg) !important; color: var(--sefard-text) !important; border-color: var(--sefard-text) !important; }
     .n-Ari { background: var(--ari-bg) !important; color: var(--ari-text) !important; border-color: var(--ari-text) !important; }
@@ -104,7 +99,12 @@
     .n-Edot-HaMizrach { background: var(--edot-bg) !important; color: var(--edot-text) !important; border-color: var(--edot-text) !important; }
     .n-Other { background: var(--other-bg) !important; color: var(--other-text) !important; border-color: var(--other-text) !important; }
 
-    /* RIGHT SIDE LAYOUT */
+    .nusach-tag { 
+        font-size: 10px; padding: 2px 8px; border-radius: 6px; 
+        display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; 
+    }
+
+    /* RIGHT SIDE LAYOUT (40px Buffer) */
     .tefillah-label { position: absolute; top: 8px; right: 40px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
     .type-Shacharis .tefillah-label { color: var(--color-Shacharis); }
     .type-Mincha .tefillah-label { color: var(--color-Mincha); }
@@ -133,7 +133,10 @@
     .custom-marker::after { content: ""; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: white transparent transparent transparent; }
     .marker-Ashkenaz { border-color: var(--ashkenaz-text); color: var(--ashkenaz-text); }
     .marker-Sefard { border-color: var(--sefard-text); color: var(--sefard-text); }
-    /* ... other markers match n-classes above ... */
+    .marker-Ari { border-color: var(--ari-text); color: var(--ari-text); }
+    .marker-Chabad { border-color: var(--chabad-text); color: var(--chabad-text); }
+    .marker-Edot-HaMizrach { border-color: var(--edot-text); color: var(--edot-text); }
+    .marker-Other { border-color: var(--other-text); color: var(--other-text); }
 
     /* --- 5. DETAILS DRAWER --- */
     #details-drawer {
@@ -159,18 +162,15 @@
         display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
-
     .d-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .d-rabbi { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #444; font-size: 14px; }
     .d-nusach-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-
     .d-contact-grid { display: flex; gap: 10px; margin-bottom: 25px; overflow-x:auto; }
     .d-contact-btn { 
         background: #fff; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; 
         text-align: center; font-size: 12px; font-weight: 700; color: #333; 
         text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; white-space:nowrap;
     }
-
     .d-schedule-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; }
     .d-schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .d-sched-item { margin-bottom: 5px; }
@@ -178,11 +178,8 @@
     .d-sched-times { display: flex; flex-wrap: wrap; gap: 4px; }
     .d-time-pill { padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; }
 
-    /* --- 6. PAGE HEADERS (Top Layout) --- */
-    .page-title-block {
-        padding: 50px 20px 15px; 
-        background: var(--bg);
-    }
+    /* --- 6. PAGE HEADERS --- */
+    .page-title-block { padding: 50px 20px 15px; background: var(--bg); }
     .page-main-title { font-size: 36px; font-weight: 800; color: var(--primary); margin: 0; }
     .empty-state { text-align: center; color: #888; margin-top: 40px; font-size: 15px; }
 
@@ -190,16 +187,11 @@
     .z-header { background: #fff; padding: 40px 20px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; }
     .z-title { font-size: 34px; font-weight: 800; color: var(--primary); margin: 0 0 10px 0; display:flex; justify-content:space-between; align-items:center;}
     .z-loc-badge { font-size: 12px; background: #E3F2FD; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; }
-    
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 6px; border-radius: 12px; margin-top: 10px; border: 1px solid #eee; cursor: pointer; }
     .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; display:flex; align-items:center; }
     .date-center { text-align: center; }
     .date-civ { font-weight: 800; font-size: 15px; color: #333; }
     .date-heb { font-size: 12px; color: #666; }
-    .z-info-row { display: flex; gap: 10px; margin-top: 15px; }
-    .z-info-pill { flex: 1; background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .z-label-sm { font-size: 10px; color: #999; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .z-val-lg { font-size: 14px; font-weight: 800; color: #333; }
     .z-list { list-style: none; padding: 20px 15px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
     .z-card { background: #fff; border-radius: 14px; padding: 12px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
     .z-label { font-size: 15px; font-weight: 700; color: #333; }
@@ -218,12 +210,10 @@
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
     .chip.active { box-shadow: 0 2px 4px rgba(0,0,0,0.15); transform: scale(1.05); }
-    
     /* Chip Colors */
     .chip-Ashkenaz { color: var(--ashkenaz-text); border-color: var(--ashkenaz-text); } .chip-Ashkenaz.active { background: var(--ashkenaz-text); color: white; }
     .chip-Sefard { color: var(--sefard-text); border-color: var(--sefard-text); } .chip-Sefard.active { background: var(--sefard-text); color: white; }
     .chip-Edot-HaMizrach { color: var(--edot-text); border-color: var(--edot-text); } .chip-Edot-HaMizrach.active { background: var(--edot-text); color: white; }
-
     .radius-row { display: flex; align-items: center; gap: 10px; }
     .time-inputs-row { display: flex; gap: 8px; }
     .time-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 15px; font-weight: 600; font-family: inherit; }
@@ -298,22 +288,6 @@
             </div>
         </div>
         <div class="filter-section">
-            <label class="filter-label">Sort By</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('sort', 'time_asc', this)">Earliest</div>
-                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
-            </div>
-        </div>
-        <div class="filter-section">
-            <label class="filter-label">Tefillah</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)" style="color:var(--color-Shacharis);border-color:var(--color-Shacharis)">Shacharis</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)" style="color:var(--color-Mincha);border-color:var(--color-Mincha)">Mincha</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)" style="color:var(--color-Maariv);border-color:var(--color-Maariv)">Maariv</div>
-            </div>
-        </div>
-        <div class="filter-section">
             <label class="filter-label">Nusach (Color Key)</label>
             <div class="chip-group" id="nusach-group">
                 <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
@@ -339,10 +313,6 @@
                     <div class="date-heb" id="z-date-heb"></div>
                 </div>
                 <i class="material-icons" onclick="event.stopPropagation(); changeDate(1)">chevron_right</i>
-            </div>
-            <div class="z-info-row">
-                <div class="z-info-pill"><span class="z-label-sm">Day</span><div class="z-val-lg" id="z-day"></div></div>
-                <div class="z-info-pill"><span class="z-label-sm">Daf Yomi</span><div class="z-val-lg" id="z-daf"></div></div>
             </div>
         </div>
         <ul class="z-list" id="z-list"></ul>
@@ -413,14 +383,14 @@
     </div>
 
     <script>
-        // --- 1. SHULTIME CORE VARIABLES ---
+        // --- 1. VARIABLES ---
         let map, allMinyanim=[], fullDbData=[], searchCenter=null, currentRadius=20, currentTab='map';
         let filters = { sort: 'time_asc', tefillah: '', nusach: '' };
         let markers = [], allNusachs = new Set();
         let selectedShul = null;
         let currentDate = new Date();
 
-        // --- 2. ZMANIM MODULE (ISOLATED) ---
+        // --- 2. ZMANIM ENGINE (HEAVY) ---
         const ZmanimApp = {
             date: new Date(),
             loc: { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ', elev: 30, tz: 'America/New_York' },
@@ -442,7 +412,7 @@
             Solar: { calc: (d, lat, lng, elev) => {
                 const base = new Date(d).setHours(6,0,0,0);
                 const add = m => new Date(base + m*60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-                return { alot:add(0), sun:add(60), noon:add(360), set:add(720), tzais:add(760) }; 
+                return { alot:add(0), mish:add(30), sun:add(60), noon:add(360), set:add(720), tzais:add(760) }; 
             }},
             init: function() { this.render(); },
             setDate: function(d) { this.date = d; this.render(); },
@@ -453,9 +423,6 @@
                 const dateStr = this.date.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
                 document.getElementById('z-date-civ').innerText = dateStr;
                 document.getElementById('z-date-heb').innerText = this.Heb.get(this.date);
-                document.getElementById('z-day').innerText = this.date.toLocaleDateString('en-US', {weekday:'long'});
-                document.getElementById('z-daf').innerText = this.Daf.get(this.date);
-                
                 const t = this.Solar.calc(this.date, this.loc.lat, this.loc.lng);
                 let h = "";
                 this.config.forEach(z => {
@@ -480,7 +447,7 @@
             }
         };
 
-        // --- 3. MAIN APP INIT ---
+        // --- 3. INIT ---
         document.addEventListener("DOMContentLoaded", async () => {
             ZmanimApp.init(); 
             document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59";
@@ -500,9 +467,9 @@
                 fullDbData = await res.json();
                 processData(fullDbData);
             } catch(e) {
-                // Fallback Data for Immediate Functionality
+                // Fallback Data
                 fullDbData = [
-                    {id:1, name:"Bais Medrash Govoah", address:"617 6th St", city:"Lakewood", state:"NJ", lat:40.093, lng:-74.222, nusach:"Ashkenaz", rabbi:"Rabbi Olshin", phone:"732-367-1060", email:"info@bmg.edu", shacharis:{week:["7:00a"]}, mincha:{week:["1:45p"]}, maariv:{week:["9:30p"]}},
+                    {id:1, name:"Bais Medrash Govoah", address:"617 6th St", city:"Lakewood", state:"NJ", lat:40.093, lng:-74.222, nusach:"Ashkenaz", rabbi:"Rabbi Olshin", phone:"7323671060", email:"info@bmg.edu", shacharis:{week:["7:00a"]}, mincha:{week:["1:45p"]}, maariv:{week:["9:30p"]}},
                     {id:2, name:"Satmar", address:"Forest Ave", city:"Lakewood", state:"NJ", lat:40.080, lng:-74.210, nusach:"Sefard", rabbi:"Rabbi Teitelbaum", shacharis:{week:["8:00a"]}, mincha:{week:["2:00p"]}, maariv:{week:["9:00p"]}},
                     {id:3, name:"Ohr Chaim", address:"123 Main", city:"Lakewood", state:"NJ", lat:40.085, lng:-74.219, nusach:"Edot HaMizrach", rabbi:"Rabbi Cohen", shacharis:{week:["6:30a"]}, mincha:{week:["3:00p"]}, maariv:{week:["8:00p"]}}
                 ];
@@ -513,10 +480,6 @@
         // --- 4. MAP & LIST LOGIC ---
         function processData(data) {
             allMinyanim = []; allNusachs = new Set();
-            // Weekday logic
-            const d = currentDate.getDay(); 
-            const k = (d===0) ? 'sun' : (d===6 ? 'shabbos' : 'week');
-            
             data.forEach(s => {
                 if(s.nusach) allNusachs.add(s.nusach);
                 const add = (l,t) => { if(l) l.forEach(tm => {
@@ -524,10 +487,9 @@
                      if(t==='Mincha'&&h<9) v+=720; if(t==='Maariv'&&h<12) v+=720;
                      allMinyanim.push({...s, tefillah:t, timeDisplay:tm, timeValue:v});
                 })};
-                // Fallback to week/sun if specific day key missing
-                add(s.shacharis?.[k] || s.shacharis?.week, 'Shacharis');
-                add(s.mincha?.[k] || s.mincha?.week, 'Mincha');
-                add(s.maariv?.[k] || s.maariv?.week, 'Maariv');
+                add(s.shacharis?.week, 'Shacharis');
+                add(s.mincha?.week, 'Mincha');
+                add(s.maariv?.week, 'Maariv');
             });
             populateNusachFilter();
             if(map) applyFilters();
@@ -561,7 +523,7 @@
                 const c = map.getCenter();
                 searchCenter = { lat: c.lat(), lng: c.lng() };
                 document.getElementById('status-pill').innerText = "Near: Map Center";
-                ZmanimApp.updateLoc({lat:c.lat(), lng:c.lng(), name:"Map Location", elev:30, tz:"America/New_York"});
+                ZmanimApp.updateLoc({lat:c.lat(), lng:c.lng(), name:"Map Location"});
                 applyFilters();
             });
             
@@ -573,30 +535,23 @@
         }
 
         function applyFilters() {
-            // Safe fallback if map not loaded yet
             const center = searchCenter || { lat: 40.091, lng: -74.218 };
-            
             let res = allMinyanim.map(m => { m.dist = getDist(center.lat, center.lng, m.lat, m.lng); return m; });
             const isMap = document.getElementById('map-view').style.display !== 'none';
             
-            // FILTERS
             if(filters.tefillah) res = res.filter(m => m.tefillah === filters.tefillah);
             if(filters.nusach) res = res.filter(m => m.nusach === filters.nusach);
             res = res.filter(m => m.dist <= currentRadius);
             
-            // TIME FILTER
             const [sh,sm] = document.getElementById('time-start').value.split(':').map(Number);
             const [eh,em] = document.getElementById('time-end').value.split(':').map(Number);
             const startV = sh*60+sm, endV = eh*60+em;
             res = res.filter(m => m.timeValue >= startV && m.timeValue <= endV);
 
-            // SORT
             if(filters.sort === 'distance') res.sort((a,b) => a.dist - b.dist);
             else res.sort((a,b) => a.timeValue - b.timeValue);
 
             const count = new Set(res.map(r=>r.id)).size;
-            
-            // PILLS (Map/List Only)
             if(currentTab === 'map' || currentTab === 'list') {
                 document.querySelector('.status-area').style.display = 'flex';
                 document.getElementById('count-pill').style.display = 'block';
@@ -615,7 +570,6 @@
             if(!map) return;
             markers.forEach(m => m.map = null); markers = [];
             const locs = {};
-            // Group to show one marker per location (earliest time)
             res.forEach(r => { if(!locs[r.lat+","+r.lng]) locs[r.lat+","+r.lng] = r; });
             
             Object.values(locs).forEach(m => {
@@ -633,7 +587,6 @@
 
         function renderList(res) {
             const list = document.getElementById('list-view');
-            // Do not render list here if we are on Recent/Saved pages
             if(currentTab !== 'list') return;
 
             list.innerHTML = "";
