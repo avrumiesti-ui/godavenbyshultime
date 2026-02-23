@@ -123,13 +123,13 @@
     }
     
     .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .shul-address { font-size: 14px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .shul-address { font-size: 14px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; } 
     
     .tefillah-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
     .time-val { font-weight: 800; font-size: 20px; color: var(--primary); margin: auto 0; } 
     
     .map-footer { display: flex; align-items: flex-end; gap: 6px; }
-    .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; }
+    .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; } 
     
     .map-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 20px !important; font-weight: bold; }
@@ -214,7 +214,7 @@
     /* DETAILS DRAWER */
     #details-drawer {
         position: fixed; bottom: -100%; left: 10px; right: 10px; height: 80vh;
-        background: #fff; border-radius: 25px; 
+        background: #fff; border-radius: 32px; 
         z-index: 3000; margin-bottom: 15px;
         box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out;
         padding: 0; display: flex; flex-direction: column; overflow: hidden;
@@ -450,7 +450,7 @@
                 <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
             </div>
         </div>
-
+        
         <div style="display:flex; gap:10px; margin-top:10px;">
             <button class="action-btn" onclick="resetFilters()" style="margin-top:0; flex:1; background:#f0f0f0; color:#555;">Reset</button>
             <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:0; flex:2;">Done</button>
@@ -486,16 +486,23 @@
             updateDateDisplay();
             loadProfile();
 
-            // Fetch Database from GitHub hosted file (added cache buster to force fresh data)
+            // Fetch Database dynamically
             try {
-                const res = await fetch("database.json?t=" + new Date().getTime());
-                if (!res.ok) throw new Error("Could not load database.json");
+                document.getElementById("list-view").innerHTML = `<div class="empty-state">Connecting to database.json...</div>`;
+                const res = await fetch("database.json?t=" + new Date().getTime(), { cache: "no-store" });
+                if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
+                
                 fullDbData = await res.json();
+                
+                if (!Array.isArray(fullDbData) || fullDbData.length === 0) {
+                    throw new Error("Database file is empty or not formatted correctly.");
+                }
+
                 processMinyanim(fullDbData);
                 populateNusachFilter();
                 
-                // Show default message if no search is active
-                if (!searchCenter) {
+                if (searchCenter && !currentViewIsMap) applyFilters();
+                else {
                     document.getElementById("list-view").innerHTML = `
                         <div class="empty-state">
                             <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
@@ -504,12 +511,20 @@
                             <b>2. Filter</b> by time or Nusach.<br>
                             <b>3. Tap</b> the target to use GPS.
                         </div>`;
-                } else if (!currentViewIsMap) {
-                    applyFilters();
                 }
             } catch(e) {
                 console.error("Database Fetch Error:", e);
-                document.getElementById("list-view").innerHTML = `<div class="empty-state">Error loading database.json.<br>Ensure the file is uploaded to GitHub and named exactly 'database.json'.</div>`;
+                let errMsg = e.message;
+                if (window.location.protocol === 'file:') {
+                    errMsg = "Browsers block loading local databases for security. You must test this via your live GitHub link, not by double-clicking the file on your computer.";
+                }
+                document.getElementById("list-view").innerHTML = `
+                    <div class="empty-state" style="color: red;">
+                        <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: red;">error_outline</i><br>
+                        <strong>Database Connection Failed</strong><br><br>
+                        ${errMsg}<br><br>
+                        Make sure a file named exactly <b>database.json</b> is uploaded to your GitHub repository in the exact same folder as this index.html file.
+                    </div>`;
             }
         });
 
@@ -648,25 +663,24 @@
             processedMinyanim = [];
             allNusachs = new Set();
             const dayKey = getTodayKey();
+            const isFri = currentFilterDate.getDay() === 5;
+            const isSat = currentFilterDate.getDay() === 6;
 
             data.forEach(shul => {
                 if(!shul.name) return; // Skip nameless
-                if(shul.nusach) allNusachs.add(shul.nusach.trim());
+                if(shul.nusach && shul.nusach !== "Unspecified") allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
                 let minyanimForThisShul = []; 
                 
-                if (shul.shacharis && shul.shacharis[dayKey]) {
+                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) {
                     shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
                 }
-                
-                // Keep mincha/maariv simple per day
-                if (shul.mincha && shul.mincha.week) {
-                    shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
-                }
-                if (shul.maariv && shul.maariv.week) {
-                    shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
-                }
+                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
+                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
+                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); }
+                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); } 
+                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); }
                 
                 if (!hasTimes) {
                     processedMinyanim.push({ ...shul, tefillah: 'Info', timeDisplay: '--:--', ampm: '', timeValue: 9999 });
@@ -761,7 +775,7 @@
             });
 
             if(filters.sort === 'abc') {
-                results.sort((a,b) => a.name.localeCompare(b.name));
+                results.sort((a,b) => (a.name || "").localeCompare(b.name || ""));
             } else if(filters.sort === 'distance') {
                 results.sort((a,b) => a.distance - b.distance);
             } else {
@@ -844,6 +858,9 @@
             Object.values(groups).forEach(m => {
                 const pinDiv = document.createElement("div");
                 let nCls = `bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+                // Fallback color if class not found
+                pinDiv.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue(`--n-${m.nusach?.replace(/\s+/g, '-')}`) || '#6b7280';
+                
                 pinDiv.className = `custom-marker ${nCls}`;
                 pinDiv.textContent = (m.timeValue === 9999) ? "?" : `${m.timeDisplay}`; 
 
@@ -901,8 +918,8 @@
 
             // Contacts
             let contacts = [];
-            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:16px">call</i> Call</a>`);
-            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:16px">email</i> Email</a>`);
+            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
+            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
             contacts.push(`<a href="https://developers.google.com/maps/documentation/javascript/places-migration-overview85{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`);
             contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
             contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${encodeURIComponent(m.name)}" class="contact-btn" style="grid-column: span 2;"><i class="material-icons">feedback</i> Leave Feedback about this Shul</a>`);
@@ -914,7 +931,7 @@
             if (m.timeValue !== 9999) {
                 timeDisplayHtml = `
                 <div class="drawer-nav-row">
-                    <div class="drawer-nav-left"><span class="static-chip chip-${m.tefillah}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
+                    <div class="drawer-nav-left"><span class="static-chip chip-${m.tefillah} ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
                     <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${(m.distance || 0).toFixed(1)}mi</div></div>
                 </div>`;
             }
