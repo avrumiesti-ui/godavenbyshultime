@@ -214,7 +214,7 @@
         display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0;
     }
     .dist-label { font-size: 11px; font-weight: 800; color: #666; line-height: 1; }
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
     
     /* AD CARD */
@@ -554,8 +554,6 @@
         <button class="nav-item" id="nav-settings" onclick="switchTab('settings')"><i class="material-icons">settings</i>Settings</button>
     </div>
 
-    <script src="database.js"></script>
-
     <script>
         // DAF ENGINE
         const DafEngine={masechtot:[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],get:(e)=>{const t=new Date(2020,0,5),a=Math.floor((e-t)/864e5);if(a<0)return"";let n=a;for(let r of DafEngine.masechtot){if(n<r.p)return r.n+" "+(n+2);n-=r.p}return""}};
@@ -603,16 +601,20 @@
                 }
             });
 
-            // Load from database.js
-            if(typeof RAW_DB !== 'undefined') {
-                fullDbData = RAW_DB;
+            // FETCH NATIVE DATABASE FROM GITHUB
+            try {
+                const res = await fetch("database.json");
+                if (!res.ok) throw new Error("DB Fetch Failed");
+                fullDbData = await res.json();
                 processMinyanim(fullDbData);
                 populateNusachFilter();
-            } else {
-                alert("Error: database.js not found. Please ensure both files are in the same folder.");
+                
+                // If user is already looking at the list without a search, re-render it
+                if (searchCenter && currentTab === 'list') applyFilters();
+            } catch(e) { 
+                console.error("Data Load Error", e);
+                alert("Could not load database.json. Make sure the file exists in your repository.");
             }
-            
-            initPullToDismiss(); // Currently disabled in code to match your request
         });
 
         // --- NAVIGATION ---
@@ -967,6 +969,7 @@
             currentRadius = parseFloat(val);
             document.getElementById("radius-input").value = currentRadius;
             document.getElementById("radius-slider").value = currentRadius;
+            document.getElementById("map-radius-pill").innerText = `Radius: ${currentRadius} mi`;
         }
 
         function applyFilters(){
@@ -995,21 +998,19 @@
             if(filters.sort === 'distance') results.sort((a,b) => a.distance - b.distance);
             else results.sort((a,b) => a.timeValue - b.timeValue);
             
-            const uniqueShuls = new Set(results.map(r => r.id)).size;
-            const countPill = document.getElementById("count-pill");
-            if(isMapMode) {
-                countPill.innerText = `${uniqueShuls} Shuls`;
-            } else {
-                const minyanCount = results.filter(m => m.timeValue !== 9999).length;
-                countPill.innerText = `${uniqueShuls} Shuls / ${minyanCount} Minyanim`;
-            }
-            countPill.style.display = "block";
-
-            const radiusPill = document.getElementById("map-radius-pill");
-            radiusPill.innerText = `Radius: ${currentRadius} mi`;
-            radiusPill.style.display = "block";
-
+            const uniqueShuls = new Set(results.map(r => r.name + r.address)).size;
+            
+            // SHOW THE PILLS PROPERLY HERE
             document.getElementById("status-pill").style.display = "block";
+            document.getElementById("count-pill").style.display = "block";
+            document.getElementById("map-radius-pill").style.display = "block";
+            
+            if(isMapMode) {
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls`;
+            } else {
+                const validMinyanimCount = results.filter(m => m.timeValue !== 9999).length;
+                document.getElementById("count-pill").innerText = `${uniqueShuls} Shuls / ${validMinyanimCount} Minyanim`;
+            }
 
             if(currentTab === 'map' || currentTab === 'list') renderList(results);
             if(currentTab === 'map') updateMapMarkers(results);
@@ -1054,13 +1055,13 @@
             if(!center || !bounds) return;
             searchCenter = { lat: center.lat(), lng: center.lng() };
             document.getElementById("status-pill").innerText = `Near: Map Center`;
-            document.getElementById("status-pill").style.display = "block";
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
             document.getElementById("radius-input").value = r.toFixed(1);
             document.getElementById("radius-slider").value = r.toFixed(1);
-            currentRadius = parseFloat(r.toFixed(1));
+            document.getElementById("map-radius-pill").innerText = `Radius: ${r.toFixed(1)} mi`;
+            currentRadius = r;
             applyFilters();
         }
 
@@ -1087,7 +1088,7 @@
             document.getElementById("drawer-address-line1").innerText = m.address; 
             document.getElementById("drawer-address-line2").innerText = `${m.city}, ${m.state} ${m.zip}`; 
             
-            let rabbiText = m.rabbi ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
+            let rabbiText = m.rabbi && m.rabbi !== "Rabbi Not Listed" ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
             let nusachTag = `<span class="nusach-tag-drawer ${nCls}" style="margin:0;">${m.nusach}</span>`;
             let tefillahChipClass = `chip-${m.tefillah}`;
             let timePillClass = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
@@ -1100,12 +1101,17 @@
             let goDavenBtn = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>`;
             let missingInfoText = (!m.phone || !m.email) ? `<div class="missing-info-text">Please update GoDaven as we don’t have this information</div>` : '';
 
-            document.getElementById("drawer-content").innerHTML = `
-                <div class="drawer-top-info">${nusachTag}${rabbiText}</div>
-                <div class="drawer-nav-row">
+            let timeDisplayHtml = '';
+            if (m.timeValue !== 9999) {
+                timeDisplayHtml = `<div class="drawer-nav-row">
                     <div class="drawer-nav-left"><span class="static-chip ${tefillahChipClass}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
                     <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${(m.distance || 0).toFixed(1)}mi</div><div class="map-circle-lg" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=$${m.lat},${m.lng}','_blank')"><i class="material-icons google-maps-icon google-maps-icon-lg">place</i></div></div>
-                </div>
+                </div>`;
+            }
+
+            document.getElementById("drawer-content").innerHTML = `
+                <div class="drawer-top-info">${nusachTag}${rabbiText}</div>
+                ${timeDisplayHtml}
                 <div class="contact-row">${phoneBtn}${emailBtn}${goDavenBtn}</div>${missingInfoText}
                 <div class="schedule-section">
                     <div class="schedule-title">Weekday Schedule</div>
@@ -1131,7 +1137,7 @@
             shareBtn.onclick = () => { if(navigator.share) navigator.share({title: ad.name, text: `Check out ${ad.name} on ShulTime!`, url: ad.website}); };
             let phoneBtn = ad.phone ? `<a href="tel:${ad.phone}" class="contact-btn"><i class="material-icons" style="font-size:14px">call</i> Call</a>` : '';
             let webBtn = ad.website ? `<a href="${ad.website}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">public</i> Website</a>` : '';
-            let mapBtn = `<a href="http://maps.google.com/?q=${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
+            let mapBtn = `<a href="http://maps.google.com/?q=$${encodeURIComponent(ad.address)}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">place</i> Map</a>`;
             document.getElementById("drawer-content").innerHTML = `<div class="ad-hero"><img src="${ad.image_url}" alt="${ad.name}"></div><div class="ad-desc">${ad.description}</div><p class="address-info" style="margin-top:0;">${ad.address}</p><div class="contact-row">${phoneBtn}${webBtn}${mapBtn}</div>`;
             const drawer = document.getElementById("details-drawer");
             drawer.classList.add("open");
@@ -1153,8 +1159,6 @@
             drawer.style.transform = "translateY(100%)";
             document.getElementById("scrim").style.display = "none";
         }
-
-        function initPullToDismiss() {}
 
         function toggleFilters() {
             const d = document.getElementById('filter-drawer');
