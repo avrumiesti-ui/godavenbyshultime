@@ -109,7 +109,7 @@
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
-        min-height: 75px; /* Shorter by 10% */
+        min-height: 75px; 
     }
     .info-zone { 
         flex: 1; padding: 10px 12px; cursor: pointer; 
@@ -123,13 +123,13 @@
     }
     
     .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .shul-address { font-size: 14px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; } /* Increased size */
+    .shul-address { font-size: 14px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     
-    .tefillah-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } /* Inline with name */
-    .time-val { font-weight: 800; font-size: 20px; color: var(--primary); margin: auto 0; } /* Centered Vertically */
+    .tefillah-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
+    .time-val { font-weight: 800; font-size: 20px; color: var(--primary); margin: auto 0; } 
     
     .map-footer { display: flex; align-items: flex-end; gap: 6px; }
-    .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; } /* Inline with bottom of icon */
+    .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; }
     
     .map-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 20px !important; font-weight: bold; }
@@ -309,9 +309,7 @@
             <div class="empty-state">
                 <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
                 <strong>Welcome to ShulTime</strong><br><br>
-                <b>1. Search</b> for a city or zip code.<br>
-                <b>2. Filter</b> by time or Nusach.<br>
-                <b>3. Tap</b> the target to use GPS.
+                Loading database...
             </div>
         </div>
         
@@ -430,7 +428,7 @@
                 <div class="chip active chip-tef" style="background:#0D2B4F; color:#fff; border-color:#0D2B4F;" onclick="setFilter('tefillah', '', this)">All</div>
                 <div class="chip chip-tef txt-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
                 <div class="chip chip-tef txt-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip chip-tef txt-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+                <div class="chip chip-Maariv chip-tef txt-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
             </div>
         </div>
 
@@ -452,7 +450,7 @@
                 <button class="action-btn primary-action" onclick="setNextHour()">Next Hour</button>
             </div>
         </div>
-        
+
         <div style="display:flex; gap:10px; margin-top:10px;">
             <button class="action-btn" onclick="resetFilters()" style="margin-top:0; flex:1; background:#f0f0f0; color:#555;">Reset</button>
             <button class="action-btn primary-action" onclick="toggleFilters()" style="margin-top:0; flex:2;">Done</button>
@@ -488,18 +486,30 @@
             updateDateDisplay();
             loadProfile();
 
-            // Fetch Database from GitHub hosted file
+            // Fetch Database from GitHub hosted file (added cache buster to force fresh data)
             try {
-                const res = await fetch("database.json");
+                const res = await fetch("database.json?t=" + new Date().getTime());
                 if (!res.ok) throw new Error("Could not load database.json");
                 fullDbData = await res.json();
                 processMinyanim(fullDbData);
                 populateNusachFilter();
                 
-                if (searchCenter && !currentViewIsMap) applyFilters();
+                // Show default message if no search is active
+                if (!searchCenter) {
+                    document.getElementById("list-view").innerHTML = `
+                        <div class="empty-state">
+                            <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
+                            <strong>Welcome to ShulTime</strong><br><br>
+                            <b>1. Search</b> for a city or zip code.<br>
+                            <b>2. Filter</b> by time or Nusach.<br>
+                            <b>3. Tap</b> the target to use GPS.
+                        </div>`;
+                } else if (!currentViewIsMap) {
+                    applyFilters();
+                }
             } catch(e) {
                 console.error("Database Fetch Error:", e);
-                document.getElementById("list-view").innerHTML = `<div class="empty-state">Error loading database.json.<br>Ensure the file is uploaded to GitHub.</div>`;
+                document.getElementById("list-view").innerHTML = `<div class="empty-state">Error loading database.json.<br>Ensure the file is uploaded to GitHub and named exactly 'database.json'.</div>`;
             }
         });
 
@@ -524,7 +534,7 @@
                     document.getElementById('center-marker').style.display = 'none';
                     document.querySelector('.fab-location').style.display = 'flex';
                 }
-                applyFilters(); 
+                if(searchCenter) applyFilters(); 
             } 
             else if (tabId === 'saved') {
                 document.getElementById('saved-view').style.display = 'block';
@@ -563,14 +573,14 @@
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
-                mapPill.style.display = "block";
+                if(searchCenter) mapPill.style.display = "block";
                 
                 if(map && searchCenter && !isProgrammaticMove) {
                     isProgrammaticMove = true;
                     map.panTo(searchCenter);
                 }
             }
-            applyFilters();
+            if(searchCenter) applyFilters();
         }
 
         function scrollToTop(e) {
@@ -596,7 +606,7 @@
             updateDateDisplay();
             if(fullDbData.length > 0) {
                 processMinyanim(fullDbData);
-                applyFilters();
+                if(searchCenter) applyFilters();
             }
         }
 
@@ -631,31 +641,38 @@
             document.getElementById("radius-slider").value = 20;
 
             if(fullDbData.length > 0) processMinyanim(fullDbData);
-            applyFilters();
+            if(searchCenter) applyFilters();
         }
 
         function processMinyanim(data){
             processedMinyanim = [];
             allNusachs = new Set();
-            const dayKey = getDayKey(currentFilterDate);
-            const isFri = currentFilterDate.getDay() === 5;
-            const isSat = currentFilterDate.getDay() === 6;
+            const dayKey = getTodayKey();
 
             data.forEach(shul => {
-                if(!shul.name) return; 
+                if(!shul.name) return; // Skip nameless
                 if(shul.nusach) allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
                 let minyanimForThisShul = []; 
-                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
-                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); }
-                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); }
                 
-                if (!hasTimes) processedMinyanim.push({ ...shul, tefillah: 'None', timeDisplay: 'None', ampm: '', timeValue: 9999 });
-                else processedMinyanim.push(...minyanimForThisShul);
+                if (shul.shacharis && shul.shacharis[dayKey]) {
+                    shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
+                }
+                
+                // Keep mincha/maariv simple per day
+                if (shul.mincha && shul.mincha.week) {
+                    shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; });
+                }
+                if (shul.maariv && shul.maariv.week) {
+                    shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; });
+                }
+                
+                if (!hasTimes) {
+                    processedMinyanim.push({ ...shul, tefillah: 'Info', timeDisplay: '--:--', ampm: '', timeValue: 9999 });
+                } else {
+                    processedMinyanim.push(...minyanimForThisShul);
+                }
             });
             allMinyanim = processedMinyanim;
         }
@@ -852,10 +869,8 @@
             const ne = bounds.getNorthEast();
             const r = getDistance(center.lat(), center.lng(), ne.lat(), ne.lng());
             
-            document.getElementById("radius-input").value = r.toFixed(1);
-            document.getElementById("radius-slider").value = r.toFixed(1);
+            updateRadius(r.toFixed(1)); 
             document.getElementById("map-radius-pill").innerText = `Radius: ${r.toFixed(1)} mi`;
-            currentRadius = r;
             
             applyFilters();
         }
@@ -876,18 +891,21 @@
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const link = `https://www.godaven.com/shul-details/${godavenId}`;
             const nCls = `bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+            const content = document.getElementById("drawer-content");
+            const headerContent = document.getElementById("drawer-header");
             
+            let rabbiText = m.rabbi && m.rabbi !== "Rabbi Not Listed" ? `<div class="rabbi-info"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}</div>` : '';
+
+            // Sticky Header
             document.getElementById("drawer-title").innerText = m.name;
-            
-            let rabbiText = m.rabbi && m.rabbi !== "Rabbi Not Listed" ? `<i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}` : '';
-            
-            // Build Contacts
+
+            // Contacts
             let contacts = [];
-            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
-            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
+            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:16px">call</i> Call</a>`);
+            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:16px">email</i> Email</a>`);
             contacts.push(`<a href="https://developers.google.com/maps/documentation/javascript/places-migration-overview85{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`);
             contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
-            contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${m.name}" class="contact-btn"><i class="material-icons">feedback</i> Feedback</a>`);
+            contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${encodeURIComponent(m.name)}" class="contact-btn" style="grid-column: span 2;"><i class="material-icons">feedback</i> Leave Feedback about this Shul</a>`);
 
             let tCls = `txt-${m.tefillah}`;
             let timePillClass = `text-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
@@ -901,9 +919,9 @@
                 </div>`;
             }
 
-            document.getElementById("drawer-content").innerHTML = `
+            content.innerHTML = `
                 <div class="address-info">${m.address}, ${m.city}, ${m.state} ${m.zip}</div>
-                <div class="drawer-top-info"><span class="nusach-tag ${nCls}" style="margin:0;">${m.nusach}</span><span class="rabbi-info">${rabbiText}</span></div>
+                <div class="drawer-top-info"><span class="nusach-tag ${nCls}" style="margin:0;">${m.nusach}</span>${rabbiText}</div>
                 ${timeDisplayHtml}
                 <div class="contact-grid">${contacts.join('')}</div>
 
