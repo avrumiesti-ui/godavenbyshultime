@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v2.4</title>
+<title>ShulTime v2.5</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -136,16 +136,29 @@
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 16px !important; font-weight: bold; }
 
     /* FILTERS */
-    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: 0 auto; }
+    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: 0 auto; max-height: 75vh; overflow-y: auto;}
     .filter-section { margin-bottom: 15px; } 
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.1s; color: #555; }
-    .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
-    .chip-all.active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+    .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); background: var(--primary); color: #fff; border-color: var(--primary); }
     
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
     .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
+
+    /* NUSACH CHIPS IN FILTER */
+    .n-chip-Ashkenaz { background: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
+    .n-chip-Ashkenaz.active { border: 2px solid var(--text-Ashkenaz) !important; font-weight: 800; }
+    .n-chip-Sefard { background: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
+    .n-chip-Sefard.active { border: 2px solid var(--text-Sefard) !important; font-weight: 800; }
+    .n-chip-Ari { background: var(--bg-Ari) !important; color: var(--text-Ari) !important; border-color: var(--bg-Ari) !important; }
+    .n-chip-Ari.active { border: 2px solid var(--text-Ari) !important; font-weight: 800; }
+    .n-chip-Edot-HaMizrach { background: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; border-color: var(--bg-Edot-HaMizrach) !important; }
+    .n-chip-Edot-HaMizrach.active { border: 2px solid var(--text-Edot-HaMizrach) !important; font-weight: 800; }
+    .n-chip-Chabad { background: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; border-color: var(--bg-Chabad) !important; }
+    .n-chip-Chabad.active { border: 2px solid var(--text-Chabad) !important; font-weight: 800; }
+    .n-chip-Other { background: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
+    .n-chip-Other.active { border: 2px solid var(--text-Other) !important; font-weight: 800; }
 
     /* DETAILS DRAWER */
     #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; padding: 0; }
@@ -169,33 +182,13 @@
     }
     .nav-item i { font-size: 24px; }
 
-    /* NUSACH & TEFILLAH DYNAMIC CHIPS & UTILS */
+    /* NUSACH & TEFILLAH UTILS FOR CARDS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .nusach-bg-Sefard { background-color: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
     .nusach-bg-Ari { background-color: var(--bg-Ari) !important; color: var(--text-Ari) !important; border-color: var(--bg-Ari) !important; }
     .nusach-bg-Edot-HaMizrach { background-color: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; border-color: var(--bg-Edot-HaMizrach) !important; }
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; border-color: var(--bg-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
-    
-    .chip-Ashkenaz { color: var(--text-Ashkenaz); border-color: var(--text-Ashkenaz); }
-    .chip-Ashkenaz.active { background-color: var(--text-Ashkenaz) !important; color: white !important; }
-    .chip-Sefard { color: var(--text-Sefard); border-color: var(--text-Sefard); }
-    .chip-Sefard.active { background-color: var(--text-Sefard) !important; color: white !important; }
-    .chip-Ari { color: var(--text-Ari); border-color: var(--text-Ari); }
-    .chip-Ari.active { background-color: var(--text-Ari) !important; color: white !important; }
-    .chip-Edot-HaMizrach { color: var(--text-Edot-HaMizrach); border-color: var(--text-Edot-HaMizrach); }
-    .chip-Edot-HaMizrach.active { background-color: var(--text-Edot-HaMizrach) !important; color: white !important; }
-    .chip-Chabad { color: var(--text-Chabad); border-color: var(--text-Chabad); }
-    .chip-Chabad.active { background-color: var(--text-Chabad) !important; color: white !important; }
-    .chip-Other { color: var(--text-Other); border-color: var(--text-Other); }
-    .chip-Other.active { background-color: var(--text-Other) !important; color: white !important; }
-
-    .chip-Shacharis { border: 2px solid var(--color-Shacharis); color: var(--color-Shacharis); }
-    .chip-Shacharis.active { background: var(--color-Shacharis) !important; color: white !important; }
-    .chip-Mincha { border: 2px solid var(--color-Mincha); color: var(--color-Mincha); }
-    .chip-Mincha.active { background: var(--color-Mincha) !important; color: white !important; }
-    .chip-Maariv { border: 2px solid var(--color-Maariv); color: var(--color-Maariv); }
-    .chip-Maariv.active { background: var(--color-Maariv) !important; color: white !important; }
 
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
     .time-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 14px; margin: 2px; border: 1px solid rgba(0,0,0,0.08); }
@@ -262,33 +255,41 @@
             </div>
         </div>
         <div class="filter-section">
+            <label class="filter-label">Sort By</label>
+            <div class="chip-group" id="sort-group">
+                <div class="chip active" onclick="setFilter('sort', 'time', this)">Time</div>
+                <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
+                <div class="chip" onclick="setFilter('sort', 'abc', this)">A-Z</div>
+            </div>
+        </div>
+        <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
             <div style="display:flex; align-items:center; gap:10px;">
                 <input type="range" min="0.1" max="99" step="0.1" value="20" id="radius-slider" style="flex:1; accent-color: var(--primary);" oninput="manualRadiusUpdate(this.value)">
                 <input type="number" id="radius-input" value="20" style="width:50px; padding:5px; border:1px solid #ddd; border-radius:8px; text-align:center; font-weight:bold; font-family:inherit;" onchange="manualRadiusUpdate(this.value)">
             </div>
-            <div class="chip-group" style="margin-top:10px;">
+            <div class="chip-group" id="radius-group" style="margin-top:10px;">
                 <div class="chip" onclick="manualRadiusUpdate(1)">1</div>
                 <div class="chip" onclick="manualRadiusUpdate(2)">2</div>
                 <div class="chip" onclick="manualRadiusUpdate(3)">3</div>
                 <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
-                <div class="chip active chip-all" onclick="manualRadiusUpdate(20)">20</div>
+                <div class="chip active" onclick="manualRadiusUpdate(20)">20</div>
                 <div class="chip" onclick="manualRadiusUpdate(99)">99</div>
             </div>
         </div>
         <div class="filter-section">
             <label class="filter-label">Tefillah</label>
             <div class="chip-group">
-                <div class="chip active chip-all" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
             </div>
         </div>
         <div class="filter-section">
             <label class="filter-label">Nusach</label>
             <div class="chip-group" id="nusach-group">
-                <div class="chip active chip-all" onclick="setFilter('nusach', '', this)">All</div>
+                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
             </div>
         </div>
         <div class="filter-section">
@@ -342,7 +343,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.4 (Merged Edition)</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.5 (Merged Edition)</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -379,7 +380,7 @@
         const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};return{noon:p,alot:f(106.1,!0),misheyakir:f(101.5,!0),sunrise:f(90.833,!0),sunset:f(90.833,!1),tzais:f(98.5,!1)}}};
 
         let map, geocoder, fullDbData = [], allMinyanim = [], searchCenter = null, currentRadius = 20;
-        let filters = { tefillah: '', nusach: '' };
+        let filters = { tefillah: '', nusach: '', sort: 'time' };
         let markers = [];
         let currentTab = 'map';
         let currentFilterDate = new Date();
@@ -453,7 +454,7 @@
             const group = document.getElementById('nusach-group');
             Array.from(set).sort().forEach(n => {
                 if(!n) return;
-                const safeClass = `chip-${n.replace(/\s+/g, '-')}`;
+                const safeClass = `n-chip-${n.replace(/\s+/g, '-')}`;
                 const chip = document.createElement('div');
                 chip.className = `chip ${safeClass}`;
                 chip.innerText = n;
@@ -484,7 +485,14 @@
             if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             results = results.filter(m => m.timeValue === 9999 || (m.timeValue >= sVal && m.timeValue <= eVal));
             
-            results.sort((a,b) => a.timeValue - b.timeValue);
+            // Apply Sorting
+            if (filters.sort === 'abc') {
+                results.sort((a,b) => (a.name || "").localeCompare(b.name || ""));
+            } else if (filters.sort === 'distance') {
+                results.sort((a,b) => a.distance - b.distance);
+            } else { // default: time
+                results.sort((a,b) => a.timeValue - b.timeValue);
+            }
             
             updateStatusPills(results);
             if(currentTab === 'map' || currentTab === 'list') renderList(results);
@@ -508,7 +516,7 @@
             let html = "";
             results.forEach(m => {
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `http://googleusercontent.com/maps.google.com/5{encodeURIComponent(m.name + " " + m.address)}`;
+                const mapLink = `http://googleusercontent.com/maps.google.com/6{encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
                     `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
@@ -745,12 +753,10 @@
             document.getElementById('radius-slider').value = val;
             document.getElementById('radius-input').value = val;
             
-            const chips = document.getElementById('filter-drawer').querySelectorAll('.chip-group')[1].querySelectorAll('.chip'); // The radius chips
+            const chips = document.getElementById('radius-group').querySelectorAll('.chip');
             chips.forEach(c => c.classList.remove('active', 'chip-all'));
             chips.forEach(c => { 
-                if(c.innerText === String(val)) {
-                    c.classList.add('active', 'chip-all'); 
-                }
+                if(c.innerText === String(val)) c.classList.add('active', 'chip-all'); 
             });
 
             if(map && searchCenter) {
@@ -771,29 +777,35 @@
         function resetTime() { document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59"; applyFilters(); }
         
         function resetFilters() {
-            filters = { tefillah: '', nusach: '' };
+            filters = { tefillah: '', nusach: '', sort: 'time' };
             manualRadiusUpdate(20);
-            resetTime();
+            document.getElementById('time-start').value="00:00";
+            document.getElementById('time-end').value="23:59";
             
+            // Reset visual active state for chips
             document.querySelectorAll('.chip-group').forEach(group => {
-                group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                const allChip = group.querySelector('.chip'); 
-                if(allChip) allChip.classList.add('active', 'chip-all');
+                group.querySelectorAll('.chip').forEach(c => c.classList.remove('active', 'chip-all'));
+                const firstChip = group.querySelector('.chip'); 
+                if(firstChip) firstChip.classList.add('active', 'chip-all');
             });
             applyFilters();
         }
 
         function toggleFilters() { const d = document.getElementById('filter-drawer'); d.style.display = (d.style.display==='block'?'none':'block'); }
+        
         function setFilter(k,v,btn) { 
-            filters[k]=v; const group = btn.parentElement;
-            group.querySelectorAll('.chip').forEach(c=>{ c.classList.remove('active', 'chip-all'); }); 
+            filters[k]=v; 
+            const group = btn.parentElement;
+            group.querySelectorAll('.chip').forEach(c => c.classList.remove('active', 'chip-all')); 
             btn.classList.add('active'); 
-            if(v === '') { btn.classList.add('chip-all'); }
+            if(v === '' || k === 'sort') { btn.classList.add('chip-all'); }
             applyFilters(); 
         }
+
         function closeDetails() { document.getElementById('details-drawer').classList.remove('open'); document.getElementById('scrim').style.display='none'; }
 
         function changeDate(n) { currentFilterDate.setDate(currentFilterDate.getDate()+n); updateDateDisplay(); processMinyanim(); if(currentTab==='zmanim') renderZmanim(); }
+        
         function updateDateDisplay() {
             const dStr = currentFilterDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
             const hStr = HebCal.getHebrewStr(currentFilterDate);
@@ -879,6 +891,7 @@
 
         async function initApp(){
             const { Map } = await google.maps.importLibrary("maps");
+            const { Autocomplete } = await google.maps.importLibrary("places");
             geocoder = new google.maps.Geocoder();
 
             map = new Map(document.getElementById("map-view"), {
@@ -912,9 +925,9 @@
                 applyFilters();
             });
 
-            // Standard Google Autocomplete (Fixes Web Component issues)
+            // Fixed Standard Google Autocomplete 
             const pacInput = document.getElementById("pac-input");
-            const autocomplete = new google.maps.places.Autocomplete(pacInput, { types: ["(cities)"] });
+            const autocomplete = new Autocomplete(pacInput, { types: ["(cities)"] });
             
             autocomplete.addListener("place_changed", () => {
                 if (document.activeElement) document.activeElement.blur();
