@@ -61,7 +61,7 @@
         cursor: pointer; color: var(--primary); transition: all 0.2s;
     }
 
-    /* SEARCH OVERLAY (The actual functional search) */
+    /* SEARCH OVERLAY */
     #search-overlay {
         position: fixed; top: 100%; left: 0; right: 0; height: 100%;
         background: var(--bg); z-index: 5000; 
@@ -77,7 +77,7 @@
     }
     .search-overlay-input-wrap {
         flex: 1; height: 45px; background: #f0f2f5; border-radius: 22px; 
-        overflow: hidden; padding: 0 15px; display: flex; align-items: center;
+        overflow: visible; padding: 0 15px; display: flex; align-items: center;
     }
     gmp-place-autocomplete { width: 100%; height: 100%; background-color: transparent !important; }
     gmp-place-autocomplete::part(input) { background-color: transparent !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; outline: none; border: none; }
@@ -164,12 +164,10 @@
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     
-    /* DEFAULT CHIP */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.1s; color: #555; }
     .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
     .chip-all.active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
 
-    /* NUSACH CHIPS IN FILTER (Colorized) */
     .n-chip-Ashkenaz { background: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .n-chip-Ashkenaz.active { border: 2px solid var(--text-Ashkenaz) !important; font-weight: 800; }
     .n-chip-Sefard { background: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
@@ -196,7 +194,7 @@
     .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
     .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex: 1; }
     
-    /* TOOLBAR (Liquid Glass Active State) */
+    /* TOOLBAR */
     .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
     .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: transparent; flex: 1; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; padding: 8px 4px; margin: 0 2px; border-radius: 20px; border: 1px solid transparent; }
     .nav-item.active { 
@@ -208,17 +206,12 @@
     }
     .nav-item i { font-size: 24px; }
 
-    /* NUSACH & TEFILLAH UTILS FOR CARDS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .nusach-bg-Sefard { background-color: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
     .nusach-bg-Ari { background-color: var(--bg-Ari) !important; color: var(--text-Ari) !important; border-color: var(--bg-Ari) !important; }
     .nusach-bg-Edot-HaMizrach { background-color: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; border-color: var(--bg-Edot-HaMizrach) !important; }
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; border-color: var(--bg-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
-    
-    .chip-Shacharis.active { background: var(--color-Shacharis) !important; color: white !important; border: 2px solid var(--color-Shacharis) !important; }
-    .chip-Mincha.active { background: var(--color-Mincha) !important; color: white !important; border: 2px solid var(--color-Mincha) !important; }
-    .chip-Maariv.active { background: var(--color-Maariv) !important; color: white !important; border: 2px solid var(--color-Maariv) !important; }
 
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
     .time-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 14px; margin: 2px; border: 1px solid rgba(0,0,0,0.08); }
@@ -255,7 +248,7 @@
                 <i class="material-icons" style="color:#555;">arrow_back</i>
             </button>
             <div class="search-overlay-input-wrap">
-                <gmp-place-autocomplete id="gmp-autocomplete" placeholder="Search City..."></gmp-place-autocomplete>
+                <gmp-place-autocomplete id="gmp-autocomplete" placeholder="Search City, Zip Code..."></gmp-place-autocomplete>
             </div>
         </div>
         <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px; text-align:center;">
@@ -328,9 +321,9 @@
             <label class="filter-label">Tefillah</label>
             <div class="chip-group" id="tefillah-group">
                 <div class="chip active chip-all" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
+                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
             </div>
         </div>
         <div class="filter-section">
@@ -390,7 +383,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.8 (Merged Edition)</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.8</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -461,22 +454,15 @@
         // Overlay Search functions
         function openSearchOverlay() {
             document.getElementById('search-overlay').classList.add('open');
-            // Try to auto-focus the web component's internal shadow-dom input
-            setTimeout(() => { 
-                const gmp = document.getElementById('gmp-autocomplete');
-                if(gmp && gmp.shadowRoot) {
-                    const input = gmp.shadowRoot.querySelector('input');
-                    if(input) input.focus();
-                }
+            // Try to set focus to the inner input of the web component if possible
+            setTimeout(() => {
+                const ac = document.getElementById('gmp-autocomplete');
+                if(ac) ac.focus();
             }, 300);
         }
         function closeSearchOverlay() {
             document.getElementById('search-overlay').classList.remove('open');
-            const gmp = document.getElementById('gmp-autocomplete');
-            if(gmp && gmp.shadowRoot) {
-                const input = gmp.shadowRoot.querySelector('input');
-                if(input) input.blur();
-            }
+            if (document.activeElement) document.activeElement.blur();
         }
 
         function processMinyanim() {
@@ -993,16 +979,30 @@
                 applyFilters();
             });
 
-            // Google Web Component Autocomplete inside the overlay
+            // Handle the modern Web Component inside the overlay
             const autocompleteEl = document.getElementById("gmp-autocomplete");
-            autocompleteEl.addEventListener("gmp-placeselect", async (e) => {
-                if (e.place) {
-                    await e.place.fetchFields({ fields: ["location", "displayName"] });
-                    setSearchLocation(e.place.location.lat(), e.place.location.lng(), e.place.displayName);
-                    closeSearchOverlay();
-                    autocompleteEl.inputValue = ''; // Reset for next time
-                }
-            });
+            if(autocompleteEl) {
+                autocompleteEl.addEventListener("gmp-placeselect", async (e) => {
+                    if (e.place) {
+                        if (document.activeElement) document.activeElement.blur();
+                        
+                        try {
+                            await e.place.fetchFields({ fields: ["location", "displayName"] });
+                            
+                            if (e.place.location) {
+                                setSearchLocation(e.place.location.lat(), e.place.location.lng(), e.place.displayName);
+                            }
+                            
+                            closeSearchOverlay();
+                            
+                            // Optional: clear out the search overlay input so it is fresh next time
+                            autocompleteEl.inputValue = '';
+                        } catch(err) {
+                            console.error("Place fetch error: ", err);
+                        }
+                    }
+                });
+            }
         }
 
         function updateRadiusUI(r) {
