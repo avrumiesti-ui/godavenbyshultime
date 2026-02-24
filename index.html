@@ -38,9 +38,9 @@
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
-    /* FLOATING HEADER (Search) */
+    /* FLOATING HEADER */
     .floating-header {
-        position: fixed; top: 15px; left: 12px; right: 12px;
+        position: fixed; top: 15px; left: 10px; right: 10px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
     }
     .search-container {
@@ -70,16 +70,31 @@
     #status-pill, #count-pill, #map-radius-pill {
         padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
         display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
+        max-width: 45%; overflow: hidden; text-overflow: ellipsis; pointer-events: auto;
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; }
 
+    /* STICKY HEADER */
+    .sticky-header {
+        position: fixed; top: 0; left: 0; right: 0; height: 60px;
+        background: rgba(242, 244, 248, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 900; 
+        display: flex; align-items: flex-end; justify-content: center;
+        padding-bottom: 12px; font-weight: 800; font-size: 17px; color: var(--primary);
+        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
+    }
+    .sticky-header.visible { opacity: 1; pointer-events: auto; }
+
     /* VIEWS */
     #list-view, #settings-view, #zmanim-view { 
-        position: absolute; inset: 0; padding-bottom: 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none;
+        position: absolute; inset: 0; padding: 110px 10px 120px 10px; overflow-y: auto; background: var(--bg); z-index: 10; display: none;
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
+
+    /* PAGE HEADERS */
+    .list-page-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 20px; margin-bottom: 15px; padding-left: 5px; }
 
     /* MAP STUFF */
     #center-marker {
@@ -88,6 +103,12 @@
         transform: translate(-50%, -50%); z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         pointer-events: none; display: none;
     }
+    .custom-marker { 
+        padding: 4px 9px; border-radius: 12px; font-size: 13px; font-weight: 800; 
+        box-shadow: 0 3px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; 
+        position: relative; top: 10px; cursor: pointer; background: #fff;
+    }
+    .custom-marker::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: inherit transparent transparent transparent; }
 
     /* CARDS */
     .minyan-card {
@@ -95,59 +116,88 @@
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; height: 85px; 
     }
-    .info-zone { width: 60%; flex: 1; padding: 8px 12px; cursor: pointer; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #f0f0f0; }
-    .map-zone { width: 120px; position: relative; cursor: pointer; background: #fafafa; flex-shrink: 0; }
+    .info-zone { width: 60%; flex: 1; padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-start; min-width: 0; border-right: 1px solid #f0f0f0; }
+    .map-zone { width: 40%; flex-basis: 40%; position: relative; cursor: pointer; background: #fafafa; flex-shrink: 0; }
     
     .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
-    .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .shul-city-state { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 4px; }
+    .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+    .shul-city-state { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; line-height: 1.2; }
+    .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
-    .tefillah-label { position: absolute; top: 8px; right: 35px; text-align: right; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #555; } 
-    .time-val-card { position: absolute; top: 50%; right: 35px; transform: translateY(-50%); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; }
-    .dist-row { position: absolute; bottom: 8px; right: 35px; display: flex; align-items: center; gap: 6px; }
-    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
-    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; }
+    .tefillah-label { position: absolute; top: 8px; right: 10px; text-align: right; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #555; } 
+    .time-val-card { position: absolute; top: calc(50% - 15px); right: 10px; transform: translateY(-50%); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; }
+    .dist-row { position: absolute; bottom: 8px; right: 10px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .dist-label { font-size: 11px; font-weight: 800; color: #666; }
+    .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; font-weight: bold; }
 
     /* FILTERS */
-    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: auto; }
+    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: 0 auto; }
     .filter-section { margin-bottom: 15px; } 
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.1s; }
+    .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
     
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
-    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; }
+    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
 
     /* DETAILS DRAWER */
-    #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 80vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
+    #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; padding: 0; }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
-    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
-    .contact-row { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
-    .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 11px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 4px; }
-
+    .drawer-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f0f0f0; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
+    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; margin-top: 10px; }
+    .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+    .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 11px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+    
     /* TOOLBAR */
-    .floating-toolbar {
-        position: fixed; bottom: 30px; left: 20px; right: 20px;
-        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3);
-        display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-    .nav-item { display: flex; flex-direction: column; align-items: center; color: #999; font-size: 10px; font-weight: 600; border: none; background: none; flex: 1; cursor: pointer; }
-    .nav-item.active { color: var(--primary); }
+    .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: none; flex: 1; cursor: pointer; transition: all 0.2s; position: relative; }
+    .nav-item.active { color: var(--primary); transform: translateY(-2px); }
     .nav-item i { font-size: 24px; }
 
-    /* NUSACH UTILS */
-    .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; }
-    .nusach-bg-Sefard { background-color: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; }
-    .nusach-bg-Ari { background-color: var(--bg-Ari) !important; color: var(--text-Ari) !important; }
-    .nusach-bg-Edot-HaMizrach { background-color: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; }
-    .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; }
-    .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; }
+    /* NUSACH & TEFILLAH UTILS */
+    .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
+    .nusach-bg-Sefard { background-color: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
+    .nusach-bg-Ari { background-color: var(--bg-Ari) !important; color: var(--text-Ari) !important; border-color: var(--bg-Ari) !important; }
+    .nusach-bg-Edot-HaMizrach { background-color: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; border-color: var(--bg-Edot-HaMizrach) !important; }
+    .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; border-color: var(--bg-Chabad) !important; }
+    .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
+    
+    .chip-Ashkenaz.active { border: 2px solid var(--text-Ashkenaz); }
+    .chip-Sefard.active { border: 2px solid var(--text-Sefard); }
+    .chip-Ari.active { border: 2px solid var(--text-Ari); }
+    .chip-Edot-HaMizrach.active { border: 2px solid var(--text-Edot-HaMizrach); }
+    .chip-Chabad.active { border: 2px solid var(--text-Chabad); }
+
+    .chip-Shacharis { border: 2px solid var(--color-Shacharis); color: var(--color-Shacharis); }
+    .chip-Mincha { border: 2px solid var(--color-Mincha); color: var(--color-Mincha); }
+    .chip-Maariv { border: 2px solid var(--color-Maariv); color: var(--color-Maariv); }
+    .chip-Shacharis.active { background: var(--color-Shacharis); color: white; }
+    .chip-Mincha.active { background: var(--color-Mincha); color: white; }
+    .chip-Maariv.active { background: var(--color-Maariv); color: white; }
 
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
-    .time-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 14px; margin: 2px; border: 1px solid rgba(0,0,0,0.05); }
+    .time-pill { display: inline-block; padding: 4px 12px; border-radius: 14px; font-weight: 800; font-size: 16px; white-space: nowrap; margin: 2px; border: 1px solid rgba(0,0,0,0.08); }
+
+    /* ZMANIM & SETTINGS */
+    .zman-header-section { background: #fff; padding: 15px 15px 10px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; border-radius: 15px; margin-bottom: 10px; }
+    .zman-card { background: #fff; border-radius: 12px; padding: 14px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .zman-label { font-size: 15px; font-weight: 700; color: #333; }
+    .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
+    .zman-sub { display: block; font-size: 11px; color: #999; margin-top: 2px; }
+    
+    .settings-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .input-group { margin-bottom: 15px; }
+    .input-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+    .settings-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; box-sizing: border-box; font-family: inherit; }
+    .settings-input:focus { outline: none; border-color: var(--primary); background: #fff; }
+    .settings-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; color: #333; text-decoration: none; cursor: pointer; }
+    .settings-link:last-child { border-bottom: none; }
+    .settings-link i { color: #ccc; }
+    .settings-link-text { font-size: 16px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -171,14 +221,14 @@
     <div id="scrim" onclick="closeDetails()"></div>
 
     <div id="details-drawer">
-        <div style="padding:15px 20px; display:flex; justify-content:space-between; border-bottom:1px solid #f0f0f0;">
-            <div>
-                <div id="drawer-title" style="font-weight:800; font-size:18px; color:var(--primary)"></div>
-                <div id="drawer-address" style="font-size:13px; color:#666"></div>
+        <div class="drawer-header">
+            <div style="flex:1; padding-right: 10px;">
+                <div id="drawer-title" style="font-weight:800; font-size:18px; color:var(--primary); line-height: 1.1; margin-bottom: 2px;"></div>
+                <div id="drawer-address" style="font-size:13px; color:#777; font-weight: 500;"></div>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button class="circle-btn" style="width:40px; height:40px" onclick="toggleFavorite()"><i class="material-icons" id="drawer-fav-icon">bookmark_border</i></button>
-                <button class="circle-btn" style="width:40px; height:40px" onclick="closeDetails()"><i class="material-icons">close</i></button>
+            <div style="display:flex; gap:12px; flex-shrink: 0;">
+                <button class="circle-btn" style="width:40px; height:40px; background:#f0f0f0;" onclick="toggleFavorite()"><i class="material-icons" id="drawer-fav-icon" style="color:#555; font-size: 20px;">bookmark_border</i></button>
+                <button class="circle-btn" style="width:40px; height:40px; background:#f0f0f0;" onclick="closeDetails()"><i class="material-icons" style="color:#555; font-size: 20px;">close</i></button>
             </div>
         </div>
         <div id="drawer-content" class="drawer-body"></div>
@@ -190,8 +240,8 @@
             <div class="date-nav">
                 <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
                 <div style="text-align:center">
-                    <div id="date-display" style="font-weight:800; font-size:14px;">Today</div>
-                    <div id="hebrew-date" style="font-size:11px; color:var(--primary)"></div>
+                    <div id="date-display" style="font-weight:800; font-size:16px; color:#333;">Today</div>
+                    <div id="hebrew-date" style="font-size:13px; font-weight:600; color:var(--primary); opacity:0.8;"></div>
                 </div>
                 <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
             </div>
@@ -199,65 +249,114 @@
         <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
             <div style="display:flex; align-items:center; gap:10px;">
-                <input type="range" min="0.5" max="50" step="0.5" value="20" id="radius-slider" style="flex:1" oninput="manualRadiusUpdate(this.value)">
-                <span id="radius-val" style="font-weight:bold; width:30px">20</span>
+                <input type="range" min="0.1" max="99" step="0.1" value="20" id="radius-slider" style="flex:1; accent-color: var(--primary);" oninput="manualRadiusUpdate(this.value)">
+                <input type="number" id="radius-input" value="20" style="width:50px; padding:5px; border:1px solid #ddd; border-radius:8px; text-align:center; font-weight:bold; font-family:inherit;" onchange="manualRadiusUpdate(this.value)">
             </div>
             <div class="chip-group" style="margin-top:10px;">
-                <div class="chip" onclick="manualRadiusUpdate(1)">1mi</div>
-                <div class="chip" onclick="manualRadiusUpdate(5)">5mi</div>
-                <div class="chip active" onclick="manualRadiusUpdate(20)">20mi</div>
+                <div class="chip" onclick="manualRadiusUpdate(1)">1</div>
+                <div class="chip" onclick="manualRadiusUpdate(2)">2</div>
+                <div class="chip" onclick="manualRadiusUpdate(3)">3</div>
+                <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
+                <div class="chip active" onclick="manualRadiusUpdate(20)">20</div>
+                <div class="chip" onclick="manualRadiusUpdate(99)">99</div>
             </div>
         </div>
         <div class="filter-section">
             <label class="filter-label">Tefillah</label>
             <div class="chip-group">
-                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+                <div class="chip active" style="background:var(--primary); color:#fff; border-color:var(--primary)" onclick="setFilter('tefillah', '', this)">All</div>
+                <div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
+                <div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
+                <div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+            </div>
+        </div>
+        <div class="filter-section">
+            <label class="filter-label">Nusach</label>
+            <div class="chip-group" id="nusach-group">
+                <div class="chip active" style="background:var(--primary); color:#fff; border-color:var(--primary)" onclick="setFilter('nusach', '', this)">All</div>
             </div>
         </div>
         <div class="filter-section">
             <label class="filter-label">Time Range</label>
             <div style="display:flex; gap:8px;">
-                <input type="time" id="time-start" value="00:00" style="flex:1; padding:8px; border-radius:10px; border:1px solid #ddd">
-                <input type="time" id="time-end" value="23:59" style="flex:1; padding:8px; border-radius:10px; border:1px solid #ddd">
+                <input type="time" id="time-start" value="00:00" style="flex:1; padding:8px; border-radius:15px; border:1px solid #ddd; text-align:center; font-weight:600;" onchange="applyFilters()">
+                <input type="time" id="time-end" value="23:59" style="flex:1; padding:8px; border-radius:15px; border:1px solid #ddd; text-align:center; font-weight:600;" onchange="applyFilters()">
             </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="circle-btn" style="flex:1; border-radius:10px; font-size:12px; font-weight:bold" onclick="resetTime()">Reset</button>
-                <button class="circle-btn" style="flex:1; border-radius:10px; font-size:12px; font-weight:bold; background:var(--primary); color:#fff" onclick="setNextHour()">Next Hour</button>
+            <div style="display:flex; gap:6px; margin-top:6px;">
+                <button style="flex:1; background:#eee; color:#333; border:none; padding:10px; border-radius:15px; font-weight:700;" onclick="resetTime()">All Day</button>
+                <button style="flex:1; background:var(--primary); color:#fff; border:none; padding:10px; border-radius:15px; font-weight:700;" onclick="setNextHour()">Next Hour</button>
             </div>
         </div>
-        <button class="circle-btn" style="width:100%; border-radius:15px; background:var(--primary); color:#fff" onclick="toggleFilters()">Apply Filters</button>
+        <button style="width:100%; background:var(--primary); color:#fff; border:none; padding:10px; border-radius:15px; font-weight:700; margin-top:10px;" onclick="toggleFilters()">Done</button>
     </div>
 
-    <div id="list-view" style="padding-top: 115px;"></div>
+    <div id="list-view"></div>
     <div id="map-view"></div>
+    
     <div id="zmanim-view">
-        <div class="list-page-header" style="margin-top:20px; padding-left:20px; font-size:28px;">Zmanim</div>
-        <div id="zmanim-content" style="padding:0 20px;"></div>
+        <div class="zman-header-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">Zmanim</div>
+                <div id="zman-loc-badge" style="font-size:12px; background:#eee; padding:4px 10px; border-radius:12px; color:#555; font-weight:600;">Lakewood, NJ</div>
+            </div>
+            <div class="date-nav">
+                <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
+                <div style="text-align:center">
+                    <div id="zman-date-display" style="font-weight:800; font-size:16px; color:#333;">Today</div>
+                    <div id="zman-hebrew-date" style="font-size:13px; font-weight:600; color:var(--primary); opacity:0.8;"></div>
+                </div>
+                <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <div style="flex:1; background:#f9f9f9; border:1px solid #eee; padding:8px; border-radius:8px; text-align:center; font-size:13px; font-weight:700; color:#333;">
+                    <span style="display:block; font-size:10px; color:#888; text-transform:uppercase; font-weight:600; margin-bottom:2px;">Day</span>
+                    <div id="zman-day"></div>
+                </div>
+                <div style="flex:1; background:#f9f9f9; border:1px solid #eee; padding:8px; border-radius:8px; text-align:center; font-size:13px; font-weight:700; color:#333;">
+                    <span style="display:block; font-size:10px; color:#888; text-transform:uppercase; font-weight:600; margin-bottom:2px;">Daf Yomi</span>
+                    <div id="zman-daf"></div>
+                </div>
+            </div>
+        </div>
+        <div id="zmanim-content" style="padding-top: 10px;"></div>
     </div>
-    <div id="settings-view" style="padding:20px;">
-        <div class="list-page-header" style="margin-top:20px; font-size:28px;">Settings</div>
-        <p>ShulTime v2.1 (Merged)</p>
-        <div id="profile-info"></div>
+    
+    <div id="settings-view">
+        <div class="list-page-header">Settings</div>
+        <div class="settings-card">
+            <div class="input-group">
+                <label class="input-label">Name</label>
+                <input type="text" class="settings-input" id="profile-name" placeholder="Your Name" oninput="saveProfile()">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Phone</label>
+                <input type="tel" class="settings-input" id="profile-phone" placeholder="Phone Number" oninput="saveProfile()">
+            </div>
+        </div>
+        <div class="settings-card" style="padding: 0 20px;">
+            <a class="settings-link" onclick="alert('Feature Coming Soon')"><span class="settings-link-text">Privacy Policy</span><i class="material-icons">chevron_right</i></a>
+            <a class="settings-link" onclick="alert('Feature Coming Soon')"><span class="settings-link-text">Rate App</span><i class="material-icons">star_rate</i></a>
+            <a class="settings-link" onclick="if(navigator.share) navigator.share({title: 'ShulTime', text: 'Find Minyanim near you!', url: window.location.href});"><span class="settings-link-text">Share App</span><i class="material-icons">ios_share</i></a>
+            <a class="settings-link" href="mailto:support@shultime.com"><span class="settings-link-text">Contact Us</span><i class="material-icons">email</i></a>
+            <a class="settings-link" href="mailto:support@shultime.com?subject=Support"><span class="settings-link-text">Support</span><i class="material-icons">help_outline</i></a>
+        </div>
     </div>
 
-    <button class="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
+    <button class="fab-location" id="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
 
     <div class="floating-toolbar">
-        <button class="nav-item" onclick="switchTab('recent')"><i class="material-icons">history</i>Recent</button>
-        <button class="nav-item" onclick="switchTab('zmanim')"><i class="material-icons">access_time</i>Zmanim</button>
+        <button class="nav-item" id="nav-recent" onclick="switchTab('recent')"><i class="material-icons">history</i>Recent</button>
+        <button class="nav-item" id="nav-zmanim" onclick="switchTab('zmanim')"><i class="material-icons">access_time</i>Zmanim</button>
         <button class="nav-item active" id="nav-toggle" onclick="toggleView()"><i class="material-icons" id="nav-toggle-icon">list</i><span id="nav-toggle-text">List</span></button>
-        <button class="nav-item" onclick="switchTab('saved')"><i class="material-icons">bookmark_border</i>Saved</button>
-        <button class="nav-item" onclick="switchTab('settings')"><i class="material-icons">settings</i>Settings</button>
+        <button class="nav-item" id="nav-saved" onclick="switchTab('saved')"><i class="material-icons">bookmark_border</i>Saved</button>
+        <button class="nav-item" id="nav-settings" onclick="switchTab('settings')"><i class="material-icons">settings</i>Settings</button>
     </div>
 
     <script>
         // --- DATA ENGINES ---
         const DafEngine={masechtot:[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],get:(e)=>{const t=new Date(2020,0,5),a=Math.floor((e-t)/864e5);if(a<0)return"";let n=a;for(let r of DafEngine.masechtot){if(n<r.p)return r.n+" "+(n+2);n-=r.p}return""}};
         const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{try{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}catch(e){return""}}};
-        const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};return{noon:p,sunrise:f(90.833,!0),sunset:f(90.833,!1)}}};
+        const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};return{noon:p,alot:f(106.1,!0),sunrise:f(90.833,!0),sunset:f(90.833,!1),tzais:f(98.5,!1)}}};
 
         let map, fullDbData = [], allMinyanim = [], searchCenter = null, currentRadius = 20;
         let filters = { tefillah: '', nusach: '' };
@@ -265,42 +364,89 @@
         let currentTab = 'map';
         let currentFilterDate = new Date();
         let isFirstIdle = true;
+        let isProgrammaticMove = false;
+        let selectedShul = null;
+        let zmanLoc = { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ' };
 
         // --- APP FLOW ---
         document.addEventListener("DOMContentLoaded", async () => {
             updateDateDisplay();
+            loadProfile();
+            
+            // Sticky Header Logic
+            document.getElementById('list-view').addEventListener('scroll', function() {
+                const header = document.getElementById('sticky-header');
+                if(this.scrollTop > 40 && (currentTab === 'recent' || currentTab === 'saved')) {
+                    header.classList.add('visible');
+                    header.innerText = currentTab === 'recent' ? "Recent" : "Saved";
+                } else {
+                    header.classList.remove('visible');
+                }
+            });
+
             try {
                 const res = await fetch("database.json");
+                if(!res.ok) throw new Error();
                 fullDbData = await res.json();
                 processMinyanim();
+                populateNusachFilter();
             } catch(e) { console.error("Database fetch error"); }
         });
 
         function processMinyanim() {
             allMinyanim = [];
             const dayKey = getDayKey(currentFilterDate);
+            const isFri = currentFilterDate.getDay() === 5;
+            const isSat = currentFilterDate.getDay() === 6;
+
             fullDbData.forEach(shul => {
+                if(!shul.name) return;
                 let hasTimes = false;
                 const add = (type, times) => {
                     if(times) times.forEach(t => {
-                        let [h,m] = t.trim().split(':').map(Number);
+                        let raw = t.trim().replace(/[^0-9:]/g,"");
+                        if(!raw) return;
+                        let [h,m] = raw.split(':').map(Number);
                         let sortVal = (h*60)+m;
-                        if((type==='Mincha'||type==='Maariv') && h<12) sortVal += 720;
+                        if(type==='Mincha' && h<9) sortVal += 720;
+                        if(type==='Maariv' && h<12) sortVal += 720;
+                        if(type==='Mincha' && h===12) sortVal = 12*60+m;
                         allMinyanim.push({...shul, tefillah:type, timeDisplay: formatTime(h,m), timeValue: sortVal});
                         hasTimes = true;
                     });
                 };
-                if(shul.shacharis) add('Shacharis', shul.shacharis[dayKey]);
-                if(shul.mincha) add('Mincha', shul.mincha.week);
-                if(shul.maariv) add('Maariv', shul.maariv.week);
-                if(!hasTimes) allMinyanim.push({...shul, tefillah:'None', timeDisplay:'--', timeValue:9999});
+
+                if(!isSat) add('Shacharis', shul.shacharis?.[dayKey]);
+                if(isFri) add('Mincha', shul.mincha?.fri);
+                else if(isSat) add('Mincha', shul.mincha?.shabbos);
+                else add('Mincha', shul.mincha?.week);
+                
+                if(isSat) add('Maariv', shul.maariv?.shabbos);
+                else add('Maariv', shul.maariv?.week);
+
+                if(!hasTimes) allMinyanim.push({...shul, tefillah:'Info', timeDisplay:'Info', timeValue:9999});
             });
-            if(searchCenter) applyFilters();
-            else renderWelcome();
+            if(searchCenter && (currentTab === 'list' || currentTab === 'map')) applyFilters();
+            else if(!searchCenter) renderWelcome();
+        }
+
+        function populateNusachFilter() {
+            const set = new Set();
+            fullDbData.forEach(s => { if(s.nusach && s.nusach !== "Unspecified") set.add(s.nusach.trim()); });
+            const group = document.getElementById('nusach-group');
+            Array.from(set).sort().forEach(n => {
+                if(!n) return;
+                const safeClass = `chip-${n.replace(/\s+/g, '-')}`;
+                const chip = document.createElement('div');
+                chip.className = `chip ${safeClass}`;
+                chip.innerText = n;
+                chip.onclick = () => setFilter('nusach', n, chip);
+                group.appendChild(chip);
+            });
         }
 
         function applyFilters() {
-            if(!searchCenter) return;
+            if(!searchCenter || !allMinyanim.length) return;
             const sVal = timeToVal(document.getElementById('time-start').value);
             const eVal = timeToVal(document.getElementById('time-end').value);
 
@@ -309,8 +455,8 @@
                 return m;
             });
 
-            // Filtering based on map visibility and radius
-            if(currentTab === 'map') {
+            // Map Bounds vs List Radius
+            if(currentTab === 'map' && map && !isProgrammaticMove) {
                 const bounds = map.getBounds();
                 if(bounds) results = results.filter(m => bounds.contains({lat:m.lat, lng:m.lng}));
             } else {
@@ -318,47 +464,60 @@
             }
 
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
+            if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
             results = results.filter(m => m.timeValue === 9999 || (m.timeValue >= sVal && m.timeValue <= eVal));
             
             results.sort((a,b) => a.timeValue - b.timeValue);
             
             updateStatusPills(results);
-            renderList(results);
-            updateMapMarkers(results);
+            if(currentTab === 'map' || currentTab === 'list') renderList(results);
+            if(currentTab === 'map') updateMapMarkers(results);
         }
 
         function updateStatusPills(results) {
             const shulCount = new Set(results.map(r => r.name + r.address)).size;
+            const validCount = results.filter(r => r.timeValue < 9999).length;
             document.getElementById('status-pill').style.display = 'block';
-            document.getElementById('count-pill').innerText = `${shulCount} Shuls / ${results.filter(r=>r.timeValue<9999).length} Minyanim`;
+            document.getElementById('count-pill').innerText = `${shulCount} Shuls / ${validCount} Minyanim`;
             document.getElementById('count-pill').style.display = 'block';
             document.getElementById('map-radius-pill').innerText = `${currentRadius} mi Radius`;
             document.getElementById('map-radius-pill').style.display = 'block';
         }
 
-        function renderList(results) {
+        function renderList(results, isStorageView = false) {
             const container = document.getElementById('list-view');
-            container.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found.</div>';
+            // If it's a storage view (recent/saved), header is already handled inside switchTab
+            if(!isStorageView && results.length === 0) { container.innerHTML = '<div class="empty-state">No minyanim found matching filters.</div>'; return; }
+            
+            let html = "";
             results.forEach(m => {
-                const card = document.createElement('div');
-                card.className = 'minyan-card';
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
-                card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(m.name + " " + m.address)}`;
+                
+                let timeZoneHtml = m.timeValue === 9999 ? 
+                    `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
+                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
+                    </div>` : 
+                    `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
+                        <div class="tefillah-label">${m.tefillah}</div>
+                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
+                        <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
+                    </div>`;
+
+                html += `
+                <div class="minyan-card">
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
                         <div class="shul-city-state">${m.city || ''}, ${m.state || ''}</div>
-                        <div class="nusach-tag-list ${nCls}">${m.nusach}</div>
+                        <div class="nusach-tag-list ${nCls}">${m.nusach || 'Info'}</div>
                     </div>
-                    <div class="map-zone" onclick="window.open('${mapLink}','_blank')">
-                        <div class="tefillah-label">${m.tefillah}</div>
-                        <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
-                        <div class="dist-row"><span class="dist-label">${m.distance.toFixed(1)}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
-                    </div>
-                `;
-                container.appendChild(card);
+                    ${timeZoneHtml}
+                </div>`;
             });
+            // append to existing content so we don't overwrite headers if present
+            if (isStorageView) container.innerHTML += html;
+            else container.innerHTML = html;
         }
 
         async function updateMapMarkers(results) {
@@ -375,7 +534,7 @@
             Object.values(unique).forEach(m => {
                 const pin = document.createElement('div');
                 pin.className = `custom-marker nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                pin.innerText = m.timeDisplay === '--' ? 'Info' : m.timeDisplay;
+                pin.innerText = m.timeDisplay;
                 const marker = new AdvancedMarkerElement({ map, position: {lat:m.lat, lng:m.lng}, content: pin });
                 marker.addListener('click', () => openDetails(m));
                 markers.push(marker);
@@ -392,10 +551,21 @@
             document.getElementById('settings-view').style.display = 'none';
             document.getElementById('center-marker').style.display = 'none';
             document.getElementById('filter-header').style.display = 'none';
+            document.getElementById('status-pill').style.display = 'none';
+            document.getElementById('count-pill').style.display = 'none';
+            document.getElementById('map-radius-pill').style.display = 'none';
+            document.getElementById('fab-location').style.display = 'none';
+            document.getElementById('sticky-header').classList.remove('visible');
 
             if(tab === 'map' || tab === 'list') {
                 document.getElementById('filter-header').style.display = 'flex';
                 document.getElementById('nav-toggle').classList.add('active');
+                document.getElementById('fab-location').style.display = 'flex';
+                if(searchCenter) {
+                    document.getElementById('status-pill').style.display = 'block';
+                    document.getElementById('count-pill').style.display = 'block';
+                    document.getElementById('map-radius-pill').style.display = 'block';
+                }
                 if(tab === 'map') { 
                     document.getElementById('map-view').style.display = 'block'; 
                     document.getElementById('center-marker').style.display = 'block';
@@ -404,14 +574,17 @@
                     document.getElementById('list-view').style.display = 'block'; 
                     updateToggleBtn('Map', 'map');
                 }
-                applyFilters();
+                if(searchCenter) applyFilters();
             } else if(tab === 'recent') {
+                document.getElementById('nav-recent').classList.add('active');
                 document.getElementById('list-view').style.display = 'block';
                 renderStorageList('shultime_recents', 'Recent');
             } else if(tab === 'saved') {
+                document.getElementById('nav-saved').classList.add('active');
                 document.getElementById('list-view').style.display = 'block';
                 renderStorageList('shultime_favs', 'Saved');
             } else {
+                document.getElementById('nav-' + tab).classList.add('active');
                 document.getElementById(tab + '-view').style.display = 'block';
                 if(tab === 'zmanim') renderZmanim();
             }
@@ -429,28 +602,32 @@
 
         // --- DETAILS & STORAGE ---
         function openDetails(m) {
+            selectedShul = m;
             const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const goDavenUrl = `https://www.godaven.com/shul-details/${godavenId}`;
             
             document.getElementById('drawer-title').innerText = m.name;
-            document.getElementById('drawer-address').innerText = m.address;
+            document.getElementById('drawer-address').innerText = m.address + ', ' + (m.city||'') + ', ' + (m.state||'') + ' ' + (m.zip||'');
+            
             document.getElementById('drawer-content').innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div class="nusach-tag-list ${nCls}">${m.nusach}</div>
-                    <div style="font-weight:bold; color:#666">${m.rabbi || ''}</div>
+                    <span class="nusach-tag-list ${nCls}" style="margin:0; font-size:11px; padding:3px 9px; border-radius:12px;">${m.nusach || 'Info'}</span>
+                    <div style="font-weight:600; color:#555; font-size:15px; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi || 'Not Listed'}</div>
                 </div>
                 <div class="contact-row">
-                    <a href="tel:${m.phone || ''}" class="contact-btn"><i class="material-icons">call</i> Call</a>
-                    <a href="${goDavenUrl}" target="_blank" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>
-                    <button class="contact-btn" onclick="shareShul()"><i class="material-icons">ios_share</i> Share</button>
+                    <a href="tel:${m.phone || ''}" class="contact-btn ${!m.phone?'disabled':''}"><i class="material-icons" style="font-size:14px">call</i> Call</a>
+                    <a href="mailto:${m.email || ''}" class="contact-btn ${!m.email?'disabled':''}"><i class="material-icons" style="font-size:14px">email</i> Email</a>
+                    <a href="${goDavenUrl}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>
+                    <button class="contact-btn" onclick="shareShul()"><i class="material-icons" style="font-size:14px">ios_share</i> Share</button>
                 </div>
-                <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px;">Schedule</div>
-                <div class="schedule-grid" style="margin-top:10px;">
-                    <div><strong>Sun</strong><br>${formatPills(m.shacharis?.sun, m.nusach)}</div>
-                    <div><strong>Mon/Thu</strong><br>${formatPills(m.shacharis?.mon_thu, m.nusach)}</div>
-                    <div><strong>Mincha</strong><br>${formatPills(m.mincha?.week, m.nusach)}</div>
-                    <div><strong>Maariv</strong><br>${formatPills(m.maariv?.week, m.nusach)}</div>
+                <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px; font-size:15px; color:#333;">Weekday Schedule</div>
+                <div class="schedule-grid">
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Shacharis Sun</div>${formatPills(m.shacharis?.sun, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Shacharis M/Th</div>${formatPills(m.shacharis?.mon_thu, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Shacharis T/W/F</div>${formatPills(m.shacharis?.tue_wed_fri, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Mincha</div>${formatPills(m.mincha?.week, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Maariv</div>${formatPills(m.maariv?.week, m.nusach)}</div>
                 </div>
             `;
             
@@ -460,10 +637,26 @@
             document.getElementById('scrim').style.display = 'block';
         }
 
-        function shareShul() {
-            const text = `${document.getElementById('drawer-title').innerText}\n${document.getElementById('drawer-address').innerText}`;
-            if(navigator.share) navigator.share({title:'ShulTime', text: text});
-            else alert("Copied to clipboard!");
+        async function shareShul() {
+            if(!selectedShul) return;
+            const m = selectedShul;
+            const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
+            const link = `https://www.godaven.com/shul-details/${godavenId}`;
+            
+            let timesText = "Schedule:\n";
+            if(m.shacharis?.sun) timesText += `Shacharis Sun: ${m.shacharis.sun.join(', ')}\n`;
+            if(m.shacharis?.mon_thu) timesText += `Shacharis M/Th: ${m.shacharis.mon_thu.join(', ')}\n`;
+            if(m.mincha?.week) timesText += `Mincha: ${m.mincha.week.join(', ')}\n`;
+            if(m.maariv?.week) timesText += `Maariv: ${m.maariv.week.join(', ')}\n`;
+
+            const text = `Shared via ShulTime:\n\n*${m.name}*\n${m.address}\n\nNusach: ${m.nusach}\n\n${timesText}\nLink: ${link}`;
+            
+            if(navigator.share) {
+                try { await navigator.share({ title: m.name, text: text }); } catch(e) {}
+            } else {
+                navigator.clipboard.writeText(text);
+                alert("Copied to clipboard!");
+            }
         }
 
         function addToStorage(key, id) {
@@ -473,8 +666,8 @@
         }
 
         function toggleFavorite() {
-            const id = fullDbData.find(s => s.name === document.getElementById('drawer-title').innerText)?.id;
-            if(!id) return;
+            if(!selectedShul) return;
+            const id = selectedShul.id;
             let favs = JSON.parse(localStorage.getItem('shultime_favs') || "[]");
             if(favs.includes(id)) favs = favs.filter(x => x !== id);
             else favs.push(id);
@@ -488,13 +681,29 @@
         }
 
         function renderStorageList(key, title) {
+            const container = document.getElementById('list-view');
+            container.innerHTML = `<div class="list-page-header">${title}</div>`;
+            
             const ids = JSON.parse(localStorage.getItem(key) || "[]");
-            const shuls = fullDbData.filter(s => ids.includes(s.id));
-            const list = shuls.map(s => ({...s, distance: searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, s.lat, s.lng) : 0, tefillah:'Info', timeDisplay:'--', timeValue:9999}));
-            renderList(list);
+            if(ids.length === 0) {
+                container.innerHTML += `<div class="empty-state">No ${title.toLowerCase()} shuls.</div>`;
+                return;
+            }
+
+            // For storage lists, find the next upcoming minyan to display
+            const shuls = [];
+            ids.forEach(id => {
+                const matches = allMinyanim.filter(m => m.id === id);
+                if(matches.length) {
+                    // Just grab the first match from allMinyanim to show the card, or the "Info" fallback
+                    let bestMatch = matches.find(m => m.timeValue !== 9999) || matches[0];
+                    shuls.push({...bestMatch, distance: searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, bestMatch.lat, bestMatch.lng) : 0});
+                }
+            });
+            renderList(shuls, true);
         }
 
-        // --- UTILS ---
+        // --- UTILS & FILTERS ---
         function formatTime(h, m) { return `${h > 12 ? h - 12 : (h === 0 ? 12 : h)}:${String(m).padStart(2, "0")}${h >= 12 ? 'p' : 'a'}`; }
         function timeToVal(t) { const [h,m] = t.split(':').map(Number); return (h*60)+m; }
         function getDistance(lat1, lon1, lat2, lon2){
@@ -505,20 +714,34 @@
         function getDayKey(d) { const wk = d.getDay(); if(wk===0) return 'sun'; if(wk===1||wk===4) return 'mon_thu'; return 'tue_wed_fri'; }
         
         function formatPills(list, nusach) {
-            if(!list) return "--";
+            if(!list || list.length === 0) return "<span style='font-size:12px; color:#999;'>None</span>";
             const nCls = `nusach-bg-${(nusach || 'Other').replace(/\s+/g, '-')}`;
-            return list.map(t => `<span class="time-pill ${nCls}">${t}</span>`).join("");
+            return list.map(t => {
+                let clean = t.split(' ')[0];
+                let [h, m] = clean.split(':').map(Number);
+                if(isNaN(h)) return t;
+                return `<span class="time-pill ${nCls}">${formatTime(h, m || 0)}</span>`;
+            }).join("");
         }
 
         function manualRadiusUpdate(val) {
             currentRadius = parseFloat(val);
             document.getElementById('radius-slider').value = val;
-            document.getElementById('radius-val').innerText = val;
+            document.getElementById('radius-input').value = val;
+            
+            // Set active chip
+            const chips = document.getElementById('filter-drawer').querySelectorAll('.chip-group')[0].querySelectorAll('.chip');
+            chips.forEach(c => c.classList.remove('active'));
+            chips.forEach(c => { if(c.innerText === String(val)) c.classList.add('active'); });
+
             if(map && searchCenter) {
+                isProgrammaticMove = true;
                 const zoom = val > 10 ? 11 : (val > 3 ? 13 : 15);
                 map.setZoom(zoom);
+                setTimeout(() => { isProgrammaticMove = false; applyFilters(); }, 500);
+            } else {
+                applyFilters();
             }
-            applyFilters();
         }
 
         function setNextHour() {
@@ -533,49 +756,96 @@
 
         function resetTime() { document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59"; applyFilters(); }
         function toggleFilters() { const d = document.getElementById('filter-drawer'); d.style.display = (d.style.display==='block'?'none':'block'); }
-        function setFilter(k,v,btn) { filters[k]=v; btn.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); btn.classList.add('active'); applyFilters(); }
+        function setFilter(k,v,btn) { 
+            filters[k]=v; 
+            const group = btn.parentElement;
+            group.querySelectorAll('.chip').forEach(c=>{
+                c.classList.remove('active');
+                c.style.background = ''; c.style.color = ''; c.style.borderColor = '';
+            }); 
+            btn.classList.add('active'); 
+            if(v === '') { btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--primary)'; }
+            applyFilters(); 
+        }
         function closeDetails() { document.getElementById('details-drawer').classList.remove('open'); document.getElementById('scrim').style.display='none'; }
 
-        function changeDate(n) { currentFilterDate.setDate(currentFilterDate.getDate()+n); updateDateDisplay(); processMinyanim(); }
+        function changeDate(n) { currentFilterDate.setDate(currentFilterDate.getDate()+n); updateDateDisplay(); processMinyanim(); if(currentTab==='zmanim') renderZmanim(); }
         function updateDateDisplay() {
-            document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
-            document.getElementById('hebrew-date').innerText = HebCal.getHebrewStr(currentFilterDate);
+            const dOpts = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+            const dStr = currentFilterDate.toLocaleDateString('en-US', dOpts);
+            const hStr = HebCal.getHebrewStr(currentFilterDate);
+            document.getElementById('date-display').innerText = dStr;
+            document.getElementById('hebrew-date').innerText = hStr;
+            document.getElementById('zman-date-display').innerText = dStr;
+            document.getElementById('zman-hebrew-date').innerText = hStr;
+            document.getElementById('zman-day').innerText = currentFilterDate.toLocaleDateString('en-US', {weekday:'long'});
+            document.getElementById('zman-daf').innerText = DafEngine.get(currentFilterDate);
         }
 
         function renderZmanim() {
-            const lat = searchCenter ? searchCenter.lat : 40.096;
-            const lng = searchCenter ? searchCenter.lng : -74.222;
-            const s = Solar.calc(currentFilterDate, lat, lng, 0);
-            const fmt = ms => new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-            document.getElementById('zmanim-content').innerHTML = `
-                <div style="background:#fff; padding:15px; border-radius:15px; margin-top:10px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Sunrise</span><strong>${fmt(s.sunrise)}</strong></div>
-                    <div style="display:flex; justify-content:space-between;"><span>Sunset</span><strong>${fmt(s.sunset)}</strong></div>
-                </div>
-                <div style="background:var(--primary); color:#fff; padding:15px; border-radius:15px; margin-top:10px; text-align:center;">
-                    <div style="font-size:12px; opacity:0.8;">DAF YOMI</div>
-                    <div style="font-size:20px; font-weight:800;">${DafEngine.get(currentFilterDate)}</div>
-                </div>
-            `;
+            if(searchCenter) {
+                zmanLoc.lat = searchCenter.lat;
+                zmanLoc.lng = searchCenter.lng;
+                zmanLoc.name = document.getElementById('status-pill').innerText.replace('Near: ', '');
+            }
+            document.getElementById('zman-loc-badge').innerText = zmanLoc.name;
+            const data = Solar.calc(currentFilterDate, zmanLoc.lat, zmanLoc.lng, 30); // 30m elev fallback
+            const fmt = ms => ms ? new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : "--:--";
+            
+            const zList = [
+                { l: "Alos Hashachar (16.1°)", t: data.alot, s: "Fast Begins" },
+                { l: "Sunrise (Netz)", t: data.sunrise, s: "Earliest Shmonei Esrei" },
+                { l: "Chatzos", t: data.noon, s: "Midday" },
+                { l: "Sunset (Shkia)", t: data.sunset, s: "Fast Ends (Bedieved)" },
+                { l: "Tzais (8.5°)", t: data.tzais, s: "Nightfall" }
+            ];
+
+            let html = "";
+            zList.forEach(z => {
+                html += `<div class="zman-card">
+                    <div><span class="zman-label">${z.l}</span><span class="zman-sub">${z.s}</span></div>
+                    <div><span class="zman-time">${fmt(z.t)}</span></div>
+                </div>`;
+            });
+            document.getElementById('zmanim-content').innerHTML = html;
         }
 
         function useMyLocation() {
             navigator.geolocation.getCurrentPosition(p => {
                 setSearchLocation(p.coords.latitude, p.coords.longitude, "Current Location");
-            }, e => alert("Enable GPS"));
+            }, e => alert("Please enable GPS."));
         }
 
         function setSearchLocation(lat, lng, name) {
             searchCenter = {lat, lng};
             document.getElementById('status-pill').innerText = "Near: " + name;
-            document.getElementById('status-pill').style.display = 'block';
-            if(map) { map.setCenter(searchCenter); map.setZoom(13); }
-            switchTab('map');
-            applyFilters();
+            
+            if(map) { 
+                isProgrammaticMove = true;
+                map.setCenter(searchCenter); 
+                map.setZoom(13); 
+                setTimeout(() => isProgrammaticMove = false, 500);
+            }
+            if(currentTab !== 'list' && currentTab !== 'map') {
+                switchTab('map');
+            } else {
+                applyFilters();
+            }
         }
 
         function renderWelcome() {
-            document.getElementById('list-view').innerHTML = `<div class="empty-state"><i class="material-icons" style="font-size:50px; color:var(--primary)">explore</i><br><strong>Welcome to ShulTime v2.1</strong><br>Search for a city to find minyanim.</div>`;
+            document.getElementById('list-view').innerHTML = `<div class="empty-state" style="margin-top:80px;"><i class="material-icons" style="font-size:54px; color:var(--primary); margin-bottom:15px;">explore</i><br><strong style="font-size:18px;">Welcome to ShulTime</strong><br><br>Search for a city or zip code to begin.</div>`;
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+            localStorage.setItem('shultime_profile', JSON.stringify({ name, phone }));
+        }
+        function loadProfile() {
+            const p = JSON.parse(localStorage.getItem('shultime_profile') || "{}");
+            if(p.name) document.getElementById('profile-name').value = p.name;
+            if(p.phone) document.getElementById('profile-phone').value = p.phone;
         }
 
         async function initApp(){
@@ -583,25 +853,58 @@
             const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
 
             map = new Map(document.getElementById("map-view"), {
-                center: { lat: 40.091, lng: -74.218 }, zoom: 12, mapId: "DEMO_MAP_ID", disableDefaultUI: true
+                center: { lat: 40.091, lng: -74.218 }, zoom: 12, mapId: "DEMO_MAP_ID", disableDefaultUI: true, clickableIcons: false
             });
 
             map.addListener('idle', () => {
-                if(isFirstIdle) { isFirstIdle = false; return; }
+                if(isProgrammaticMove) return;
                 const c = map.getCenter();
+                const bounds = map.getBounds();
+                if(!c || !bounds) return;
+
                 searchCenter = {lat: c.lat(), lng: c.lng()};
                 document.getElementById('status-pill').innerText = "Near: Map Center";
+                
+                // Calculate map radius dynamically
+                const ne = bounds.getNorthEast();
+                const r = getDistance(c.lat(), c.lng(), ne.lat(), ne.lng());
+                updateRadiusUI(r.toFixed(1));
+
                 applyFilters();
             });
 
             const autocomplete = new PlaceAutocompleteElement();
+            autocomplete.setAttribute("types", "(cities)");
+            autocomplete.placeholder = "Search City...";
             document.getElementById("autocomplete-container").appendChild(autocomplete);
+            
             autocomplete.addEventListener("gmp-select", async (e) => {
-                const place = e.placePrediction.toPlace();
-                await place.fetchFields({ fields: ["location", "displayName"] });
-                setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
+                if (e.placePrediction) {
+                    if (document.activeElement) document.activeElement.blur();
+                    const place = e.placePrediction.toPlace();
+                    await place.fetchFields({ fields: ["location", "displayName"] });
+                    setSearchLocation(place.location.lat(), place.location.lng(), place.displayName);
+                }
+            });
+
+            autocomplete.addEventListener('input', () => { 
+                if (!autocomplete.value) {
+                    searchCenter = null;
+                    document.getElementById("status-pill").style.display = "none";
+                    document.getElementById("count-pill").style.display = "none";
+                    document.getElementById("map-radius-pill").style.display = "none";
+                    renderWelcome();
+                    if(map) { markers.forEach(m => m.map = null); }
+                } 
             });
         }
+
+        function updateRadiusUI(r) {
+            currentRadius = r;
+            document.getElementById('radius-slider').value = r;
+            document.getElementById('radius-input').value = r;
+        }
+
     </script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
