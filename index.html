@@ -214,7 +214,7 @@
     /* DETAILS DRAWER */
     #details-drawer {
         position: fixed; bottom: -100%; left: 10px; right: 10px; height: 80vh;
-        background: #fff; border-radius: 32px; 
+        background: #fff; border-radius: 25px; 
         z-index: 3000; margin-bottom: 15px;
         box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out;
         padding: 0; display: flex; flex-direction: column; overflow: hidden;
@@ -486,18 +486,11 @@
             updateDateDisplay();
             loadProfile();
 
-            // Fetch Database dynamically
+            // Fetch Database from GitHub hosted file
             try {
-                document.getElementById("list-view").innerHTML = `<div class="empty-state">Connecting to database.json...</div>`;
                 const res = await fetch("database.json?t=" + new Date().getTime(), { cache: "no-store" });
-                if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
-                
+                if (!res.ok) throw new Error("Could not load database.json");
                 fullDbData = await res.json();
-                
-                if (!Array.isArray(fullDbData) || fullDbData.length === 0) {
-                    throw new Error("Database file is empty or not formatted correctly.");
-                }
-
                 processMinyanim(fullDbData);
                 populateNusachFilter();
                 
@@ -514,17 +507,7 @@
                 }
             } catch(e) {
                 console.error("Database Fetch Error:", e);
-                let errMsg = e.message;
-                if (window.location.protocol === 'file:') {
-                    errMsg = "Browsers block loading local databases for security. You must test this via your live GitHub link, not by double-clicking the file on your computer.";
-                }
-                document.getElementById("list-view").innerHTML = `
-                    <div class="empty-state" style="color: red;">
-                        <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: red;">error_outline</i><br>
-                        <strong>Database Connection Failed</strong><br><br>
-                        ${errMsg}<br><br>
-                        Make sure a file named exactly <b>database.json</b> is uploaded to your GitHub repository in the exact same folder as this index.html file.
-                    </div>`;
+                document.getElementById("list-view").innerHTML = `<div class="empty-state">Error loading database.json.<br>Ensure the file is uploaded to GitHub and named exactly 'database.json'.</div>`;
             }
         });
 
@@ -668,19 +651,29 @@
 
             data.forEach(shul => {
                 if(!shul.name) return; // Skip nameless
-                if(shul.nusach && shul.nusach !== "Unspecified") allNusachs.add(shul.nusach.trim());
+                if(shul.nusach && shul.nusach !== "Unspecified" && shul.nusach !== " ") allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
                 let minyanimForThisShul = []; 
                 
-                if (!isSat && shul.shacharis && shul.shacharis[dayKey]) {
+                if (!isSat && shul.shacharis && shul.shacharis[dayKey] && shul.shacharis[dayKey].length > 0) {
                     shul.shacharis[dayKey].forEach(t => { addMinyan(shul, 'Shacharis', t, minyanimForThisShul); hasTimes = true; });
                 }
-                if (isFri) { if (shul.mincha && shul.mincha.fri) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else if (isSat) { if (shul.mincha && shul.mincha.shabbos) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.mincha && shul.mincha.week) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); }
-                if (isSat) { if (shul.maariv && shul.maariv.shabbos) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); } 
-                else { if (shul.maariv && shul.maariv.week) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); }
+                if (isFri) { 
+                    if (shul.mincha && shul.mincha.fri && shul.mincha.fri.length > 0) shul.mincha.fri.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); 
+                } 
+                else if (isSat) { 
+                    if (shul.mincha && shul.mincha.shabbos && shul.mincha.shabbos.length > 0) shul.mincha.shabbos.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); 
+                } 
+                else { 
+                    if (shul.mincha && shul.mincha.week && shul.mincha.week.length > 0) shul.mincha.week.forEach(t => { addMinyan(shul, 'Mincha', t, minyanimForThisShul); hasTimes = true; }); 
+                }
+                if (isSat) { 
+                    if (shul.maariv && shul.maariv.shabbos && shul.maariv.shabbos.length > 0) shul.maariv.shabbos.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); 
+                } 
+                else { 
+                    if (shul.maariv && shul.maariv.week && shul.maariv.week.length > 0) shul.maariv.week.forEach(t => { addMinyan(shul, 'Maariv', t, minyanimForThisShul); hasTimes = true; }); 
+                }
                 
                 if (!hasTimes) {
                     processedMinyanim.push({ ...shul, tefillah: 'Info', timeDisplay: '--:--', ampm: '', timeValue: 9999 });
@@ -834,7 +827,7 @@
                 }
 
                 card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
                         <div class="nusach-tag ${nCls}">${m.nusach}</div>
@@ -915,11 +908,13 @@
 
             // Sticky Header
             document.getElementById("drawer-title").innerText = m.name;
+            document.getElementById("drawer-address-line1").innerText = m.address;
+            document.getElementById("drawer-address-line2").innerText = `${m.city}, ${m.state} ${m.zip}`;
 
             // Contacts
             let contacts = [];
-            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons">call</i> Call</a>`);
-            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons">email</i> Email</a>`);
+            if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:16px">call</i> Call</a>`);
+            if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:16px">email</i> Email</a>`);
             contacts.push(`<a href="https://developers.google.com/maps/documentation/javascript/places-migration-overview85{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`);
             contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
             contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${encodeURIComponent(m.name)}" class="contact-btn" style="grid-column: span 2;"><i class="material-icons">feedback</i> Leave Feedback about this Shul</a>`);
@@ -937,7 +932,6 @@
             }
 
             content.innerHTML = `
-                <div class="address-info">${m.address}, ${m.city}, ${m.state} ${m.zip}</div>
                 <div class="drawer-top-info"><span class="nusach-tag ${nCls}" style="margin:0;">${m.nusach}</span>${rabbiText}</div>
                 ${timeDisplayHtml}
                 <div class="contact-grid">${contacts.join('')}</div>
@@ -1140,4 +1134,3 @@
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOpNebt0dPJUmiEw-i1W-Dx_UezLpIvxI&loading=async&libraries=places,maps,marker&callback=initApp"></script>
 </body>
 </html>
-
