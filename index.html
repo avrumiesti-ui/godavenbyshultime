@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime</title>
+<title>ShulTime v2.1</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -38,7 +38,7 @@
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
-    /* FLOATING HEADER */
+    /* FLOATING HEADER (Search) */
     .floating-header {
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
@@ -51,7 +51,7 @@
     }
 
     gmp-place-autocomplete { width: 100%; height: 100%; background-color: #fff !important; }
-    gmp-place-autocomplete::part(input) { background-color: #fff !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; }
+    gmp-place-autocomplete::part(input) { background-color: #fff !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; outline: none; border: none; }
 
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
@@ -70,70 +70,24 @@
     #status-pill, #count-pill, #map-radius-pill {
         padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
         display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: nowrap;
-        max-width: 45%; overflow: hidden; text-overflow: ellipsis;
     }
     #status-pill { background: rgba(13, 43, 79, 0.95); color: #fff; }
     #count-pill { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
     #map-radius-pill { background: #2E7D32; color: #fff; }
 
-    /* STICKY HEADER */
-    .sticky-header {
-        position: fixed; top: 0; left: 0; right: 0; height: 60px;
-        background: rgba(242, 244, 248, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 900; 
-        display: flex; align-items: flex-end; justify-content: center;
-        padding-bottom: 12px; font-weight: 800; font-size: 17px; color: var(--primary);
-        opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none;
-    }
-    .sticky-header.visible { opacity: 1; pointer-events: auto; }
-
     /* VIEWS */
     #list-view, #settings-view, #zmanim-view { 
-        position: absolute; inset: 0; 
-        padding-bottom: 120px; 
-        overflow-y: auto; background: var(--bg); 
-        z-index: 10; display: none;
+        position: absolute; inset: 0; padding-bottom: 120px; overflow-y: auto; background: var(--bg); z-index: 10; display: none;
     }
     #map-view { position: absolute; inset: 0; z-index: 5; }
-    .list-page-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 40px; margin-bottom: 15px; padding-left: 12px; }
 
-    /* ZMANIM STYLES */
-    .zman-header-section { background: #fff; padding: 15px 15px 10px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; }
-    .zman-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .zman-title { font-size: 22px; font-weight: 800; color: var(--primary); }
-    .zman-loc-badge { font-size: 12px; background: #eee; padding: 4px 10px; border-radius: 12px; color: #555; font-weight: 600; }
-    .zman-info-bar { display: flex; gap: 10px; margin-top: 10px; }
-    .zman-info-pill { flex: 1; background: #f9f9f9; border: 1px solid #eee; padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 700; color: #333; }
-    .zman-info-pill span { display: block; font-size: 10px; color: #888; text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
-    .zman-card { background: #fff; border-radius: 12px; padding: 14px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .zman-label { font-size: 15px; font-weight: 700; color: #333; }
-    .zman-time { font-size: 18px; font-weight: 700; color: var(--primary); font-family: monospace; }
-    .zman-sub { font-size: 11px; color: #999; margin-top: 2px; }
-
-    /* MAP MARKERS */
+    /* MAP STUFF */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
         transform: translate(-50%, -50%); z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         pointer-events: none; display: none;
     }
-    .custom-marker { 
-        padding: 4px 9px; border-radius: 12px; font-size: 13px; font-weight: 800; 
-        box-shadow: 0 3px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; 
-        position: relative; top: 10px; cursor: pointer; border: 2px solid white;
-    }
-    .custom-marker::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: inherit transparent transparent transparent; }
-
-    /* NAV PILL */
-    .floating-toolbar {
-        position: fixed; bottom: 30px; left: 20px; right: 20px;
-        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-        border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center;
-        padding: 10px 15px; z-index: 1500; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-radius: 40px; 
-    }
-    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; border: none; background: none; color: #999; font-size: 10px; font-weight: 600; gap: 3px; flex: 1; cursor: pointer; transition: all 0.2s; }
-    .nav-item.active { color: var(--primary); transform: translateY(-2px); }
-    .nav-item i { font-size: 24px; }
 
     /* CARDS */
     .minyan-card {
@@ -141,41 +95,48 @@
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; height: 85px; 
     }
-    .info-zone { width: 60%; flex-basis: 60%; padding: 8px 12px; cursor: pointer; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #f0f0f0; }
-    .map-zone { width: 40%; flex-basis: 40%; position: relative; cursor: pointer; background: #fafafa; }
-    .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .info-zone { width: 60%; flex: 1; padding: 8px 12px; cursor: pointer; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #f0f0f0; }
+    .map-zone { width: 120px; position: relative; cursor: pointer; background: #fafafa; flex-shrink: 0; }
+    
+    .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
     .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shul-city-state { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 4px; }
 
     .tefillah-label { position: absolute; top: 8px; right: 35px; text-align: right; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #555; } 
-    .time-val-card { position: absolute; top: calc(50% - 10px); right: 35px; transform: translateY(-50%); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; }
+    .time-val-card { position: absolute; top: 50%; right: 35px; transform: translateY(-50%); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 16px; white-space: nowrap; }
     .dist-row { position: absolute; bottom: 8px; right: 35px; display: flex; align-items: center; gap: 6px; }
-    .dist-label { font-size: 11px; font-weight: 800; color: #666; }
     .map-circle { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 18px !important; }
 
-    /* ADS */
-    .ad-card { background: #fff; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05); min-height: 45px; padding: 0 15px; cursor: pointer; border-left: 5px solid var(--ad-border); }
-    .ad-badge { font-size: 10px; font-weight: 900; color: var(--ad-border); text-transform: uppercase; background: var(--ad-bg); padding: 2px 6px; border-radius: 4px; margin-right: 10px; }
-    .ad-content { font-weight: 700; color: #444; font-size: 14px; }
-    .ad-hero { width: 100%; height: 160px; background: #eee; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .ad-hero img { width: 100%; height: 100%; object-fit: cover; }
-    .ad-desc { font-size: 15px; color: #555; line-height: 1.5; margin-bottom: 20px; }
-
     /* FILTERS */
-    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; }
+    #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: auto; }
     .filter-section { margin-bottom: 15px; } 
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
+    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; }
 
     /* DETAILS DRAWER */
-    #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
+    #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 80vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
     #details-drawer.open { bottom: 0; transform: translateY(0); }
-    .drawer-header { padding: 15px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #f0f0f0; }
-    .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
+    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
+    .contact-row { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+    .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 11px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 4px; }
+
+    /* TOOLBAR */
+    .floating-toolbar {
+        position: fixed; bottom: 30px; left: 20px; right: 20px;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3);
+        display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #999; font-size: 10px; font-weight: 600; border: none; background: none; flex: 1; cursor: pointer; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 24px; }
 
     /* NUSACH UTILS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; }
@@ -185,10 +146,8 @@
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; }
 
-    /* MISC */
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
-    .empty-state { text-align: center; color: #555; margin-top: 50px; padding: 0 30px; line-height: 1.6; }
-    .time-pill { display: inline-block; padding: 4px 12px; border-radius: 14px; font-weight: 800; font-size: 16px; white-space: nowrap; margin: 2px; border: 1px solid rgba(0,0,0,0.08); }
+    .time-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 14px; margin: 2px; border: 1px solid rgba(0,0,0,0.05); }
 </style>
 </head>
 <body>
@@ -199,9 +158,7 @@
         <div class="search-container">
             <div id="autocomplete-container" style="flex:1; height:100%;"></div>
         </div>
-        <button class="circle-btn" onclick="toggleFilters(); event.stopPropagation()">
-            <i class="material-icons">tune</i>
-        </button>
+        <button class="circle-btn" onclick="toggleFilters()"><i class="material-icons">tune</i></button>
     </div>
 
     <div class="status-area">
@@ -214,15 +171,14 @@
     <div id="scrim" onclick="closeDetails()"></div>
 
     <div id="details-drawer">
-        <div class="drawer-header">
-            <div style="flex:1">
-                <div class="drawer-title" id="drawer-title" style="font-weight:800; font-size:18px; color:var(--primary)"></div>
-                <div id="drawer-address-line1" style="font-size:13px; color:#777"></div>
-                <div id="drawer-address-line2" style="font-size:12px; color:#999"></div>
+        <div style="padding:15px 20px; display:flex; justify-content:space-between; border-bottom:1px solid #f0f0f0;">
+            <div>
+                <div id="drawer-title" style="font-weight:800; font-size:18px; color:var(--primary)"></div>
+                <div id="drawer-address" style="font-size:13px; color:#666"></div>
             </div>
             <div style="display:flex; gap:8px;">
-                <button class="circle-btn" style="width:40px; height:40px;" onclick="toggleFavorite()"><i class="material-icons" id="bookmark-icon">bookmark_border</i></button>
-                <button class="circle-btn" style="width:40px; height:40px;" onclick="closeDetails()"><i class="material-icons">close</i></button>
+                <button class="circle-btn" style="width:40px; height:40px" onclick="toggleFavorite()"><i class="material-icons" id="drawer-fav-icon">bookmark_border</i></button>
+                <button class="circle-btn" style="width:40px; height:40px" onclick="closeDetails()"><i class="material-icons">close</i></button>
             </div>
         </div>
         <div id="drawer-content" class="drawer-body"></div>
@@ -230,8 +186,27 @@
 
     <div id="filter-drawer">
         <div class="filter-section">
+            <label class="filter-label">Date</label>
+            <div class="date-nav">
+                <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
+                <div style="text-align:center">
+                    <div id="date-display" style="font-weight:800; font-size:14px;">Today</div>
+                    <div id="hebrew-date" style="font-size:11px; color:var(--primary)"></div>
+                </div>
+                <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
+            </div>
+        </div>
+        <div class="filter-section">
             <label class="filter-label">Radius (Miles)</label>
-            <input type="range" min="0.1" max="99" step="0.1" value="20" id="radius-slider" style="width:100%" oninput="manualRadiusUpdate(this.value)">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <input type="range" min="0.5" max="50" step="0.5" value="20" id="radius-slider" style="flex:1" oninput="manualRadiusUpdate(this.value)">
+                <span id="radius-val" style="font-weight:bold; width:30px">20</span>
+            </div>
+            <div class="chip-group" style="margin-top:10px;">
+                <div class="chip" onclick="manualRadiusUpdate(1)">1mi</div>
+                <div class="chip" onclick="manualRadiusUpdate(5)">5mi</div>
+                <div class="chip active" onclick="manualRadiusUpdate(20)">20mi</div>
+            </div>
         </div>
         <div class="filter-section">
             <label class="filter-label">Tefillah</label>
@@ -243,42 +218,35 @@
             </div>
         </div>
         <div class="filter-section">
-            <label class="filter-label">Nusach</label>
-            <div class="chip-group" id="nusach-group">
-                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
+            <label class="filter-label">Time Range</label>
+            <div style="display:flex; gap:8px;">
+                <input type="time" id="time-start" value="00:00" style="flex:1; padding:8px; border-radius:10px; border:1px solid #ddd">
+                <input type="time" id="time-end" value="23:59" style="flex:1; padding:8px; border-radius:10px; border:1px solid #ddd">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="circle-btn" style="flex:1; border-radius:10px; font-size:12px; font-weight:bold" onclick="resetTime()">Reset</button>
+                <button class="circle-btn" style="flex:1; border-radius:10px; font-size:12px; font-weight:bold; background:var(--primary); color:#fff" onclick="setNextHour()">Next Hour</button>
             </div>
         </div>
-        <button class="circle-btn" style="width:100%; border-radius:12px; background:var(--primary); color:#fff" onclick="toggleFilters()">Done</button>
+        <button class="circle-btn" style="width:100%; border-radius:15px; background:var(--primary); color:#fff" onclick="toggleFilters()">Apply Filters</button>
     </div>
 
-    <div id="list-view"></div>
+    <div id="list-view" style="padding-top: 115px;"></div>
     <div id="map-view"></div>
     <div id="zmanim-view">
-        <div class="zman-header-section">
-            <div class="zman-top-row">
-                <div class="zman-title">Zmanim</div>
-                <div class="zman-loc-badge" id="zman-loc-badge">Lakewood, NJ</div>
-            </div>
-            <div id="zman-date-display" style="text-align:center; font-weight:800"></div>
-            <div id="zman-hebrew-date" style="text-align:center; color:var(--primary); font-size:13px"></div>
-            <div class="zman-info-bar">
-                <div class="zman-info-pill"><span>Daf Yomi</span><div id="zman-daf"></div></div>
-            </div>
-        </div>
-        <div id="zmanimList" style="padding:15px"></div>
+        <div class="list-page-header" style="margin-top:20px; padding-left:20px; font-size:28px;">Zmanim</div>
+        <div id="zmanim-content" style="padding:0 20px;"></div>
     </div>
-    
-    <div id="settings-view">
-        <div class="list-page-header">Settings</div>
-        <div style="padding:20px">
-            <p>ShulTime v2.0 - Merged Build</p>
-            <button class="circle-btn" style="width:100%; border-radius:12px" onclick="useMyLocation()">Use Current Location</button>
-        </div>
+    <div id="settings-view" style="padding:20px;">
+        <div class="list-page-header" style="margin-top:20px; font-size:28px;">Settings</div>
+        <p>ShulTime v2.1 (Merged)</p>
+        <div id="profile-info"></div>
     </div>
 
     <button class="fab-location" onclick="useMyLocation()"><i class="material-icons">my_location</i></button>
 
     <div class="floating-toolbar">
+        <button class="nav-item" onclick="switchTab('recent')"><i class="material-icons">history</i>Recent</button>
         <button class="nav-item" onclick="switchTab('zmanim')"><i class="material-icons">access_time</i>Zmanim</button>
         <button class="nav-item active" id="nav-toggle" onclick="toggleView()"><i class="material-icons" id="nav-toggle-icon">list</i><span id="nav-toggle-text">List</span></button>
         <button class="nav-item" onclick="switchTab('saved')"><i class="material-icons">bookmark_border</i>Saved</button>
@@ -286,131 +254,107 @@
     </div>
 
     <script>
-        // --- ENGINES ---
+        // --- DATA ENGINES ---
         const DafEngine={masechtot:[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],get:(e)=>{const t=new Date(2020,0,5),a=Math.floor((e-t)/864e5);if(a<0)return"";let n=a;for(let r of DafEngine.masechtot){if(n<r.p)return r.n+" "+(n+2);n-=r.p}return""}};
-        const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}};
+        const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{try{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}catch(e){return""}}};
         const Solar={rad:e=>e*(Math.PI/180),deg:e=>e*(180/Math.PI),calc:(e,t,a,n)=>{const r=(Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())-946728e6)/864e5,l=(280.46+0.9856474*r)%360,c=(357.528+0.9856003*r)%360,o=l+1.915*Math.sin(Solar.rad(c))+.02*Math.sin(Solar.rad(2*c)),i=23.439-4e-7*r,s=Math.sin(Solar.rad(i))*Math.sin(Solar.rad(o)),u=Math.sqrt(1-s*s),d=Math.tan(Solar.rad(i/2))*Math.tan(Solar.rad(i/2)),h=d*Math.sin(2*Solar.rad(l))-2*.0167*Math.sin(Solar.rad(c))+4*.0167*d*Math.sin(Solar.rad(c))*Math.cos(2*Solar.rad(l))-.5*d*d*Math.sin(4*Solar.rad(l))-1.25*.0167*.0167*Math.sin(2*Solar.rad(c)),m=Solar.deg(h)*4,g=720-4*a-m,p=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate())+6e4*g,f=(e,n)=>{const r=90-e,l=Math.sin(Solar.rad(r))-Math.sin(Solar.rad(t))*s,c=Math.cos(Solar.rad(t))*u,o=l/c;if(o>1||o<-1)return null;const i=Solar.deg(Math.acos(o))*4;return n?p-6e4*i:p+6e4*i};return{noon:p,sunrise:f(90.833,!0),sunset:f(90.833,!1)}}};
 
-        const ADS_DB = [
-          { "id": "ad1", "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ", "description": "The finest selection of hats and menswear in Lakewood.", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" }
-        ];
-
-        let map, allMinyanim = [], processedMinyanim = [], searchCenter = null, currentRadius = 20;
+        let map, fullDbData = [], allMinyanim = [], searchCenter = null, currentRadius = 20;
         let filters = { tefillah: '', nusach: '' };
         let markers = [];
-        let fullDbData = [];
         let currentTab = 'map';
         let currentFilterDate = new Date();
+        let isFirstIdle = true;
 
-        // --- CORE LOGIC ---
+        // --- APP FLOW ---
         document.addEventListener("DOMContentLoaded", async () => {
-            renderWelcome();
+            updateDateDisplay();
             try {
                 const res = await fetch("database.json");
-                if (!res.ok) throw new Error();
                 fullDbData = await res.json();
-                processMinyanim(fullDbData);
-                populateNusachFilter();
-            } catch(e) { console.error("DB Load Error"); }
+                processMinyanim();
+            } catch(e) { console.error("Database fetch error"); }
         });
 
-        function processMinyanim(data){
-            processedMinyanim = [];
+        function processMinyanim() {
+            allMinyanim = [];
             const dayKey = getDayKey(currentFilterDate);
-            const nusachs = new Set();
-
-            data.forEach(shul => {
-                if(!shul.name) return;
-                if(shul.nusach) nusachs.add(shul.nusach);
-                
+            fullDbData.forEach(shul => {
                 let hasTimes = false;
-                const checkAndAdd = (type, list) => {
-                    if(list) list.forEach(t => { addMinyan(shul, type, t); hasTimes = true; });
+                const add = (type, times) => {
+                    if(times) times.forEach(t => {
+                        let [h,m] = t.trim().split(':').map(Number);
+                        let sortVal = (h*60)+m;
+                        if((type==='Mincha'||type==='Maariv') && h<12) sortVal += 720;
+                        allMinyanim.push({...shul, tefillah:type, timeDisplay: formatTime(h,m), timeValue: sortVal});
+                        hasTimes = true;
+                    });
                 };
-
-                if(shul.shacharis) checkAndAdd('Shacharis', shul.shacharis[dayKey]);
-                if(shul.mincha) checkAndAdd('Mincha', shul.mincha.week);
-                if(shul.maariv) checkAndAdd('Maariv', shul.maariv.week);
-
-                if(!hasTimes) processedMinyanim.push({...shul, tefillah: 'None', timeDisplay: '--:--', timeValue: 9999});
+                if(shul.shacharis) add('Shacharis', shul.shacharis[dayKey]);
+                if(shul.mincha) add('Mincha', shul.mincha.week);
+                if(shul.maariv) add('Maariv', shul.maariv.week);
+                if(!hasTimes) allMinyanim.push({...shul, tefillah:'None', timeDisplay:'--', timeValue:9999});
             });
-            allMinyanim = processedMinyanim;
-        }
-
-        function addMinyan(shul, type, tStr) {
-            let raw = tStr.trim().replace(/[^0-9:]/g,"");
-            if(!raw) return;
-            let [h,m] = raw.split(":").map(Number);
-            let sortH = h;
-            if((type==='Mincha' || type==='Maariv') && h < 12) sortH += 12;
-            processedMinyanim.push({...shul, tefillah: type, timeDisplay: formatTime(h,m), timeValue: (sortH*60)+m});
-        }
-
-        function formatTime(h, m) {
-            let suffix = h >= 12 ? 'pm' : 'am';
-            let dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-            return `${dispH}:${String(m).padStart(2,"0")}${suffix}`;
-        }
-
-        function getDayKey(date) {
-            const d = date.getDay();
-            if(d===0) return 'sun';
-            if(d===1 || d===4) return 'mon_thu';
-            return 'tue_wed_fri';
-        }
-
-        // --- UI & MAP ---
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.view-section, #list-view, #map-view, #zmanim-view, #settings-view').forEach(v => v.style.display = 'none');
-            if(tab === 'map') { document.getElementById('map-view').style.display='block'; document.getElementById('center-marker').style.display='block'; }
-            else if(tab === 'saved') { document.getElementById('list-view').style.display='block'; renderSaved(); }
-            else { document.getElementById(tab + '-view').style.display='block'; }
-            if(tab === 'zmanim') renderZmanim();
-        }
-
-        function toggleView() {
-            if(currentTab === 'map') { currentTab = 'list'; document.getElementById('map-view').style.display='none'; document.getElementById('list-view').style.display='block'; document.getElementById('nav-toggle-text').innerText='Map'; document.getElementById('nav-toggle-icon').innerText='map'; }
-            else { currentTab = 'map'; document.getElementById('list-view').style.display='none'; document.getElementById('map-view').style.display='block'; document.getElementById('nav-toggle-text').innerText='List'; document.getElementById('nav-toggle-icon').innerText='list'; }
-            applyFilters();
+            if(searchCenter) applyFilters();
+            else renderWelcome();
         }
 
         function applyFilters() {
             if(!searchCenter) return;
+            const sVal = timeToVal(document.getElementById('time-start').value);
+            const eVal = timeToVal(document.getElementById('time-end').value);
+
             let results = allMinyanim.map(m => {
                 m.distance = getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng);
                 return m;
-            }).filter(m => m.distance <= currentRadius);
+            });
+
+            // Filtering based on map visibility and radius
+            if(currentTab === 'map') {
+                const bounds = map.getBounds();
+                if(bounds) results = results.filter(m => bounds.contains({lat:m.lat, lng:m.lng}));
+            } else {
+                results = results.filter(m => m.distance <= currentRadius);
+            }
 
             if(filters.tefillah) results = results.filter(m => m.tefillah === filters.tefillah);
-            if(filters.nusach) results = results.filter(m => m.nusach === filters.nusach);
+            results = results.filter(m => m.timeValue === 9999 || (m.timeValue >= sVal && m.timeValue <= eVal));
             
             results.sort((a,b) => a.timeValue - b.timeValue);
             
-            document.getElementById('count-pill').innerText = `${results.length} Minyanim`;
-            document.getElementById('count-pill').style.display = 'block';
-            
+            updateStatusPills(results);
             renderList(results);
             updateMapMarkers(results);
         }
 
+        function updateStatusPills(results) {
+            const shulCount = new Set(results.map(r => r.name + r.address)).size;
+            document.getElementById('status-pill').style.display = 'block';
+            document.getElementById('count-pill').innerText = `${shulCount} Shuls / ${results.filter(r=>r.timeValue<9999).length} Minyanim`;
+            document.getElementById('count-pill').style.display = 'block';
+            document.getElementById('map-radius-pill').innerText = `${currentRadius} mi Radius`;
+            document.getElementById('map-radius-pill').style.display = 'block';
+        }
+
         function renderList(results) {
             const container = document.getElementById('list-view');
-            container.innerHTML = "";
+            container.innerHTML = results.length ? "" : '<div class="empty-state">No minyanim found.</div>';
             results.forEach(m => {
                 const card = document.createElement('div');
                 card.className = 'minyan-card';
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 card.innerHTML = `
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m)})'>
+                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
+                        <div class="shul-city-state">${m.city || ''}, ${m.state || ''}</div>
                         <div class="nusach-tag-list ${nCls}">${m.nusach}</div>
                     </div>
-                    <div class="map-zone">
+                    <div class="map-zone" onclick="window.open('${mapLink}','_blank')">
                         <div class="tefillah-label">${m.tefillah}</div>
                         <div class="time-val-card ${nCls}">${m.timeDisplay}</div>
-                        <div class="dist-row"><span class="dist-label">${m.distance.toFixed(1)}mi</span></div>
+                        <div class="dist-row"><span class="dist-label">${m.distance.toFixed(1)}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -418,115 +362,220 @@
         }
 
         async function updateMapMarkers(results) {
+            if(!map) return;
             const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
             markers.forEach(m => m.map = null); markers = [];
-            results.forEach(m => {
+            
+            const unique = {};
+            results.forEach(r => { 
+                const k = r.lat+','+r.lng; 
+                if(!unique[k] || r.timeValue < unique[k].timeValue) unique[k] = r; 
+            });
+
+            Object.values(unique).forEach(m => {
                 const pin = document.createElement('div');
                 pin.className = `custom-marker nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                pin.innerText = m.timeDisplay;
+                pin.innerText = m.timeDisplay === '--' ? 'Info' : m.timeDisplay;
                 const marker = new AdvancedMarkerElement({ map, position: {lat:m.lat, lng:m.lng}, content: pin });
                 marker.addListener('click', () => openDetails(m));
                 markers.push(marker);
             });
         }
 
-        function renderWelcome() {
-            const list = document.getElementById('list-view');
-            list.innerHTML = `<div class="empty-state"><strong>Welcome to ShulTime</strong><br>Search for a city to begin.</div>`;
-            ADS_DB.forEach(ad => {
-                const div = document.createElement('div');
-                div.className = 'ad-card';
-                div.innerHTML = `<div><span class="ad-badge">AD</span><span class="ad-content">${ad.name}</span></div><i class="material-icons">chevron_right</i>`;
-                div.onclick = () => openAdDetails(ad);
-                list.appendChild(div);
-            });
+        // --- NAVIGATION & TABS ---
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('list-view').style.display = 'none';
+            document.getElementById('map-view').style.display = 'none';
+            document.getElementById('zmanim-view').style.display = 'none';
+            document.getElementById('settings-view').style.display = 'none';
+            document.getElementById('center-marker').style.display = 'none';
+            document.getElementById('filter-header').style.display = 'none';
+
+            if(tab === 'map' || tab === 'list') {
+                document.getElementById('filter-header').style.display = 'flex';
+                document.getElementById('nav-toggle').classList.add('active');
+                if(tab === 'map') { 
+                    document.getElementById('map-view').style.display = 'block'; 
+                    document.getElementById('center-marker').style.display = 'block';
+                    updateToggleBtn('List', 'list');
+                } else { 
+                    document.getElementById('list-view').style.display = 'block'; 
+                    updateToggleBtn('Map', 'map');
+                }
+                applyFilters();
+            } else if(tab === 'recent') {
+                document.getElementById('list-view').style.display = 'block';
+                renderStorageList('shultime_recents', 'Recent');
+            } else if(tab === 'saved') {
+                document.getElementById('list-view').style.display = 'block';
+                renderStorageList('shultime_favs', 'Saved');
+            } else {
+                document.getElementById(tab + '-view').style.display = 'block';
+                if(tab === 'zmanim') renderZmanim();
+            }
         }
 
-        function openAdDetails(ad) {
-            document.getElementById('drawer-title').innerText = ad.name;
-            document.getElementById('drawer-content').innerHTML = `<div class="ad-hero"><img src="${ad.image_url}"></div><p>${ad.description}</p>`;
-            document.getElementById('details-drawer').classList.add('open');
-            document.getElementById('scrim').style.display = 'block';
+        function toggleView() {
+            if(currentTab === 'map') switchTab('list');
+            else switchTab('map');
         }
 
+        function updateToggleBtn(txt, icon) {
+            document.getElementById('nav-toggle-text').innerText = txt;
+            document.getElementById('nav-toggle-icon').innerText = icon;
+        }
+
+        // --- DETAILS & STORAGE ---
         function openDetails(m) {
+            const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
+            const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
+            const goDavenUrl = `https://www.godaven.com/shul-details/${godavenId}`;
+            
             document.getElementById('drawer-title').innerText = m.name;
-            document.getElementById('drawer-address-line1').innerText = m.address;
+            document.getElementById('drawer-address').innerText = m.address;
             document.getElementById('drawer-content').innerHTML = `
-                <div class="nusach-tag-list nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}">${m.nusach}</div>
-                <div style="margin-top:20px; font-weight:bold">Daily Schedule</div>
-                <p>This shul offers ${m.tefillah} at ${m.timeDisplay}.</p>
-                <button class="circle-btn" style="width:100%; border-radius:12px; margin-top:10px" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.address)}')">Navigate</button>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="nusach-tag-list ${nCls}">${m.nusach}</div>
+                    <div style="font-weight:bold; color:#666">${m.rabbi || ''}</div>
+                </div>
+                <div class="contact-row">
+                    <a href="tel:${m.phone || ''}" class="contact-btn"><i class="material-icons">call</i> Call</a>
+                    <a href="${goDavenUrl}" target="_blank" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>
+                    <button class="contact-btn" onclick="shareShul()"><i class="material-icons">ios_share</i> Share</button>
+                </div>
+                <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px;">Schedule</div>
+                <div class="schedule-grid" style="margin-top:10px;">
+                    <div><strong>Sun</strong><br>${formatPills(m.shacharis?.sun, m.nusach)}</div>
+                    <div><strong>Mon/Thu</strong><br>${formatPills(m.shacharis?.mon_thu, m.nusach)}</div>
+                    <div><strong>Mincha</strong><br>${formatPills(m.mincha?.week, m.nusach)}</div>
+                    <div><strong>Maariv</strong><br>${formatPills(m.maariv?.week, m.nusach)}</div>
+                </div>
             `;
+            
+            addToStorage('shultime_recents', m.id);
+            checkFavIcon(m.id);
             document.getElementById('details-drawer').classList.add('open');
             document.getElementById('scrim').style.display = 'block';
         }
 
-        function closeDetails() {
-            document.getElementById('details-drawer').classList.remove('open');
-            document.getElementById('scrim').style.display = 'none';
+        function shareShul() {
+            const text = `${document.getElementById('drawer-title').innerText}\n${document.getElementById('drawer-address').innerText}`;
+            if(navigator.share) navigator.share({title:'ShulTime', text: text});
+            else alert("Copied to clipboard!");
         }
 
-        function toggleFilters() {
-            const d = document.getElementById('filter-drawer');
-            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+        function addToStorage(key, id) {
+            let data = JSON.parse(localStorage.getItem(key) || "[]");
+            data = [id, ...data.filter(x => x !== id)].slice(0, 20);
+            localStorage.setItem(key, JSON.stringify(data));
         }
 
-        function setFilter(key, val, btn) {
-            filters[key] = val;
-            btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
+        function toggleFavorite() {
+            const id = fullDbData.find(s => s.name === document.getElementById('drawer-title').innerText)?.id;
+            if(!id) return;
+            let favs = JSON.parse(localStorage.getItem('shultime_favs') || "[]");
+            if(favs.includes(id)) favs = favs.filter(x => x !== id);
+            else favs.push(id);
+            localStorage.setItem('shultime_favs', JSON.stringify(favs));
+            checkFavIcon(id);
+        }
+
+        function checkFavIcon(id) {
+            const favs = JSON.parse(localStorage.getItem('shultime_favs') || "[]");
+            document.getElementById('drawer-fav-icon').innerText = favs.includes(id) ? 'bookmark' : 'bookmark_border';
+        }
+
+        function renderStorageList(key, title) {
+            const ids = JSON.parse(localStorage.getItem(key) || "[]");
+            const shuls = fullDbData.filter(s => ids.includes(s.id));
+            const list = shuls.map(s => ({...s, distance: searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, s.lat, s.lng) : 0, tefillah:'Info', timeDisplay:'--', timeValue:9999}));
+            renderList(list);
+        }
+
+        // --- UTILS ---
+        function formatTime(h, m) { return `${h > 12 ? h - 12 : (h === 0 ? 12 : h)}:${String(m).padStart(2, "0")}${h >= 12 ? 'p' : 'a'}`; }
+        function timeToVal(t) { const [h,m] = t.split(':').map(Number); return (h*60)+m; }
+        function getDistance(lat1, lon1, lat2, lon2){
+            const R = 3958.8; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+        }
+        function getDayKey(d) { const wk = d.getDay(); if(wk===0) return 'sun'; if(wk===1||wk===4) return 'mon_thu'; return 'tue_wed_fri'; }
+        
+        function formatPills(list, nusach) {
+            if(!list) return "--";
+            const nCls = `nusach-bg-${(nusach || 'Other').replace(/\s+/g, '-')}`;
+            return list.map(t => `<span class="time-pill ${nCls}">${t}</span>`).join("");
+        }
+
+        function manualRadiusUpdate(val) {
+            currentRadius = parseFloat(val);
+            document.getElementById('radius-slider').value = val;
+            document.getElementById('radius-val').innerText = val;
+            if(map && searchCenter) {
+                const zoom = val > 10 ? 11 : (val > 3 ? 13 : 15);
+                map.setZoom(zoom);
+            }
             applyFilters();
+        }
+
+        function setNextHour() {
+            const now = new Date();
+            const start = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const next = new Date(now.getTime() + 3600000);
+            const end = `${String(next.getHours()).padStart(2,'0')}:${String(next.getMinutes()).padStart(2,'0')}`;
+            document.getElementById('time-start').value = start;
+            document.getElementById('time-end').value = end;
+            applyFilters();
+        }
+
+        function resetTime() { document.getElementById('time-start').value="00:00"; document.getElementById('time-end').value="23:59"; applyFilters(); }
+        function toggleFilters() { const d = document.getElementById('filter-drawer'); d.style.display = (d.style.display==='block'?'none':'block'); }
+        function setFilter(k,v,btn) { filters[k]=v; btn.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); btn.classList.add('active'); applyFilters(); }
+        function closeDetails() { document.getElementById('details-drawer').classList.remove('open'); document.getElementById('scrim').style.display='none'; }
+
+        function changeDate(n) { currentFilterDate.setDate(currentFilterDate.getDate()+n); updateDateDisplay(); processMinyanim(); }
+        function updateDateDisplay() {
+            document.getElementById('date-display').innerText = currentFilterDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+            document.getElementById('hebrew-date').innerText = HebCal.getHebrewStr(currentFilterDate);
         }
 
         function renderZmanim() {
             const lat = searchCenter ? searchCenter.lat : 40.096;
             const lng = searchCenter ? searchCenter.lng : -74.222;
-            const data = Solar.calc(currentFilterDate, lat, lng, 0);
-            
-            document.getElementById('zman-date-display').innerText = currentFilterDate.toDateString();
-            document.getElementById('zman-hebrew-date').innerText = HebCal.getHebrewStr(currentFilterDate);
-            document.getElementById('zman-daf').innerText = DafEngine.get(currentFilterDate);
-
+            const s = Solar.calc(currentFilterDate, lat, lng, 0);
             const fmt = ms => new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-            document.getElementById('zmanimList').innerHTML = `
-                <div class="zman-card"><span class="zman-label">Sunrise</span><span class="zman-time">${fmt(data.sunrise)}</span></div>
-                <div class="zman-card"><span class="zman-label">Sunset</span><span class="zman-time">${fmt(data.sunset)}</span></div>
+            document.getElementById('zmanim-content').innerHTML = `
+                <div style="background:#fff; padding:15px; border-radius:15px; margin-top:10px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Sunrise</span><strong>${fmt(s.sunrise)}</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Sunset</span><strong>${fmt(s.sunset)}</strong></div>
+                </div>
+                <div style="background:var(--primary); color:#fff; padding:15px; border-radius:15px; margin-top:10px; text-align:center;">
+                    <div style="font-size:12px; opacity:0.8;">DAF YOMI</div>
+                    <div style="font-size:20px; font-weight:800;">${DafEngine.get(currentFilterDate)}</div>
+                </div>
             `;
         }
 
         function useMyLocation() {
             navigator.geolocation.getCurrentPosition(p => {
                 setSearchLocation(p.coords.latitude, p.coords.longitude, "Current Location");
-            });
+            }, e => alert("Enable GPS"));
         }
 
         function setSearchLocation(lat, lng, name) {
             searchCenter = {lat, lng};
             document.getElementById('status-pill').innerText = "Near: " + name;
             document.getElementById('status-pill').style.display = 'block';
-            if(map) map.setCenter({lat, lng});
+            if(map) { map.setCenter(searchCenter); map.setZoom(13); }
             switchTab('map');
             applyFilters();
         }
 
-        function getDistance(lat1, lon1, lat2, lon2){
-            const R = 3958.8; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-        }
-
-        function populateNusachFilter() {
-            const set = new Set(allMinyanim.map(m => m.nusach));
-            const group = document.getElementById('nusach-group');
-            set.forEach(n => {
-                if(!n) return;
-                const chip = document.createElement('div');
-                chip.className = 'chip';
-                chip.innerText = n;
-                chip.onclick = () => setFilter('nusach', n, chip);
-                group.appendChild(chip);
-            });
+        function renderWelcome() {
+            document.getElementById('list-view').innerHTML = `<div class="empty-state"><i class="material-icons" style="font-size:50px; color:var(--primary)">explore</i><br><strong>Welcome to ShulTime v2.1</strong><br>Search for a city to find minyanim.</div>`;
         }
 
         async function initApp(){
@@ -535,6 +584,14 @@
 
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 }, zoom: 12, mapId: "DEMO_MAP_ID", disableDefaultUI: true
+            });
+
+            map.addListener('idle', () => {
+                if(isFirstIdle) { isFirstIdle = false; return; }
+                const c = map.getCenter();
+                searchCenter = {lat: c.lat(), lng: c.lng()};
+                document.getElementById('status-pill').innerText = "Near: Map Center";
+                applyFilters();
             });
 
             const autocomplete = new PlaceAutocompleteElement();
