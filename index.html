@@ -246,7 +246,7 @@
     
     .drawer-top-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .rabbi-info { font-size: 14px; color: #555; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 5px; }
-    .address-info { font-size: 14px; color: #777; margin-bottom: 10px; line-height: 1.4; }
+    .address-info { font-size: 13px; color: #777; margin-bottom: 10px; line-height: 1.4; }
 
     .schedule-section { margin-top: 15px; }
     .schedule-title { font-weight:800; font-size:15px; margin-bottom:10px; color:#333; border-bottom:1px solid #eee; padding-bottom:5px; }
@@ -295,6 +295,8 @@
 </head>
 <body>
 
+    <div id="sticky-header" class="sticky-header"></div>
+
     <div id="home-view" class="view-section">
         <div class="floating-header" id="filter-header" onclick="scrollToTop(event)">
             <div class="search-container" onclick="event.stopPropagation()">
@@ -317,7 +319,7 @@
         <div id="center-marker"></div>
         
         <div id="list-view">
-            <div class="empty-state">
+            <div class="empty-state" id="loading-state">
                 <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
                 <strong>Welcome to ShulTime</strong><br><br>
                 Loading database...
@@ -468,8 +470,6 @@
         </div>
     </div>
 
-    <div id="sticky-header" class="sticky-header"></div>
-
     <script>
         // HEBCAL ENGINE FOR HEBREW DATES
         const HebCal = {
@@ -499,15 +499,24 @@
             updateDateDisplay();
             loadProfile();
 
-            // Fetch Database directly from the GitHub Raw URL
+            // Fetch Database - Using the exact reliable method requested
             try {
-                const url = "https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json?v=" + new Date().getTime();
+                // Fetch Database from same origin (GitHub Pages)
+                const url = "./database.json?v=" + Date.now();
                 const res = await fetch(url, { cache: "no-store" });
-                
-                if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
-                
-                fullDbData = await res.json();
-                
+
+                if (!res.ok) {
+                    const body = await res.text();
+                    throw new Error(`HTTP ${res.status} ${res.statusText}: ${body.slice(0, 200)}`);
+                }
+
+                const text = await res.text();
+                try {
+                    fullDbData = JSON.parse(text);
+                } catch (parseError) {
+                    throw new Error(`DB is not valid JSON. First 200 chars: ${text.slice(0, 200)}`);
+                }
+
                 if (!Array.isArray(fullDbData) || fullDbData.length === 0) {
                     throw new Error("Database file is empty or not formatted correctly.");
                 }
@@ -529,11 +538,13 @@
             } catch(e) {
                 console.error("Database Fetch Error:", e);
                 document.getElementById("list-view").innerHTML = `
-                    <div class="empty-state" style="color: red;">
+                    <div class="empty-state" style="color: red; padding: 20px;">
                         <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: red;">error_outline</i><br>
                         <strong>Database Connection Failed</strong><br><br>
-                        ${e.message}<br><br>
-                        Could not load database.json from GitHub.
+                        <div style="font-family: monospace; font-size: 12px; background: #fee; padding: 10px; border-radius: 8px; text-align: left; word-break: break-all;">
+                            ${e.message}
+                        </div><br>
+                        Make sure a file named exactly <b>database.json</b> is uploaded to your GitHub repository in the exact same folder as this index.html file.
                     </div>`;
             }
 
@@ -950,12 +961,12 @@
             const link = `https://www.godaven.com/shul-details/${godavenId}`;
             const nCls = `bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const content = document.getElementById("drawer-content");
-            const headerContent = document.getElementById("drawer-header");
+            const headerTitle = document.getElementById("drawer-title");
             
             let rabbiText = m.rabbi && m.rabbi !== "Rabbi Not Listed" ? `<div class="rabbi-info"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}</div>` : '';
 
             // Sticky Header
-            document.getElementById("drawer-title").innerText = m.name;
+            headerTitle.innerText = m.name;
 
             // Contacts
             let contacts = [];
@@ -972,14 +983,14 @@
             if (m.timeValue !== 9999) {
                 timeDisplayHtml = `
                 <div class="drawer-nav-row">
-                    <div class="drawer-nav-left"><span class="static-chip chip-${m.tefillah} ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
+                    <div class="drawer-nav-left"><span class="tefillah-label ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}" style="margin-left:10px;">${m.timeDisplay}</span></div>
                     <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${(m.distance || 0).toFixed(1)}mi</div></div>
                 </div>`;
             }
 
             content.innerHTML = `
-                <div class="drawer-top-info"><span class="nusach-tag ${nCls}" style="margin:0;">${m.nusach}</span>${rabbiText}</div>
                 <div class="address-info">${m.address}, ${m.city}, ${m.state} ${m.zip}</div>
+                <div class="drawer-top-info"><span class="nusach-tag ${nCls}" style="margin:0;">${m.nusach}</span>${rabbiText}</div>
                 ${timeDisplayHtml}
                 <div class="contact-grid">${contacts.join('')}</div>
 
