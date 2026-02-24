@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v2.7</title>
+<title>ShulTime v2.8</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -79,10 +79,8 @@
         flex: 1; height: 45px; background: #f0f2f5; border-radius: 22px; 
         overflow: hidden; padding: 0 15px; display: flex; align-items: center;
     }
-    #overlay-search-input {
-        width: 100%; height: 100%; background: transparent; border: none; outline: none;
-        font-size: 16px; color: #111; font-weight: 500; font-family: inherit;
-    }
+    gmp-place-autocomplete { width: 100%; height: 100%; background-color: transparent !important; }
+    gmp-place-autocomplete::part(input) { background-color: transparent !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; outline: none; border: none; }
     .pac-container { border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; margin-top: 5px; font-family: inherit; z-index: 6000 !important; }
 
     /* STATUS PILLS */
@@ -210,13 +208,17 @@
     }
     .nav-item i { font-size: 24px; }
 
-    /* NUSACH UTILS FOR CARDS */
+    /* NUSACH & TEFILLAH UTILS FOR CARDS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .nusach-bg-Sefard { background-color: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
     .nusach-bg-Ari { background-color: var(--bg-Ari) !important; color: var(--text-Ari) !important; border-color: var(--bg-Ari) !important; }
     .nusach-bg-Edot-HaMizrach { background-color: var(--bg-Edot-HaMizrach) !important; color: var(--text-Edot-HaMizrach) !important; border-color: var(--bg-Edot-HaMizrach) !important; }
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; border-color: var(--bg-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
+    
+    .chip-Shacharis.active { background: var(--color-Shacharis) !important; color: white !important; border: 2px solid var(--color-Shacharis) !important; }
+    .chip-Mincha.active { background: var(--color-Mincha) !important; color: white !important; border: 2px solid var(--color-Mincha) !important; }
+    .chip-Maariv.active { background: var(--color-Maariv) !important; color: white !important; border: 2px solid var(--color-Maariv) !important; }
 
     .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
     .time-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 14px; margin: 2px; border: 1px solid rgba(0,0,0,0.08); }
@@ -253,7 +255,7 @@
                 <i class="material-icons" style="color:#555;">arrow_back</i>
             </button>
             <div class="search-overlay-input-wrap">
-                <input type="text" id="overlay-search-input" placeholder="Search City, Zip Code...">
+                <gmp-place-autocomplete id="gmp-autocomplete" placeholder="Search City..."></gmp-place-autocomplete>
             </div>
         </div>
         <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px; text-align:center;">
@@ -326,9 +328,9 @@
             <label class="filter-label">Tefillah</label>
             <div class="chip-group" id="tefillah-group">
                 <div class="chip active chip-all" onclick="setFilter('tefillah', '', this)">All</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
-                <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
+                <div class="chip chip-Shacharis" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
+                <div class="chip chip-Mincha" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
+                <div class="chip chip-Maariv" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
             </div>
         </div>
         <div class="filter-section">
@@ -388,7 +390,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.7 (Merged Edition)</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.8 (Merged Edition)</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -459,11 +461,22 @@
         // Overlay Search functions
         function openSearchOverlay() {
             document.getElementById('search-overlay').classList.add('open');
-            setTimeout(() => { document.getElementById('overlay-search-input').focus(); }, 300);
+            // Try to auto-focus the web component's internal shadow-dom input
+            setTimeout(() => { 
+                const gmp = document.getElementById('gmp-autocomplete');
+                if(gmp && gmp.shadowRoot) {
+                    const input = gmp.shadowRoot.querySelector('input');
+                    if(input) input.focus();
+                }
+            }, 300);
         }
         function closeSearchOverlay() {
             document.getElementById('search-overlay').classList.remove('open');
-            document.getElementById('overlay-search-input').blur();
+            const gmp = document.getElementById('gmp-autocomplete');
+            if(gmp && gmp.shadowRoot) {
+                const input = gmp.shadowRoot.querySelector('input');
+                if(input) input.blur();
+            }
         }
 
         function processMinyanim() {
@@ -571,7 +584,7 @@
             let html = "";
             results.forEach(m => {
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `http://googleusercontent.com/maps.google.com/8{encodeURIComponent(m.name + " " + m.address)}`;
+                const mapLink = `http://googleusercontent.com/maps.google.com/9{encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
                     `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
@@ -946,7 +959,7 @@
 
         async function initApp(){
             const { Map } = await google.maps.importLibrary("maps");
-            const { Autocomplete } = await google.maps.importLibrary("places");
+            const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
             geocoder = new google.maps.Geocoder();
 
             map = new Map(document.getElementById("map-view"), {
@@ -980,17 +993,14 @@
                 applyFilters();
             });
 
-            // Reliable Standard Google Autocomplete (Inside overlay)
-            const pacInput = document.getElementById("overlay-search-input");
-            const autocomplete = new Autocomplete(pacInput, { types: ["(cities)"] });
-            
-            autocomplete.addListener("place_changed", () => {
-                if (document.activeElement) document.activeElement.blur();
-                const place = autocomplete.getPlace();
-                if(place.geometry) {
-                    setSearchLocation(place.geometry.location.lat(), place.geometry.location.lng(), place.name || place.formatted_address.split(',')[0]);
+            // Google Web Component Autocomplete inside the overlay
+            const autocompleteEl = document.getElementById("gmp-autocomplete");
+            autocompleteEl.addEventListener("gmp-placeselect", async (e) => {
+                if (e.place) {
+                    await e.place.fetchFields({ fields: ["location", "displayName"] });
+                    setSearchLocation(e.place.location.lat(), e.place.location.lng(), e.place.displayName);
                     closeSearchOverlay();
-                    pacInput.value = ''; // clear for next open
+                    autocompleteEl.inputValue = ''; // Reset for next time
                 }
             });
         }
