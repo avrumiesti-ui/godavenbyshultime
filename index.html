@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v2.2</title>
+<title>ShulTime v2.3</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -153,10 +153,19 @@
     .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
     .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex: 1; }
     
-    /* TOOLBAR */
-    .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: none; flex: 1; cursor: pointer; transition: all 0.2s; position: relative; }
-    .nav-item.active { color: var(--primary); transform: translateY(-2px); }
+    /* TOOLBAR (Liquid Glass Active State) */
+    .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: transparent; flex: 1; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; padding: 8px 4px; margin: 0 2px; border-radius: 20px; border: 1px solid transparent; }
+    .nav-item.active { 
+        color: var(--primary); 
+        font-weight: 900; 
+        background: rgba(255, 255, 255, 0.6); 
+        backdrop-filter: blur(12px); 
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
+        transform: translateY(-3px); 
+    }
     .nav-item i { font-size: 24px; }
 
     /* NUSACH UTILS */
@@ -288,7 +297,7 @@
     <div id="map-view"></div>
     
     <div id="zmanim-view">
-        <div class="list-page-header">Zmanim Dictionary</div>
+        <div class="list-page-header">Zmanim</div>
         <div class="zman-header-section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <div style="font-size:18px; font-weight:800; color:var(--primary);">Location</div>
@@ -318,7 +327,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.2 (Merged Edition)</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.3 (Merged Edition)</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -761,12 +770,14 @@
             document.getElementById('zman-daf').innerText = DafEngine.get(currentFilterDate);
         }
 
-        // FULL 10-ITEM ZMANIM DICTIONARY WITH SHAOT ZMANIYOT
+        // FULL 10-ITEM ZMANIM DICTIONARY WITH SHAOT ZMANIYOT & SECONDS
         function renderZmanim() {
             if(searchCenter) { zmanLoc.lat = searchCenter.lat; zmanLoc.lng = searchCenter.lng; zmanLoc.name = document.getElementById('status-pill').innerText.replace('Near: ', ''); }
             document.getElementById('zman-loc-badge').innerText = zmanLoc.name;
             const data = Solar.calc(currentFilterDate, zmanLoc.lat, zmanLoc.lng, 30);
-            const fmt = ms => ms ? new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : "--:--";
+            
+            // Format time with seconds
+            const fmt = ms => ms ? new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit', second:'2-digit'}) : "--:--:--";
             
             // Calculate proportional hour (Shaah Zmanit) from Sunrise to Sunset
             const shaahZmanit = (data.sunset - data.sunrise) / 12;
@@ -805,6 +816,10 @@
             searchCenter = {lat, lng};
             document.getElementById('status-pill').innerText = "Near: " + name;
             
+            // Push to Search Box
+            const autocompleteEl = document.querySelector('gmp-place-autocomplete');
+            if (autocompleteEl) { autocompleteEl.inputValue = name; }
+
             if(map) { 
                 isProgrammaticMove = true;
                 map.setCenter(searchCenter); 
@@ -856,6 +871,10 @@
                         let city = res.results.find(r => r.types.includes("locality"));
                         let name = city ? city.formatted_address : res.results[0].formatted_address.split(',')[0];
                         document.getElementById('status-pill').innerText = "Near: " + name;
+                        
+                        // Push text back to the Google Search element
+                        const autocompleteEl = document.querySelector('gmp-place-autocomplete');
+                        if (autocompleteEl) { autocompleteEl.inputValue = name; }
                     }
                 }).catch(e => { document.getElementById('status-pill').innerText = "Near: Map Center"; });
                 
@@ -880,7 +899,8 @@
             });
 
             autocomplete.addEventListener('input', () => { 
-                if (!autocomplete.value) {
+                const val = document.querySelector('gmp-place-autocomplete').inputValue;
+                if (!val || val.trim() === "") {
                     searchCenter = null;
                     document.getElementById("status-pill").style.display = "none";
                     document.getElementById("count-pill").style.display = "none";
