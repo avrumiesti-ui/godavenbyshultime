@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v2.6</title>
+<title>ShulTime v2.7</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -79,8 +79,11 @@
         flex: 1; height: 45px; background: #f0f2f5; border-radius: 22px; 
         overflow: hidden; padding: 0 15px; display: flex; align-items: center;
     }
-    gmp-place-autocomplete { width: 100%; height: 100%; background-color: transparent !important; }
-    gmp-place-autocomplete::part(input) { background-color: transparent !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; outline: none; border: none; }
+    #overlay-search-input {
+        width: 100%; height: 100%; background: transparent; border: none; outline: none;
+        font-size: 16px; color: #111; font-weight: 500; font-family: inherit;
+    }
+    .pac-container { border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; margin-top: 5px; font-family: inherit; z-index: 6000 !important; }
 
     /* STATUS PILLS */
     .status-area {
@@ -163,7 +166,7 @@
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
     
-    /* DEFAULT CHIP (Used for Sort, Radius, Tefillah) */
+    /* DEFAULT CHIP */
     .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.1s; color: #555; }
     .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
     .chip-all.active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
@@ -207,7 +210,7 @@
     }
     .nav-item i { font-size: 24px; }
 
-    /* NUSACH & TEFILLAH UTILS FOR CARDS */
+    /* NUSACH UTILS FOR CARDS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .nusach-bg-Sefard { background-color: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
     .nusach-bg-Ari { background-color: var(--bg-Ari) !important; color: var(--text-Ari) !important; border-color: var(--bg-Ari) !important; }
@@ -250,7 +253,7 @@
                 <i class="material-icons" style="color:#555;">arrow_back</i>
             </button>
             <div class="search-overlay-input-wrap">
-                <gmp-place-autocomplete id="gmp-autocomplete"></gmp-place-autocomplete>
+                <input type="text" id="overlay-search-input" placeholder="Search City, Zip Code...">
             </div>
         </div>
         <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px; text-align:center;">
@@ -385,7 +388,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.6 (Merged Edition)</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.7 (Merged Edition)</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -456,9 +459,11 @@
         // Overlay Search functions
         function openSearchOverlay() {
             document.getElementById('search-overlay').classList.add('open');
+            setTimeout(() => { document.getElementById('overlay-search-input').focus(); }, 300);
         }
         function closeSearchOverlay() {
             document.getElementById('search-overlay').classList.remove('open');
+            document.getElementById('overlay-search-input').blur();
         }
 
         function processMinyanim() {
@@ -566,7 +571,7 @@
             let html = "";
             results.forEach(m => {
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `http://googleusercontent.com/maps.google.com/7{encodeURIComponent(m.name + " " + m.address)}`;
+                const mapLink = `http://googleusercontent.com/maps.google.com/8{encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
                     `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
@@ -941,6 +946,7 @@
 
         async function initApp(){
             const { Map } = await google.maps.importLibrary("maps");
+            const { Autocomplete } = await google.maps.importLibrary("places");
             geocoder = new google.maps.Geocoder();
 
             map = new Map(document.getElementById("map-view"), {
@@ -974,13 +980,17 @@
                 applyFilters();
             });
 
-            // Real Google Web Component Autocomplete inside the overlay
-            const autocompleteEl = document.getElementById("gmp-autocomplete");
-            autocompleteEl.addEventListener("gmp-placeselect", async (e) => {
-                if (e.place) {
-                    await e.place.fetchFields({ fields: ["location", "displayName"] });
-                    setSearchLocation(e.place.location.lat(), e.place.location.lng(), e.place.displayName);
+            // Reliable Standard Google Autocomplete (Inside overlay)
+            const pacInput = document.getElementById("overlay-search-input");
+            const autocomplete = new Autocomplete(pacInput, { types: ["(cities)"] });
+            
+            autocomplete.addListener("place_changed", () => {
+                if (document.activeElement) document.activeElement.blur();
+                const place = autocomplete.getPlace();
+                if(place.geometry) {
+                    setSearchLocation(place.geometry.location.lat(), place.geometry.location.lng(), place.name || place.formatted_address.split(',')[0]);
                     closeSearchOverlay();
+                    pacInput.value = ''; // clear for next open
                 }
             });
         }
