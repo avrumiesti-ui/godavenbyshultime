@@ -91,9 +91,7 @@
         z-index: 10; display: none; 
     }
     #home-view { display: block; }
-    
-    /* We keep map ALWAYS rendering, but hide list when map is active by display toggling list only */
-    #list-view { position: absolute; inset: 0; padding: 110px 12px 100px 12px; overflow-y: auto; z-index: 10; background: var(--bg); }
+    #list-view { position: absolute; inset: 0; padding: 110px 12px 100px 12px; overflow-y: auto; z-index: 10; }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
     #center-marker {
@@ -171,9 +169,9 @@
     .text-Chabad { color: var(--n-Chabad) !important; border-color: var(--n-Chabad) !important; }
     .text-Other { color: var(--n-Other) !important; border-color: var(--n-Other) !important; }
 
-    .txt-Shacharis { color: var(--t-Shacharis) !important; border-color: var(--t-Shacharis) !important; } 
-    .txt-Mincha { color: var(--t-Mincha) !important; border-color: var(--t-Mincha) !important; } 
-    .txt-Maariv { color: var(--t-Maariv) !important; border-color: var(--t-Maariv) !important; }
+    .txt-Shacharis { color: var(--t-Shacharis); border-color: var(--t-Shacharis); } 
+    .txt-Mincha { color: var(--t-Mincha); border-color: var(--t-Mincha); } 
+    .txt-Maariv { color: var(--t-Maariv); border-color: var(--t-Maariv); }
 
     /* TAGS */
     .nusach-tag { font-size: 11px; padding: 4px 10px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 8px;}
@@ -501,9 +499,11 @@
             updateDateDisplay();
             loadProfile();
 
-            // Fetch Database dynamically from GitHub (Bypass caching)
+            // Fetch Database directly from the GitHub Raw URL
             try {
-                const res = await fetch("database.json?v=" + new Date().getTime(), { cache: "no-store" });
+                const url = "https://raw.githubusercontent.com/avrumiesti-ui/godavenbyshultime/main/database.json?v=" + new Date().getTime();
+                const res = await fetch(url, { cache: "no-store" });
+                
                 if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
                 
                 fullDbData = await res.json();
@@ -528,16 +528,12 @@
                 }
             } catch(e) {
                 console.error("Database Fetch Error:", e);
-                let errMsg = e.message;
-                if (window.location.protocol === 'file:') {
-                    errMsg = "Browsers block loading local databases for security. You must test this via your live GitHub link, not by double-clicking the HTML file on your computer.";
-                }
                 document.getElementById("list-view").innerHTML = `
                     <div class="empty-state" style="color: red;">
                         <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: red;">error_outline</i><br>
                         <strong>Database Connection Failed</strong><br><br>
-                        ${errMsg}<br><br>
-                        Make sure a file named exactly <b>database.json</b> is uploaded to your GitHub repository in the exact same folder as this index.html file.
+                        ${e.message}<br><br>
+                        Could not load database.json from GitHub.
                     </div>`;
             }
 
@@ -567,10 +563,12 @@
             if (tabId === 'home') {
                 document.getElementById('home-view').style.display = 'block';
                 if (currentViewIsMap) {
+                    document.getElementById('map-view').style.display = 'block';
                     document.getElementById('list-view').style.display = 'none';
                     document.getElementById('center-marker').style.display = 'block';
                     document.querySelector('.fab-location').style.display = 'flex';
                 } else {
+                    document.getElementById('map-view').style.display = 'none';
                     document.getElementById('list-view').style.display = 'block';
                     document.getElementById('center-marker').style.display = 'none';
                     document.querySelector('.fab-location').style.display = 'flex';
@@ -602,6 +600,7 @@
             if (currentViewIsMap) {
                 currentViewIsMap = false;
                 list.style.display = "block";
+                document.getElementById('map-view').style.display = "none";
                 icon.innerText = "map";
                 btn.classList.remove("active");
                 dot.style.display = "none";
@@ -609,6 +608,7 @@
             } else {
                 currentViewIsMap = true;
                 list.style.display = "none";
+                document.getElementById('map-view').style.display = "block";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
@@ -950,18 +950,18 @@
             const link = `https://www.godaven.com/shul-details/${godavenId}`;
             const nCls = `bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const content = document.getElementById("drawer-content");
-            const headerTitle = document.getElementById("drawer-title");
+            const headerContent = document.getElementById("drawer-header");
             
             let rabbiText = m.rabbi && m.rabbi !== "Rabbi Not Listed" ? `<div class="rabbi-info"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}</div>` : '';
 
             // Sticky Header
-            headerTitle.innerText = m.name;
+            document.getElementById("drawer-title").innerText = m.name;
 
             // Contacts
             let contacts = [];
             if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:16px">call</i> Call</a>`);
             if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:16px">email</i> Email</a>`);
-            contacts.push(`<a href="http://googleusercontent.com/maps.google.com/8{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:16px">place</i> Map</a>`);
+            contacts.push(`<a href="http://googleusercontent.com/maps.google.com/9{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:16px">place</i> Map</a>`);
             contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons" style="font-size:16px">open_in_new</i> GoDaven</a>`);
             contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${encodeURIComponent(m.name)}" class="contact-btn" style="grid-column: span 2;"><i class="material-icons" style="font-size:16px">feedback</i> Leave Feedback about this Shul</a>`);
 
@@ -972,7 +972,7 @@
             if (m.timeValue !== 9999) {
                 timeDisplayHtml = `
                 <div class="drawer-nav-row">
-                    <div class="drawer-nav-left"><span class="tefillah-label ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}" style="margin-left:10px;">${m.timeDisplay}</span></div>
+                    <div class="drawer-nav-left"><span class="static-chip chip-${m.tefillah} ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
                     <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${(m.distance || 0).toFixed(1)}mi</div></div>
                 </div>`;
             }
