@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v3.0</title>
+<title>ShulTime v3.1</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -125,7 +125,7 @@
 
     .list-page-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 10px; margin-bottom: 15px; padding-left: 5px; }
 
-    /* MAP MARKERS */
+    /* MAP MARKERS (Resized by 10% in v3.1) */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
@@ -133,18 +133,25 @@
         pointer-events: none; display: none;
     }
     .custom-marker { 
-        padding: 6px 10px; border-radius: 12px; font-size: 14px; font-weight: 800; 
+        padding: 5px 9px; border-radius: 12px; font-size: 12.5px; font-weight: 800; 
         box-shadow: 0 3px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; 
         position: relative; top: 10px; cursor: pointer; background: #fff; border: 2px solid #fff;
     }
-    .custom-marker::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: inherit transparent transparent transparent; }
+    .custom-marker::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-width: 5px 5px 0; border-style: solid; border-color: inherit transparent transparent transparent; }
 
-    /* CARDS */
+    /* CARDS & SLIDE-TO-DELETE */
+    .list-item-wrapper { position: relative; margin-bottom: 8px; border-radius: 12px; background: #FFEBEE; overflow: hidden; }
+    .delete-bg { position: absolute; left: 0; top: 0; bottom: 0; width: 60px; display: flex; align-items: center; justify-content: center; color: #D32F2F; cursor: pointer; z-index: 1; }
+    
     .minyan-card {
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; height: 95px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; height: 95px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative; z-index: 2;
     }
+    .minyan-card.edit-slide { transform: translateX(60px); pointer-events: none; }
+    
     .info-zone { 
         flex: 1; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; 
         justify-content: flex-start; min-width: 0; border-right: 1px solid #f0f0f0; 
@@ -359,7 +366,7 @@
             </div>
             <div style="display:flex; gap:6px; margin-top:6px;">
                 <button style="flex:1; background:#eee; color:#333; border:none; padding:10px; border-radius:15px; font-weight:700;" onclick="resetTime()">All Day</button>
-                <button style="flex:1; background:var(--primary); color:#fff; border:none; padding:10px; border-radius:15px; font-weight:700;" onclick="setNextHour()">Next Hour</button>
+                <button style="flex:1; background:var(--primary); color:#fff; border:none; padding:10px; border-radius:15px; font-weight:700;" onclick="setNextTwoHours()">Next 2 Hours</button>
             </div>
         </div>
         <div style="display:flex; gap:10px; margin-top:15px;">
@@ -402,7 +409,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.0</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.1</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -447,6 +454,10 @@
         let isProgrammaticMove = false;
         let selectedShul = null;
         let zmanLoc = { lat: 40.096, lng: -74.222, name: 'Lakewood, NJ' };
+        
+        // --- STORAGE & EDIT STATE ---
+        let currentStorageKey = null;
+        let isEditingList = false;
 
         // --- APP FLOW ---
         document.addEventListener("DOMContentLoaded", async () => {
@@ -483,10 +494,8 @@
             if (document.activeElement) document.activeElement.blur();
         }
 
-        // Updated Manual Search Button logic
         async function executeManualSearch() {
             const autocompleteEl = document.getElementById("gmp-autocomplete");
-            // Support both inputValue (Web Component prop) and standard value fallback
             const query = autocompleteEl.inputValue || autocompleteEl.value; 
             
             if (!query || query.trim() === "") {
@@ -599,7 +608,7 @@
             }
             
             updateStatusPills(results);
-            if(currentTab === 'map' || currentTab === 'list') renderList(results);
+            if(currentTab === 'map' || currentTab === 'list') renderList(results, null);
             if(currentTab === 'map') updateMapMarkers(results);
         }
 
@@ -613,9 +622,14 @@
             document.getElementById('map-radius-pill').style.display = 'block';
         }
 
-        function renderList(results, isStorageView = false) {
+        // Updated renderList to handle slide-to-delete wrapper for saved/recent views
+        function renderList(results, storageKey = null) {
             const container = document.getElementById('list-view');
-            if(!isStorageView && results.length === 0) { container.innerHTML = '<div class="empty-state" style="margin-top:80px">No minyanim found matching filters.</div>'; return; }
+            
+            if(!storageKey && results.length === 0) { 
+                container.innerHTML = '<div class="empty-state" style="margin-top:80px">No minyanim found matching filters.</div>'; 
+                return; 
+            }
             
             let html = "";
             results.forEach(m => {
@@ -632,8 +646,8 @@
                         <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
                     </div>`;
 
-                html += `
-                <div class="minyan-card">
+                let cardHtml = `
+                <div class="minyan-card ${storageKey && isEditingList ? 'edit-slide' : ''}" style="${storageKey ? 'margin-bottom:0;' : ''}">
                     <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
@@ -642,8 +656,22 @@
                     </div>
                     ${timeZoneHtml}
                 </div>`;
+
+                // If rendering for Recent/Saved, wrap with delete functionality
+                if (storageKey) {
+                    html += `
+                    <div class="list-item-wrapper">
+                        <div class="delete-bg" onclick="deleteStorageItem('${m.id}')">
+                            <i class="material-icons">delete</i>
+                        </div>
+                        ${cardHtml}
+                    </div>`;
+                } else {
+                    html += cardHtml;
+                }
             });
-            if (isStorageView) container.innerHTML += html;
+            
+            if (storageKey) container.innerHTML += html;
             else container.innerHTML = html;
         }
 
@@ -684,6 +712,8 @@
         // --- NAVIGATION ---
         function switchTab(tab) {
             currentTab = tab;
+            isEditingList = false; // Reset edit state whenever switching tabs
+            
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('list-view').style.display = 'none';
             document.getElementById('map-view').style.display = 'none';
@@ -719,7 +749,7 @@
             } else if(tab === 'recent') {
                 document.getElementById('nav-recent').classList.add('active');
                 document.getElementById('list-view').style.display = 'block';
-                document.getElementById('list-view').style.paddingTop = '20px'; // Push header to top
+                document.getElementById('list-view').style.paddingTop = '20px';
                 renderStorageList('shultime_recents', 'Recent Shuls');
             } else if(tab === 'saved') {
                 document.getElementById('nav-saved').classList.add('active');
@@ -815,10 +845,23 @@
         }
 
         function renderStorageList(key, title) {
+            currentStorageKey = key;
             const container = document.getElementById('list-view');
-            container.innerHTML = `<div class="list-page-header">${title}</div>`;
+            
+            const headerHtml = `
+                <div class="list-page-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>${title}</span>
+                    <button onclick="toggleEditList()" style="background:var(--primary); color:#fff; border:none; padding:6px 16px; border-radius:12px; font-weight:800; font-size:13px; cursor:pointer;">
+                        ${isEditingList ? 'Done' : 'Edit'}
+                    </button>
+                </div>
+            `;
+
             const ids = JSON.parse(localStorage.getItem(key) || "[]");
-            if(ids.length === 0) { container.innerHTML += `<div class="empty-state">No ${title.toLowerCase()}.</div>`; return; }
+            if(ids.length === 0) { 
+                container.innerHTML = headerHtml + `<div class="empty-state">No ${title.toLowerCase()}.</div>`; 
+                return; 
+            }
 
             const now = new Date(); const nowVal = now.getHours() * 60 + now.getMinutes();
             const shuls = [];
@@ -829,7 +872,24 @@
                     shuls.push({...best, distance: searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, best.lat, best.lng) : 0});
                 }
             });
-            renderList(shuls, true);
+            
+            container.innerHTML = headerHtml;
+            renderList(shuls, key);
+        }
+
+        function toggleEditList() {
+            isEditingList = !isEditingList;
+            const title = currentStorageKey === 'shultime_recents' ? 'Recent Shuls' : 'Saved Shuls';
+            renderStorageList(currentStorageKey, title);
+        }
+
+        function deleteStorageItem(id) {
+            let items = JSON.parse(localStorage.getItem(currentStorageKey) || "[]");
+            items = items.filter(x => x !== id);
+            localStorage.setItem(currentStorageKey, JSON.stringify(items));
+            
+            const title = currentStorageKey === 'shultime_recents' ? 'Recent Shuls' : 'Saved Shuls';
+            renderStorageList(currentStorageKey, title);
         }
 
         // --- UTILS & FILTERS ---
@@ -870,10 +930,11 @@
             } else { applyFilters(); }
         }
 
-        function setNextHour() {
+        // Updated for 2 Hours
+        function setNextTwoHours() {
             const now = new Date();
             document.getElementById('time-start').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const next = new Date(now.getTime() + 3600000);
+            const next = new Date(now.getTime() + 7200000); // Added 2 hours
             document.getElementById('time-end').value = `${String(next.getHours()).padStart(2,'0')}:${String(next.getMinutes()).padStart(2,'0')}`;
             applyFilters();
         }
