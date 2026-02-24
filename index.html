@@ -17,18 +17,18 @@
         --t-Maariv: #2563eb;    /* Blue */
 
         /* NUSACH COLORS (Medium Strength) */
-        --n-Ashkenaz: #3b82f6; /* Blue */
-        --n-Sefard: #22c55e;   /* Green */
-        --n-Ari: #a855f7;      /* Purple */
+        --n-Ashkenaz: #3b82f6;       /* Blue */
+        --n-Sefard: #22c55e;         /* Green */
+        --n-Ari: #a855f7;            /* Purple */
         --n-Edot-HaMizrach: #f97316; /* Orange */
-        --n-Chabad: #14b8a6;   /* Teal */
-        --n-Other: #6b7280;    /* Grey */
+        --n-Chabad: #14b8a6;         /* Teal */
+        --n-Other: #6b7280;          /* Grey */
     }
     
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
-    /* FLOATING HEADER (Search) */
+    /* FLOATING HEADER */
     .floating-header {
         position: fixed; top: 15px; left: 12px; right: 12px;
         z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
@@ -91,7 +91,9 @@
         z-index: 10; display: none; 
     }
     #home-view { display: block; }
-    #list-view { position: absolute; inset: 0; padding: 110px 12px 100px 12px; overflow-y: auto; z-index: 10; }
+    
+    /* We keep map ALWAYS rendering, but hide list when map is active by display toggling list only */
+    #list-view { position: absolute; inset: 0; padding: 110px 12px 100px 12px; overflow-y: auto; z-index: 10; background: var(--bg); }
     #map-view { position: absolute; inset: 0; z-index: 5; }
 
     #center-marker {
@@ -120,28 +122,29 @@
         background: #fff; border-radius: 12px; margin-bottom: 8px;
         display: flex; justify-content: space-between; align-items: stretch;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; 
-        min-height: 75px; position: relative;
+        min-height: 75px; 
     }
     .info-zone { 
         flex: 1; padding: 10px 12px; cursor: pointer; 
-        display: flex; flex-direction: column; justify-content: flex-start;
+        display: flex; flex-direction: column; justify-content: space-between;
         min-width: 0; 
     }
     .map-zone { 
-        width: 110px; border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; 
-        flex-shrink: 0; position: relative;
+        width: 120px; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;
+        border-left: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; padding: 10px 12px;
+        flex-shrink: 0; text-align: right; position: relative;
     }
     
     .shul-name { font-weight: 800; font-size: 18px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .shul-address { font-size: 14.5px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; } 
+    .shul-address { font-size: 14px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; } 
     
-    /* MAP ZONE ABSOLUTE POSITIONING */
-    .tefillah-label { position: absolute; top: 10px; right: 12px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1; text-align: right; } 
-    .time-val { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-weight: 800; font-size: 20px; color: var(--primary); text-align: right;} 
+    .tefillah-label { position: absolute; top: 10px; right: 12px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; } 
+    .time-val { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-weight: 800; font-size: 20px; color: var(--primary); } 
+    
     .map-footer { position: absolute; bottom: 10px; right: 12px; display: flex; align-items: flex-end; gap: 6px; }
-    
     .dist-label { font-size: 13px; font-weight: 800; color: #666; line-height: 1; margin-bottom: 2px; } 
-    .map-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
+    
+    .map-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 20px !important; font-weight: bold; }
 
     /* NUSACH & TEFILLAH COLORS (Solid Backgrounds) */
@@ -168,9 +171,9 @@
     .text-Chabad { color: var(--n-Chabad) !important; border-color: var(--n-Chabad) !important; }
     .text-Other { color: var(--n-Other) !important; border-color: var(--n-Other) !important; }
 
-    .txt-Shacharis { color: var(--t-Shacharis); border-color: var(--t-Shacharis); } 
-    .txt-Mincha { color: var(--t-Mincha); border-color: var(--t-Mincha); } 
-    .txt-Maariv { color: var(--t-Maariv); border-color: var(--t-Maariv); }
+    .txt-Shacharis { color: var(--t-Shacharis) !important; border-color: var(--t-Shacharis) !important; } 
+    .txt-Mincha { color: var(--t-Mincha) !important; border-color: var(--t-Mincha) !important; } 
+    .txt-Maariv { color: var(--t-Maariv) !important; border-color: var(--t-Maariv) !important; }
 
     /* TAGS */
     .nusach-tag { font-size: 11px; padding: 4px 10px; border-radius: 12px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 8px;}
@@ -237,14 +240,14 @@
         border-bottom: 1px solid #f0f0f0;
         display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
     }
-    .drawer-title { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.1; flex: 1; padding-right: 10px; word-break: break-word; } 
+    .drawer-title { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.2; flex: 1; padding-right: 10px; word-break: break-word; } 
     .drawer-actions { display: flex; gap: 8px; flex-shrink: 0; }
     .circle-action-btn { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; }
     
     .drawer-body { flex: 1; overflow-y: auto; padding: 15px 20px; }
     
     .drawer-top-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .rabbi-info { font-size: 15px; color: #555; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 5px; }
+    .rabbi-info { font-size: 14px; color: #555; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 5px; }
     .address-info { font-size: 14px; color: #777; margin-bottom: 10px; line-height: 1.4; }
 
     .schedule-section { margin-top: 15px; }
@@ -293,8 +296,6 @@
 </style>
 </head>
 <body>
-
-    <div id="sticky-header" class="sticky-header"></div>
 
     <div id="home-view" class="view-section">
         <div class="floating-header" id="filter-header" onclick="scrollToTop(event)">
@@ -469,6 +470,8 @@
         </div>
     </div>
 
+    <div id="sticky-header" class="sticky-header"></div>
+
     <script>
         // HEBCAL ENGINE FOR HEBREW DATES
         const HebCal = {
@@ -498,32 +501,54 @@
             updateDateDisplay();
             loadProfile();
 
-            // Fetch Database from GitHub hosted file (Stable version method)
+            // Fetch Database dynamically from GitHub (Bypass caching)
             try {
-                const res = await fetch("database.json");
-                if (!res.ok) throw new Error("DB Fetch Failed");
+                const res = await fetch("database.json?v=" + new Date().getTime(), { cache: "no-store" });
+                if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
+                
                 fullDbData = await res.json();
+                
+                if (!Array.isArray(fullDbData) || fullDbData.length === 0) {
+                    throw new Error("Database file is empty or not formatted correctly.");
+                }
+
                 processMinyanim(fullDbData);
                 populateNusachFilter();
                 
-                // Show default UI
+                if (searchCenter && !currentViewIsMap) applyFilters();
+                else {
+                    document.getElementById("list-view").innerHTML = `
+                        <div class="empty-state">
+                            <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
+                            <strong>Welcome to ShulTime</strong><br><br>
+                            <b>1. Search</b> for a city or zip code.<br>
+                            <b>2. Filter</b> by time or Nusach.<br>
+                            <b>3. Tap</b> the target to use GPS.
+                        </div>`;
+                }
+            } catch(e) {
+                console.error("Database Fetch Error:", e);
+                let errMsg = e.message;
+                if (window.location.protocol === 'file:') {
+                    errMsg = "Browsers block loading local databases for security. You must test this via your live GitHub link, not by double-clicking the HTML file on your computer.";
+                }
                 document.getElementById("list-view").innerHTML = `
-                    <div class="empty-state">
-                        <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: var(--primary); opacity: 0.8;">explore</i><br>
-                        <strong>Welcome to ShulTime</strong><br><br>
-                        <b>1. Search</b> for a city or zip code.<br>
-                        <b>2. Filter</b> by time or Nusach.<br>
-                        <b>3. Tap</b> the target to use GPS.
+                    <div class="empty-state" style="color: red;">
+                        <i class="material-icons" style="font-size:54px; margin-bottom:15px; color: red;">error_outline</i><br>
+                        <strong>Database Connection Failed</strong><br><br>
+                        ${errMsg}<br><br>
+                        Make sure a file named exactly <b>database.json</b> is uploaded to your GitHub repository in the exact same folder as this index.html file.
                     </div>`;
+            }
 
-            } catch(e) { console.error("Data Load Error", e); }
-            
             // Sticky Header Logic for Recent/Saved
             document.getElementById('list-view').addEventListener('scroll', function() {
                 const header = document.getElementById('sticky-header');
-                if(this.scrollTop > 40 && (currentTab === 'recent' || currentTab === 'saved')) {
+                const isSavedOrRecent = (document.getElementById('saved-view').style.display === 'block' || document.getElementById('recent-view').style.display === 'block');
+                
+                if(this.scrollTop > 40 && isSavedOrRecent) {
                     header.classList.add('visible');
-                    header.innerText = currentTab === 'recent' ? "Recent Shuls" : "Saved Shuls";
+                    header.innerText = document.getElementById('recent-view').style.display === 'block' ? "Recent Shuls" : "Saved Shuls";
                 } else {
                     header.classList.remove('visible');
                 }
@@ -532,7 +557,6 @@
 
         // --- BOTTOM NAVIGATION LOGIC ---
         function switchTab(tabId) {
-            currentTab = tabId;
             document.getElementById('filter-drawer').style.display = 'none';
             closeDetails();
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
@@ -543,12 +567,10 @@
             if (tabId === 'home') {
                 document.getElementById('home-view').style.display = 'block';
                 if (currentViewIsMap) {
-                    document.getElementById('map-view').style.display = 'block';
                     document.getElementById('list-view').style.display = 'none';
                     document.getElementById('center-marker').style.display = 'block';
                     document.querySelector('.fab-location').style.display = 'flex';
                 } else {
-                    document.getElementById('map-view').style.display = 'none';
                     document.getElementById('list-view').style.display = 'block';
                     document.getElementById('center-marker').style.display = 'none';
                     document.querySelector('.fab-location').style.display = 'flex';
@@ -580,7 +602,6 @@
             if (currentViewIsMap) {
                 currentViewIsMap = false;
                 list.style.display = "block";
-                document.getElementById('map-view').style.display = "none";
                 icon.innerText = "map";
                 btn.classList.remove("active");
                 dot.style.display = "none";
@@ -588,7 +609,6 @@
             } else {
                 currentViewIsMap = true;
                 list.style.display = "none";
-                document.getElementById('map-view').style.display = "block";
                 icon.innerText = "list";
                 btn.classList.add("active");
                 dot.style.display = "block";
@@ -671,8 +691,8 @@
             const isSat = currentFilterDate.getDay() === 6;
 
             data.forEach(shul => {
-                if(!shul.name) return; // Skip nameless
-                if(shul.nusach && shul.nusach !== "Unspecified" && shul.nusach !== " ") allNusachs.add(shul.nusach.trim());
+                if(!shul.name) return; 
+                if(shul.nusach && shul.nusach !== "Unspecified" && shul.nusach.trim() !== "") allNusachs.add(shul.nusach.trim());
 
                 let hasTimes = false;
                 let minyanimForThisShul = []; 
@@ -705,13 +725,12 @@
             allMinyanim = processedMinyanim;
         }
 
-        // Handles converting raw strings to 7:30a / 3:00p globally
         function formatTimeShort(tStr, type) {
             if(!tStr) return "";
             let clean = tStr.replace(/[^0-9:]/g, "");
             let [h,m] = clean.split(":").map(Number);
             let suffix = h >= 12 ? "p" : "a";
-            // Correct PM logic
+            
             if (type === "Mincha" && h < 9) suffix = "p";
             if (type === "Maariv" && h < 12) suffix = "p";
             
@@ -736,7 +755,7 @@
             const group = document.getElementById("nusach-group");
             group.innerHTML = `<div class="chip active chip-nusach" style="background:#0D2B4F; color:#fff; border-color:#0D2B4F;" onclick="setFilter('nusach', '', this)">All</div>`;
             Array.from(allNusachs).sort().forEach(n => {
-                if(!n) return;
+                if(!n || n===" ") return;
                 const safeClass = `text-${n.replace(/\s+/g, '-')}`;
                 const chip = document.createElement("div");
                 chip.className = `chip chip-nusach ${safeClass}`;
@@ -818,7 +837,10 @@
                 mapPill.style.display = "none";
             }
 
-            renderListCards(results, document.getElementById("list-view"));
+            // Only redraw list if we are on the Home screen
+            if (currentTab === 'home') {
+                renderListCards(results, document.getElementById("list-view"));
+            }
             if(currentViewIsMap) updateMapMarkers(results);
         }
 
@@ -928,20 +950,20 @@
             const link = `https://www.godaven.com/shul-details/${godavenId}`;
             const nCls = `bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const content = document.getElementById("drawer-content");
-            const headerContent = document.getElementById("drawer-header");
+            const headerTitle = document.getElementById("drawer-title");
             
             let rabbiText = m.rabbi && m.rabbi !== "Rabbi Not Listed" ? `<div class="rabbi-info"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi}</div>` : '';
 
             // Sticky Header
-            document.getElementById("drawer-title").innerText = m.name;
+            headerTitle.innerText = m.name;
 
             // Contacts
             let contacts = [];
             if(m.phone) contacts.push(`<a href="tel:${m.phone}" class="contact-btn"><i class="material-icons" style="font-size:16px">call</i> Call</a>`);
             if(m.email) contacts.push(`<a href="mailto:${m.email}" class="contact-btn"><i class="material-icons" style="font-size:16px">email</i> Email</a>`);
-            contacts.push(`<a href="https://developers.google.com/maps/documentation/javascript/places-migration-overview85{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons">place</i> Map</a>`);
-            contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons">open_in_new</i> GoDaven</a>`);
-            contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${encodeURIComponent(m.name)}" class="contact-btn" style="grid-column: span 2;"><i class="material-icons">feedback</i> Leave Feedback about this Shul</a>`);
+            contacts.push(`<a href="http://googleusercontent.com/maps.google.com/8{m.lat},${m.lng}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:16px">place</i> Map</a>`);
+            contacts.push(`<a href="${link}" target="_blank" rel="noopener noreferrer" class="contact-btn"><i class="material-icons" style="font-size:16px">open_in_new</i> GoDaven</a>`);
+            contacts.push(`<a href="mailto:support@shultime.com?subject=Feedback regarding ${encodeURIComponent(m.name)}" class="contact-btn" style="grid-column: span 2;"><i class="material-icons" style="font-size:16px">feedback</i> Leave Feedback about this Shul</a>`);
 
             let tCls = `txt-${m.tefillah}`;
             let timePillClass = `text-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
@@ -950,7 +972,7 @@
             if (m.timeValue !== 9999) {
                 timeDisplayHtml = `
                 <div class="drawer-nav-row">
-                    <div class="drawer-nav-left"><span class="static-chip chip-${m.tefillah} ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}">${m.timeDisplay}</span></div>
+                    <div class="drawer-nav-left"><span class="tefillah-label ${tCls}">${m.tefillah}</span><span class="time-pill ${timePillClass}" style="margin-left:10px;">${m.timeDisplay}</span></div>
                     <div style="display:flex; align-items:center; gap:8px;"><div style="font-size:14px; font-weight:700; color:#666;">${(m.distance || 0).toFixed(1)}mi</div></div>
                 </div>`;
             }
