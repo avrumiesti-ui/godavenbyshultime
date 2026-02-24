@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v2.5</title>
+<title>ShulTime v2.6</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -36,22 +36,23 @@
     html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: contain; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif; background: var(--bg); overflow: hidden; }
     
-    /* FLOATING HEADER & SEARCH */
+    /* FLOATING HEADER & DISPLAY SEARCH */
     .floating-header {
         position: fixed; top: 15px; left: 10px; right: 10px;
-        z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: auto;
+        z-index: 1000; display: flex; gap: 10px; align-items: center; pointer-events: none;
     }
     .search-container {
-        flex: 1; display: flex; align-items: center;
-        background: #fff; height: 50px; border-radius: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 15px;
-        overflow: hidden; 
+        flex: 1; display: flex; align-items: center; pointer-events: auto;
+        background: #fff; height: 50px; border-radius: 25px; cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0 20px;
+        overflow: hidden; transition: all 0.2s;
     }
-    .search-input {
-        width: 100%; height: 100%; border: none; outline: none; 
-        font-size: 16px; font-weight: 500; font-family: inherit; color: #111; background: transparent;
+    .search-container:active { transform: scale(0.98); background: #fafafa; }
+    
+    #dummy-search-text {
+        font-size: 16px; font-weight: 500; color: #888; width: 100%;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .pac-container { border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: none; margin-top: 5px; font-family: inherit; }
 
     .circle-btn {
         width: 50px; height: 50px; flex-shrink: 0; pointer-events: auto;
@@ -59,6 +60,27 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
         cursor: pointer; color: var(--primary); transition: all 0.2s;
     }
+
+    /* SEARCH OVERLAY (The actual functional search) */
+    #search-overlay {
+        position: fixed; top: 100%; left: 0; right: 0; height: 100%;
+        background: var(--bg); z-index: 5000; 
+        transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex; flex-direction: column;
+    }
+    #search-overlay.open { top: 0; }
+    
+    .search-overlay-header {
+        display: flex; align-items: center; gap: 10px; padding: 15px 12px; 
+        background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding-top: max(15px, env(safe-area-inset-top));
+    }
+    .search-overlay-input-wrap {
+        flex: 1; height: 45px; background: #f0f2f5; border-radius: 22px; 
+        overflow: hidden; padding: 0 15px; display: flex; align-items: center;
+    }
+    gmp-place-autocomplete { width: 100%; height: 100%; background-color: transparent !important; }
+    gmp-place-autocomplete::part(input) { background-color: transparent !important; padding: 0; font-size: 16px; height: 100%; width: 100%; color: #111; font-weight: 500; outline: none; border: none; }
 
     /* STATUS PILLS */
     .status-area {
@@ -140,13 +162,13 @@
     .filter-section { margin-bottom: 15px; } 
     .filter-label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 5px; display: block; }
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.1s; color: #555; }
-    .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); background: var(--primary); color: #fff; border-color: var(--primary); }
     
-    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
-    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
+    /* DEFAULT CHIP (Used for Sort, Radius, Tefillah) */
+    .chip { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.1s; color: #555; }
+    .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
+    .chip-all.active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
 
-    /* NUSACH CHIPS IN FILTER */
+    /* NUSACH CHIPS IN FILTER (Colorized) */
     .n-chip-Ashkenaz { background: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .n-chip-Ashkenaz.active { border: 2px solid var(--text-Ashkenaz) !important; font-weight: 800; }
     .n-chip-Sefard { background: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
@@ -159,6 +181,9 @@
     .n-chip-Chabad.active { border: 2px solid var(--text-Chabad) !important; font-weight: 800; }
     .n-chip-Other { background: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
     .n-chip-Other.active { border: 2px solid var(--text-Other) !important; font-weight: 800; }
+    
+    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
+    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
 
     /* DETAILS DRAWER */
     #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; padding: 0; }
@@ -213,10 +238,27 @@
     <div id="sticky-header" class="sticky-header"></div>
 
     <div class="floating-header" id="filter-header">
-        <div class="search-container">
-            <input type="text" id="pac-input" class="search-input" placeholder="Search City...">
+        <div class="search-container" onclick="openSearchOverlay()">
+            <div id="dummy-search-text">Search City...</div>
         </div>
         <button class="circle-btn" onclick="toggleFilters()"><i class="material-icons">tune</i></button>
+    </div>
+
+    <div id="search-overlay">
+        <div class="search-overlay-header">
+            <button class="circle-btn" style="width:40px; height:40px; background:#f0f0f0; box-shadow:none;" onclick="closeSearchOverlay()">
+                <i class="material-icons" style="color:#555;">arrow_back</i>
+            </button>
+            <div class="search-overlay-input-wrap">
+                <gmp-place-autocomplete id="gmp-autocomplete"></gmp-place-autocomplete>
+            </div>
+        </div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px; text-align:center;">
+            <div style="color:#999;">
+                <i class="material-icons" style="font-size:48px; margin-bottom:10px; opacity:0.5;">travel_explore</i><br>
+                Search for a city, zip code, or address.
+            </div>
+        </div>
     </div>
 
     <div class="status-area">
@@ -257,7 +299,7 @@
         <div class="filter-section">
             <label class="filter-label">Sort By</label>
             <div class="chip-group" id="sort-group">
-                <div class="chip active" onclick="setFilter('sort', 'time', this)">Time</div>
+                <div class="chip active chip-all" onclick="setFilter('sort', 'time', this)">Time</div>
                 <div class="chip" onclick="setFilter('sort', 'distance', this)">Distance</div>
                 <div class="chip" onclick="setFilter('sort', 'abc', this)">A-Z</div>
             </div>
@@ -273,14 +315,14 @@
                 <div class="chip" onclick="manualRadiusUpdate(2)">2</div>
                 <div class="chip" onclick="manualRadiusUpdate(3)">3</div>
                 <div class="chip" onclick="manualRadiusUpdate(5)">5</div>
-                <div class="chip active" onclick="manualRadiusUpdate(20)">20</div>
+                <div class="chip active chip-all" onclick="manualRadiusUpdate(20)">20</div>
                 <div class="chip" onclick="manualRadiusUpdate(99)">99</div>
             </div>
         </div>
         <div class="filter-section">
             <label class="filter-label">Tefillah</label>
-            <div class="chip-group">
-                <div class="chip active" onclick="setFilter('tefillah', '', this)">All</div>
+            <div class="chip-group" id="tefillah-group">
+                <div class="chip active chip-all" onclick="setFilter('tefillah', '', this)">All</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Shacharis', this)">Shacharis</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Mincha', this)">Mincha</div>
                 <div class="chip" onclick="setFilter('tefillah', 'Maariv', this)">Maariv</div>
@@ -289,7 +331,7 @@
         <div class="filter-section">
             <label class="filter-label">Nusach</label>
             <div class="chip-group" id="nusach-group">
-                <div class="chip active" onclick="setFilter('nusach', '', this)">All</div>
+                <div class="chip active chip-all" onclick="setFilter('nusach', '', this)">All</div>
             </div>
         </div>
         <div class="filter-section">
@@ -343,7 +385,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.5 (Merged Edition)</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v2.6 (Merged Edition)</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -410,6 +452,14 @@
                 populateNusachFilter();
             } catch(e) { console.error("Database fetch error"); }
         });
+
+        // Overlay Search functions
+        function openSearchOverlay() {
+            document.getElementById('search-overlay').classList.add('open');
+        }
+        function closeSearchOverlay() {
+            document.getElementById('search-overlay').classList.remove('open');
+        }
 
         function processMinyanim() {
             allMinyanim = [];
@@ -516,7 +566,7 @@
             let html = "";
             results.forEach(m => {
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `http://googleusercontent.com/maps.google.com/6{encodeURIComponent(m.name + " " + m.address)}`;
+                const mapLink = `http://googleusercontent.com/maps.google.com/7{encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
                     `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
@@ -858,8 +908,8 @@
             searchCenter = {lat, lng};
             document.getElementById('status-pill').innerText = "Near: " + name;
             
-            const pacInput = document.getElementById("pac-input");
-            if (pacInput) { pacInput.value = name; }
+            const dummyInput = document.getElementById("dummy-search-text");
+            if (dummyInput) { dummyInput.innerText = name; dummyInput.style.color = '#111'; }
 
             if(map) { 
                 isProgrammaticMove = true;
@@ -891,14 +941,13 @@
 
         async function initApp(){
             const { Map } = await google.maps.importLibrary("maps");
-            const { Autocomplete } = await google.maps.importLibrary("places");
             geocoder = new google.maps.Geocoder();
 
             map = new Map(document.getElementById("map-view"), {
                 center: { lat: 40.091, lng: -74.218 }, zoom: 12, mapId: "DEMO_MAP_ID", disableDefaultUI: true, clickableIcons: false
             });
 
-            // Map Drag / Reverse Geocoding
+            // Map Drag / Reverse Geocoding updates Dummy Search Bar
             map.addListener('idle', () => {
                 if(isProgrammaticMove) return;
                 const c = map.getCenter();
@@ -913,9 +962,9 @@
                         let name = cityResult ? cityResult.formatted_address.split(',')[0] : res.results[0].formatted_address.split(',')[0];
                         document.getElementById('status-pill').innerText = "Near: " + name;
                         
-                        // Push text back to standard Search Input
-                        const pacInput = document.getElementById("pac-input");
-                        if (pacInput) { pacInput.value = name; }
+                        // Push text to Dummy Search Bar
+                        const dummyInput = document.getElementById("dummy-search-text");
+                        if (dummyInput) { dummyInput.innerText = name; dummyInput.style.color = '#111'; }
                     }
                 }).catch(e => { document.getElementById('status-pill').innerText = "Near: Map Center"; });
                 
@@ -925,27 +974,14 @@
                 applyFilters();
             });
 
-            // Fixed Standard Google Autocomplete 
-            const pacInput = document.getElementById("pac-input");
-            const autocomplete = new Autocomplete(pacInput, { types: ["(cities)"] });
-            
-            autocomplete.addListener("place_changed", () => {
-                if (document.activeElement) document.activeElement.blur();
-                const place = autocomplete.getPlace();
-                if(place.geometry) {
-                    setSearchLocation(place.geometry.location.lat(), place.geometry.location.lng(), place.name || place.formatted_address.split(',')[0]);
+            // Real Google Web Component Autocomplete inside the overlay
+            const autocompleteEl = document.getElementById("gmp-autocomplete");
+            autocompleteEl.addEventListener("gmp-placeselect", async (e) => {
+                if (e.place) {
+                    await e.place.fetchFields({ fields: ["location", "displayName"] });
+                    setSearchLocation(e.place.location.lat(), e.place.location.lng(), e.place.displayName);
+                    closeSearchOverlay();
                 }
-            });
-
-            pacInput.addEventListener('input', () => { 
-                if (!pacInput.value || pacInput.value.trim() === "") {
-                    searchCenter = null;
-                    document.getElementById("status-pill").style.display = "none";
-                    document.getElementById("count-pill").style.display = "none";
-                    document.getElementById("map-radius-pill").style.display = "none";
-                    renderWelcome();
-                    if(map) { markers.forEach(m => m.map = null); }
-                } 
             });
         }
 
