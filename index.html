@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v3.3</title>
+<title>ShulTime v3.4</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -61,7 +61,7 @@
         cursor: pointer; color: var(--primary); transition: all 0.2s;
     }
 
-    /* SEARCH OVERLAY (The actual functional search) */
+    /* SEARCH OVERLAY */
     #search-overlay {
         position: fixed; top: 100%; left: 0; right: 0; height: 100%;
         background: var(--bg); z-index: 5000; 
@@ -185,7 +185,7 @@
     .chip.active { box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
     .chip-all.active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
 
-    /* NUSACH CHIPS IN FILTER (Colorized) */
+    /* NUSACH CHIPS */
     .n-chip-Ashkenaz { background: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
     .n-chip-Ashkenaz.active { border: 2px solid var(--text-Ashkenaz) !important; font-weight: 800; }
     .n-chip-Sefard { background: var(--bg-Sefard) !important; color: var(--text-Sefard) !important; border-color: var(--bg-Sefard) !important; }
@@ -199,8 +199,17 @@
     .n-chip-Other { background: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
     .n-chip-Other.active { border: 2px solid var(--text-Other) !important; font-weight: 800; }
     
-    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; }
-    .date-btn { background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; padding: 0 15px; display: flex; align-items: center; }
+    /* v3.4 DATE NAV (Circular buttons & 1 line text) */
+    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 10px 12px; border-radius: 16px; }
+    .date-btn { 
+        background: #fff; border: none; border-radius: 50%; width: 34px; height: 34px; 
+        color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08); flex-shrink: 0; transition: transform 0.1s;
+    }
+    .date-btn:active { transform: scale(0.92); }
+    .date-text-wrapper { flex: 1; min-width: 0; text-align: center; padding: 0 8px; display: flex; flex-direction: column; align-items: center;}
+    .date-main-text { font-weight: 800; font-size: 15px; color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .date-sub-text { font-size: 12px; font-weight: 600; color: var(--primary); opacity: 0.8; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* DETAILS DRAWER */
     #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; padding: 0; }
@@ -213,7 +222,7 @@
     .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex: 1; }
     .contact-btn.disabled { opacity: 0.5; pointer-events: none; background: #eee; }
     
-    /* TOOLBAR (v3.2 Narrower Height) */
+    /* TOOLBAR */
     .floating-toolbar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; z-index: 1500; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
     .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: transparent; flex: 1; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; padding: 6px 4px; margin: 0 2px; border-radius: 20px; border: 1px solid transparent; }
     .nav-item.active { 
@@ -223,7 +232,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
         transform: translateY(-3px); 
     }
-    .nav-item i { font-size: 22px; } /* Slightly smaller icon */
+    .nav-item i { font-size: 22px; }
 
     /* NUSACH UTILS FOR CARDS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
@@ -314,9 +323,9 @@
             <label class="filter-label">Date</label>
             <div class="date-nav">
                 <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
-                <div style="text-align:center">
-                    <div id="date-display" style="font-weight:800; font-size:16px; color:#333;">Today</div>
-                    <div id="hebrew-date" style="font-size:13px; font-weight:600; color:var(--primary); opacity:0.8;"></div>
+                <div class="date-text-wrapper">
+                    <div id="date-display" class="date-main-text">Today</div>
+                    <div id="hebrew-date" class="date-sub-text"></div>
                 </div>
                 <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
             </div>
@@ -388,9 +397,9 @@
             </div>
             <div class="date-nav">
                 <button class="date-btn" onclick="changeDate(-1)"><i class="material-icons">chevron_left</i></button>
-                <div style="text-align:center">
-                    <div id="zman-date-display" style="font-weight:800; font-size:15px; color:#333;">Today</div>
-                    <div id="zman-hebrew-date" style="font-size:12px; font-weight:600; color:var(--primary);"></div>
+                <div class="date-text-wrapper">
+                    <div id="zman-date-display" class="date-main-text">Today</div>
+                    <div id="zman-hebrew-date" class="date-sub-text"></div>
                 </div>
                 <button class="date-btn" onclick="changeDate(1)"><i class="material-icons">chevron_right</i></button>
             </div>
@@ -410,7 +419,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.3</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.4</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -647,7 +656,6 @@
             let html = "";
             results.forEach(m => {
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                // v3.3: Fixed Google Maps search link format
                 const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
@@ -661,11 +669,11 @@
                     </div>`;
 
                 // Safe escaping for the onClick handler
-                const safeJson = JSON.stringify(m).replace(/'/g, "&#39;");
+                const safeJson = JSON.stringify(m).replace(/'/g, "'").replace(/"/g, '&quot;');
 
                 let cardHtml = `
                 <div class="minyan-card ${storageKey && isEditingList ? 'edit-slide' : ''}" style="${storageKey ? 'margin-bottom:0;' : ''}">
-                    <div class="info-zone" onclick='openDetails(${safeJson})'>
+                    <div class="info-zone" onclick="openDetails(${safeJson})">
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
                         <div class="shul-city-state">${m.city || ''}, ${m.state || ''}</div>
@@ -795,7 +803,6 @@
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const goDavenUrl = `https://www.godaven.com/shul-details/${godavenId}`;
             
-            // v3.3: Fixed Google Maps search link format
             const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
             const dist = searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng).toFixed(1) : 0;
             
@@ -804,6 +811,16 @@
             
             const updateBody = `Dear GoDaven,\n\nI would like to update the following Shul with these updates:\n\n[Type your updates here]\n\nThank you\n\nShul Info:\nName: ${m.name}\nAddress: ${m.address}\nLink: ${goDavenUrl}`;
             const updateMailto = `mailto:support@godaven.com?subject=Update Listing: ${encodeURIComponent(m.name)}&body=${encodeURIComponent(updateBody)}`;
+
+            let notesHtml = "";
+            if (m.notes || m.contact_info) {
+                notesHtml = `
+                    ${m.notes ? `<div style="margin-bottom:8px;"><strong>Notes:</strong> ${m.notes}</div>` : ''}
+                    ${m.contact_info ? `<div style="margin-bottom:8px;"><strong>Contact:</strong> ${m.contact_info}</div>` : ''}
+                `;
+            } else {
+                notesHtml = `<i>No additional notes available.</i>`;
+            }
 
             document.getElementById('drawer-content').innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -837,6 +854,19 @@
                     <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Shacharis T/W/F</div>${formatPills(m.shacharis?.tue_wed_fri, m.nusach)}</div>
                     <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Mincha</div>${formatPills(m.mincha?.week, m.nusach)}</div>
                     <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Maariv</div>${formatPills(m.maariv?.week, m.nusach)}</div>
+                </div>
+
+                <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px; font-size:16px; color:#333;">Shabbos Schedule</div>
+                <div class="schedule-grid">
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Friday Night</div>${formatPills(m.mincha?.fri, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Shabbos Shacharis</div>${formatPills(m.shacharis?.shabbos, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Mincha Shabbos</div>${formatPills(m.mincha?.shabbos, m.nusach)}</div>
+                    <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Motzai Maariv</div>${formatPills(m.maariv?.shabbos, m.nusach)}</div>
+                </div>
+
+                <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px; font-size:16px; color:#333;">Notes & Contacts</div>
+                <div style="font-size:13px; color:#555; margin-top:8px; line-height:1.4;">
+                    ${notesHtml}
                 </div>
             `;
             
