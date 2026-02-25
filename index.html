@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v3.2</title>
+<title>ShulTime v3.3</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -165,7 +165,7 @@
     .shul-name { font-weight: 800; font-size: 17px; color: #333; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
     .shul-address { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
     .shul-city-state { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; line-height: 1.2; }
-    .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; margin-top: 6px; }
+    .nusach-tag-list { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; font-weight: 700; text-transform: uppercase; width: fit-content; }
 
     .tefillah-label { font-size: 11px; font-weight: 900; text-transform: uppercase; color: #555; text-align: right; line-height: 1; } 
     .time-val-card { padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 13px; white-space: nowrap; margin-top: auto; margin-bottom: auto; }
@@ -410,7 +410,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.2</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.3</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -647,7 +647,8 @@
             let html = "";
             results.forEach(m => {
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `https://www.google.com/maps/dir/?api=1&destination=$$0{encodeURIComponent(m.name + " " + m.address)}`;
+                // v3.3: Fixed Google Maps search link format
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
                     `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
@@ -659,13 +660,21 @@
                         <div class="dist-row"><span class="dist-label">${m.distance ? m.distance.toFixed(1) : 0}mi</span><div class="map-circle"><i class="material-icons google-maps-icon">place</i></div></div>
                     </div>`;
 
+                // Safe escaping for the onClick handler
+                const safeJson = JSON.stringify(m).replace(/'/g, "&#39;");
+
                 let cardHtml = `
                 <div class="minyan-card ${storageKey && isEditingList ? 'edit-slide' : ''}" style="${storageKey ? 'margin-bottom:0;' : ''}">
-                    <div class="info-zone" onclick='openDetails(${JSON.stringify(m).replace(/'/g, "'")})'>
+                    <div class="info-zone" onclick='openDetails(${safeJson})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
                         <div class="shul-city-state">${m.city || ''}, ${m.state || ''}</div>
-                        <div class="nusach-tag-list ${nCls}">${m.nusach || 'Info'}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto;">
+                            <div class="nusach-tag-list ${nCls}" style="margin-top:0;">${m.nusach || 'Info'}</div>
+                            <div style="font-size:11px; font-weight:700; color:var(--primary); opacity:0.7; display:flex; align-items:center;">
+                                More Details <i class="material-icons" style="font-size:14px; margin-left:2px;">chevron_right</i>
+                            </div>
+                        </div>
                     </div>
                     ${timeZoneHtml}
                 </div>`;
@@ -785,7 +794,9 @@
             const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const goDavenUrl = `https://www.godaven.com/shul-details/${godavenId}`;
-            const mapLink = `https://www.google.com/maps/dir/?api=1&destination=$$0{encodeURIComponent(m.name + " " + m.address)}`;
+            
+            // v3.3: Fixed Google Maps search link format
+            const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
             const dist = searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng).toFixed(1) : 0;
             
             document.getElementById('drawer-title').innerText = m.name;
