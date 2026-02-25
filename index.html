@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v3.1</title>
+<title>ShulTime v3.2</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -125,7 +125,7 @@
 
     .list-page-header { font-size: 34px; font-weight: 800; color: var(--primary); margin-top: 10px; margin-bottom: 15px; padding-left: 5px; }
 
-    /* MAP MARKERS (Resized by 10% in v3.1) */
+    /* MAP MARKERS */
     #center-marker {
         position: fixed; top: 50%; left: 50%; width: 16px; height: 16px;
         background: #2196F3; border: 3px solid #fff; border-radius: 50%;
@@ -209,12 +209,13 @@
     .drawer-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f0f0f0; }
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; margin-top: 10px; }
-    .contact-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+    .contact-row { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
     .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex: 1; }
+    .contact-btn.disabled { opacity: 0.5; pointer-events: none; background: #eee; }
     
-    /* TOOLBAR */
-    .floating-toolbar { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; z-index: 1500; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: transparent; flex: 1; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; padding: 8px 4px; margin: 0 2px; border-radius: 20px; border: 1px solid transparent; }
+    /* TOOLBAR (v3.2 Narrower Height) */
+    .floating-toolbar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; z-index: 1500; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; font-weight: 600; gap: 3px; border: none; background: transparent; flex: 1; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; padding: 6px 4px; margin: 0 2px; border-radius: 20px; border: 1px solid transparent; }
     .nav-item.active { 
         color: var(--primary); font-weight: 900; 
         background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -222,7 +223,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
         transform: translateY(-3px); 
     }
-    .nav-item i { font-size: 24px; }
+    .nav-item i { font-size: 22px; } /* Slightly smaller icon */
 
     /* NUSACH UTILS FOR CARDS */
     .nusach-bg-Ashkenaz { background-color: var(--bg-Ashkenaz) !important; color: var(--text-Ashkenaz) !important; border-color: var(--bg-Ashkenaz) !important; }
@@ -232,7 +233,7 @@
     .nusach-bg-Chabad { background-color: var(--bg-Chabad) !important; color: var(--text-Chabad) !important; border-color: var(--bg-Chabad) !important; }
     .nusach-bg-Other { background-color: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
 
-    .fab-location { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
+    .fab-location { position: fixed; bottom: 90px; right: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 900; }
     .time-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 14px; margin: 2px; border: 1px solid rgba(0,0,0,0.08); }
 
     /* ZMANIM & SETTINGS */
@@ -409,7 +410,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.1</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.2</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -468,8 +469,20 @@
                 const header = document.getElementById('sticky-header');
                 if(this.scrollTop > 40 && (currentTab === 'recent' || currentTab === 'saved')) {
                     header.classList.add('visible');
-                    header.innerText = currentTab === 'recent' ? "Recent Shuls" : "Saved Shuls";
-                } else { header.classList.remove('visible'); }
+                    const title = currentTab === 'recent' ? "Recent Shuls" : "Saved Shuls";
+                    // Embed edit feature inside the sticky header
+                    header.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding: 0 15px;">
+                            <span>${title}</span>
+                            <button onclick="toggleEditList()" style="background:transparent; color:var(--primary); border:none; font-weight:800; font-size:15px; cursor:pointer; padding:0;">
+                                ${isEditingList ? 'Done' : 'Edit'}
+                            </button>
+                        </div>
+                    `;
+                } else { 
+                    header.classList.remove('visible'); 
+                    header.innerHTML = '';
+                }
             });
 
             try {
@@ -772,6 +785,8 @@
             const nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const goDavenUrl = `https://www.godaven.com/shul-details/${godavenId}`;
+            const mapLink = `https://www.google.com/maps/dir/?api=1&destination=$$0{encodeURIComponent(m.name + " " + m.address)}`;
+            const dist = searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng).toFixed(1) : 0;
             
             document.getElementById('drawer-title').innerText = m.name;
             document.getElementById('drawer-address').innerText = m.address + ', ' + (m.city||'') + ', ' + (m.state||'') + ' ' + (m.zip||'');
@@ -784,12 +799,26 @@
                     <span class="nusach-tag-list ${nCls}" style="margin:0; font-size:12px; padding:4px 10px; border-radius:12px;">${m.nusach || 'Info'}</span>
                     <div style="font-weight:600; color:#555; font-size:15px; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">person</i> ${m.rabbi || 'Not Listed'}</div>
                 </div>
+                
+                <div onclick="window.open('${mapLink}','_blank')" style="display:flex; align-items:center; justify-content:space-between; background:#fafafa; border:1px solid #eee; padding:10px 15px; border-radius:16px; margin-top:15px; cursor:pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="map-circle" style="width:36px; height:36px;"><i class="material-icons google-maps-icon" style="font-size:20px !important;">place</i></div>
+                        <div>
+                            <div style="font-weight:800; font-size:15px; color:#333;">Directions</div>
+                            <div style="font-size:13px; color:#777; font-weight:600;">${dist} mi away</div>
+                        </div>
+                    </div>
+                    <i class="material-icons" style="color:#bbb;">chevron_right</i>
+                </div>
+
                 <div class="contact-row">
-                    <a href="tel:${m.phone || ''}" class="contact-btn ${!m.phone?'disabled':''}"><i class="material-icons" style="font-size:14px">call</i> Call</a>
+                    <a href="tel:${m.phone || ''}" class="contact-btn ${!m.phone?'disabled':''}" ${!m.phone?'onclick="return false;"':''}><i class="material-icons" style="font-size:14px">call</i> Call</a>
+                    <a href="${m.email ? 'mailto:'+m.email : '#'}" class="contact-btn ${!m.email?'disabled':''}" ${!m.email?'onclick="return false;"':''}><i class="material-icons" style="font-size:14px">email</i> Email</a>
                     <a href="${goDavenUrl}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>
                     <button class="contact-btn" onclick="shareShul()"><i class="material-icons" style="font-size:14px">ios_share</i> Share</button>
                     <a href="${updateMailto}" class="contact-btn" style="flex-basis:100%; justify-content:center; background:#E3F2FD; color:#1565C0; border-color:#2196F3;"><i class="material-icons" style="font-size:14px">edit</i> Update Listing</a>
                 </div>
+
                 <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px; font-size:16px; color:#333;">Weekday Schedule</div>
                 <div class="schedule-grid">
                     <div><div style="font-weight:700; color:#666; font-size:12px; text-transform:uppercase; margin-bottom:4px;">Shacharis Sun</div>${formatPills(m.shacharis?.sun, m.nusach)}</div>
@@ -881,6 +910,19 @@
             isEditingList = !isEditingList;
             const title = currentStorageKey === 'shultime_recents' ? 'Recent Shuls' : 'Saved Shuls';
             renderStorageList(currentStorageKey, title);
+            
+            // Sync with sticky header if it is currently visible
+            const header = document.getElementById('sticky-header');
+            if(header.classList.contains('visible')) {
+                header.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding: 0 15px;">
+                        <span>${title}</span>
+                        <button onclick="toggleEditList()" style="background:transparent; color:var(--primary); border:none; font-weight:800; font-size:15px; cursor:pointer; padding:0;">
+                            ${isEditingList ? 'Done' : 'Edit'}
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         function deleteStorageItem(id) {
@@ -930,11 +972,10 @@
             } else { applyFilters(); }
         }
 
-        // Updated for 2 Hours
         function setNextTwoHours() {
             const now = new Date();
             document.getElementById('time-start').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const next = new Date(now.getTime() + 7200000); // Added 2 hours
+            const next = new Date(now.getTime() + 7200000); // 2 hours
             document.getElementById('time-end').value = `${String(next.getHours()).padStart(2,'0')}:${String(next.getMinutes()).padStart(2,'0')}`;
             applyFilters();
         }
