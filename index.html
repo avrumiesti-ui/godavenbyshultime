@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v3.4</title>
+<title>ShulTime v3.5b</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -174,6 +174,21 @@
     .map-circle { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .google-maps-icon { background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 16px !important; font-weight: bold; }
 
+    /* AD STYLING */
+    .ad-card {
+        background: #fff; border-radius: 12px; margin-bottom: 8px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; height: 50px; 
+        padding: 0 15px; cursor: pointer; border: 1px solid #FFE082;
+    }
+    .ad-badge {
+        background: #F57F17; color: #fff; font-size: 10px; font-weight: 800; 
+        padding: 3px 6px; border-radius: 6px; margin-right: 10px; text-transform: uppercase;
+    }
+    .ad-content { font-weight: 700; font-size: 14px; color: #333; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ad-arrow { color: #bbb; font-size: 20px; }
+    .ad-drawer-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background: #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
     /* FILTERS */
     #filter-drawer { display: none; position: fixed; top: 80px; left: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; max-width: 500px; margin: 0 auto; max-height: 75vh; overflow-y: auto;}
     .filter-section { margin-bottom: 15px; } 
@@ -199,7 +214,6 @@
     .n-chip-Other { background: var(--bg-Other) !important; color: var(--text-Other) !important; border-color: var(--bg-Other) !important; }
     .n-chip-Other.active { border: 2px solid var(--text-Other) !important; font-weight: 800; }
     
-    /* v3.4 DATE NAV (Circular buttons & 1 line text) */
     .date-nav { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 10px 12px; border-radius: 16px; }
     .date-btn { 
         background: #fff; border: none; border-radius: 50%; width: 34px; height: 34px; 
@@ -311,7 +325,7 @@
                 <div id="drawer-address" style="font-size:13px; color:#777; font-weight: 500;"></div>
             </div>
             <div style="display:flex; gap:12px; flex-shrink: 0;">
-                <button class="circle-btn" style="width:40px; height:40px; background:#f0f0f0;" onclick="toggleFavorite()"><i class="material-icons" id="drawer-fav-icon" style="color:#555; font-size: 20px;">bookmark_border</i></button>
+                <button class="circle-btn" id="fav-btn" style="width:40px; height:40px; background:#f0f0f0;" onclick="toggleFavorite()"><i class="material-icons" id="drawer-fav-icon" style="color:#555; font-size: 20px;">bookmark_border</i></button>
                 <button class="circle-btn" style="width:40px; height:40px; background:#f0f0f0;" onclick="closeDetails()"><i class="material-icons" style="color:#555; font-size: 20px;">close</i></button>
             </div>
         </div>
@@ -419,7 +433,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.4</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.5b</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -450,6 +464,13 @@
     </div>
 
     <script>
+        // --- ADVERTISERS DB ---
+        const ADS_DB = [
+            { "id": 1, "name": "The Hat Box", "address": "470 Oberlin Ave South, Lakewood, NJ 08701", "phone": "732-961-2262", "website": "https://hatboxmenswear.com", "image_url": "https://via.placeholder.com/600x300/0D2B4F/FFFFFF?text=The+Hat+Box" },
+            { "id": 2, "name": "Seasons Supermarket", "address": "711 Cedarbridge Ave, Lakewood, NJ 08701", "phone": "732-813-7700", "website": "https://www.seasonskosher.com", "image_url": "https://via.placeholder.com/600x300/2E7D32/FFFFFF?text=Seasons+Supermarket" },
+            { "id": 3, "name": "Aurum Jewelers USA", "address": "Lakewood, NJ (Online & Appt Only)", "phone": "1-323-316-8676", "website": "https://aurumjewelersusa.com", "image_url": "https://via.placeholder.com/600x300/F57F17/FFFFFF?text=Aurum+Jewelers" }
+        ];
+
         // --- DATA ENGINES ---
         const DafEngine={masechtot:[{n:"Berachos",p:63},{n:"Shabbos",p:156},{n:"Eruvin",p:104},{n:"Pesachim",p:120},{n:"Shekalim",p:21},{n:"Yoma",p:87},{n:"Sukkah",p:55},{n:"Beitzah",p:39},{n:"Rosh Hashana",p:34},{n:"Taanis",p:30},{n:"Megillah",p:31},{n:"Moed Katan",p:28},{n:"Chagigah",p:26},{n:"Yevamos",p:121},{n:"Kesubos",p:111},{n:"Nedarim",p:90},{n:"Nazir",p:65},{n:"Sotah",p:48},{n:"Gittin",p:89},{n:"Kiddushin",p:81},{n:"Bava Kamma",p:118},{n:"Bava Metzia",p:118},{n:"Bava Basra",p:175},{n:"Sanhedrin",p:112},{n:"Makkos",p:23},{n:"Shevuos",p:48},{n:"Avodah Zarah",p:75},{n:"Horayos",p:13},{n:"Zevachim",p:119},{n:"Menachos",p:109},{n:"Chullin",p:141},{n:"Bechoros",p:60},{n:"Arachin",p:33},{n:"Temurah",p:33},{n:"Kerisus",p:27},{n:"Meilah",p:21},{n:"Kinnim",p:4},{n:"Tamid",p:9},{n:"Middos",p:4},{n:"Niddah",p:72}],get:(e)=>{const t=new Date(2020,0,5),a=Math.floor((e-t)/864e5);if(a<0)return"";let n=a;for(let r of DafEngine.masechtot){if(n<r.p)return r.n+" "+(n+2);n-=r.p}return""}};
         const HebCal={mapMonth:e=>{const t={Tishri:"Tishrei",Cheshvan:"Cheshvan",Kislev:"Kislev",Tevet:"Teves",Shevat:"Shevat",Adar:"Adar","Adar I":"Adar I","Adar II":"Adar II",Nisan:"Nisan",Iyar:"Iyar",Sivan:"Sivan",Tamuz:"Tamuz",Av:"Av",Elul:"Elul"};return t[e]||e},getHebrewStr:e=>{try{const t=new Intl.DateTimeFormat("en-US-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).formatToParts(e);return t.find(e=>"day"===e.type).value+" "+HebCal.mapMonth(t.find(e=>"month"===e.type).value)+" "+t.find(e=>"year"===e.type).value.split(" ")[0]}catch(e){return""}}};
@@ -644,7 +665,7 @@
             document.getElementById('map-radius-pill').style.display = 'block';
         }
 
-        // Updated renderList to handle slide-to-delete wrapper for saved/recent views
+        // Updated renderList to handle slide-to-delete wrapper AND inline Ad injection
         function renderList(results, storageKey = null) {
             const container = document.getElementById('list-view');
             
@@ -654,9 +675,31 @@
             }
             
             let html = "";
-            results.forEach(m => {
+            let adIndex = 0;
+
+            results.forEach((m, i) => {
+                
+                // --- INJECT AD BANNER LOGIC ---
+                // Only on main list (!storageKey), after every 3rd card
+                if (!storageKey && i > 0 && i % 3 === 0) {
+                    const ad = ADS_DB[adIndex % ADS_DB.length];
+                    // safe index passing since array is static
+                    const safeIdx = adIndex % ADS_DB.length;
+                    
+                    html += `
+                    <div class="ad-card" onclick="openAdIndex(${safeIdx})">
+                        <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                            <span class="ad-badge">Sponsored</span>
+                            <span class="ad-content">${ad.name}</span>
+                        </div>
+                        <i class="material-icons ad-arrow">chevron_right</i>
+                    </div>`;
+                    adIndex++;
+                }
+
+                // --- RENDER NORMAL SHUL CARD ---
                 let nCls = `nusach-bg-${(m.nusach || 'Other').replace(/\s+/g, '-')}`;
-                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(m.name + " " + m.address)}`;
                 
                 let timeZoneHtml = m.timeValue === 9999 ? 
                     `<div class="map-zone" onclick="window.open('${mapLink}','_blank')">
@@ -669,7 +712,7 @@
                     </div>`;
 
                 // Safe escaping for the onClick handler
-                const safeJson = JSON.stringify(m).replace(/'/g, "'").replace(/"/g, '&quot;');
+                const safeJson = JSON.stringify(m).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
                 let cardHtml = `
                 <div class="minyan-card ${storageKey && isEditingList ? 'edit-slide' : ''}" style="${storageKey ? 'margin-bottom:0;' : ''}">
@@ -796,6 +839,35 @@
         function toggleView() { if(currentTab === 'map') switchTab('list'); else switchTab('map'); }
         function updateToggleBtn(txt, icon) { document.getElementById('nav-toggle-text').innerText = txt; document.getElementById('nav-toggle-icon').innerText = icon; }
 
+        // --- AD DETAILS ---
+        function openAdIndex(idx) {
+            const ad = ADS_DB[idx];
+            
+            document.getElementById('drawer-title').innerText = ad.name;
+            document.getElementById('drawer-address').innerText = ad.address;
+            
+            // Hide the favorite button for ads
+            document.getElementById('fav-btn').style.display = 'none';
+            
+            const mapLink = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(ad.address)}`;
+            
+            document.getElementById('drawer-content').innerHTML = `
+                <img src="${ad.image_url}" class="ad-drawer-img" alt="${ad.name}">
+                <div style="font-size:15px; color:#333; margin-bottom: 20px; line-height: 1.4;">
+                    Please support our sponsor, <strong>${ad.name}</strong>, for making ShulTime free for everyone!
+                </div>
+                
+                <div class="contact-row">
+                    <a href="tel:${ad.phone || ''}" class="contact-btn ${!ad.phone?'disabled':''}"><i class="material-icons" style="font-size:14px">call</i> Call</a>
+                    <a href="${ad.website || '#'}" target="_blank" class="contact-btn ${!ad.website?'disabled':''}"><i class="material-icons" style="font-size:14px">language</i> Website</a>
+                    <a href="${mapLink}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">directions</i> Directions</a>
+                </div>
+            `;
+            
+            document.getElementById('details-drawer').classList.add('open');
+            document.getElementById('scrim').style.display = 'block';
+        }
+
         // --- DETAILS & STORAGE ---
         function openDetails(m) {
             selectedShul = m;
@@ -803,11 +875,14 @@
             const godavenId = m.godaven_link ? m.godaven_link.split('/').pop() : m.id;
             const goDavenUrl = `https://www.godaven.com/shul-details/${godavenId}`;
             
-            const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name + " " + m.address)}`;
+            const mapLink = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(m.name + " " + m.address)}`;
             const dist = searchCenter ? getDistance(searchCenter.lat, searchCenter.lng, m.lat, m.lng).toFixed(1) : 0;
             
             document.getElementById('drawer-title').innerText = m.name;
             document.getElementById('drawer-address').innerText = m.address + ', ' + (m.city||'') + ', ' + (m.state||'') + ' ' + (m.zip||'');
+            
+            // Show favorite button for shuls
+            document.getElementById('fav-btn').style.display = 'flex';
             
             const updateBody = `Dear GoDaven,\n\nI would like to update the following Shul with these updates:\n\n[Type your updates here]\n\nThank you\n\nShul Info:\nName: ${m.name}\nAddress: ${m.address}\nLink: ${goDavenUrl}`;
             const updateMailto = `mailto:support@godaven.com?subject=Update Listing: ${encodeURIComponent(m.name)}&body=${encodeURIComponent(updateBody)}`;
