@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ShulTime v3.5b</title>
+<title>ShulTime v3.6</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
@@ -225,15 +225,20 @@
     .date-main-text { font-weight: 800; font-size: 15px; color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .date-sub-text { font-size: 12px; font-weight: 600; color: var(--primary); opacity: 0.8; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* DETAILS DRAWER */
-    #details-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; height: 75vh; background: #fff; border-radius: 25px; z-index: 3000; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; padding: 0; }
-    #details-drawer.open { bottom: 0; transform: translateY(0); }
+    /* DRAWERS (Details & Actions) */
+    #details-drawer, #action-drawer { position: fixed; bottom: -100%; left: 10px; right: 10px; max-height: 85vh; background: #fff; border-radius: 25px; margin-bottom: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease-out; display: flex; flex-direction: column; padding: 0; }
+    #details-drawer { height: 75vh; z-index: 3000; }
+    #action-drawer { z-index: 3500; }
+    #details-drawer.open, #action-drawer.open { bottom: 0; transform: translateY(0); }
+    
     #scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2500; display: none; }
+    #action-scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3400; display: none; }
+
     .drawer-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f0f0f0; }
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
     .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; margin-top: 10px; }
     .contact-row { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
-    .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex: 1; }
+    .contact-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex: 1; cursor:pointer;}
     .contact-btn.disabled { opacity: 0.5; pointer-events: none; background: #eee; }
     
     /* TOOLBAR */
@@ -316,7 +321,9 @@
     </div>
 
     <div id="center-marker"></div>
+    
     <div id="scrim" onclick="closeDetails()"></div>
+    <div id="action-scrim" onclick="closeActionDrawer()"></div>
 
     <div id="details-drawer">
         <div class="drawer-header">
@@ -330,6 +337,18 @@
             </div>
         </div>
         <div id="drawer-content" class="drawer-body"></div>
+    </div>
+
+    <div id="action-drawer">
+        <div class="drawer-header">
+            <div style="flex:1; padding-right: 10px;">
+                <div id="action-drawer-title" style="font-weight:800; font-size:18px; color:var(--primary); line-height: 1.1;"></div>
+            </div>
+            <div style="display:flex; gap:12px; flex-shrink: 0;">
+                <button class="circle-btn" style="width:40px; height:40px; background:#f0f0f0;" onclick="closeActionDrawer()"><i class="material-icons" style="color:#555; font-size: 20px;">close</i></button>
+            </div>
+        </div>
+        <div id="action-drawer-content" class="drawer-body"></div>
     </div>
 
     <div id="filter-drawer">
@@ -433,7 +452,7 @@
     
     <div id="settings-view">
         <div class="list-page-header">Settings</div>
-        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.5b</p>
+        <p style="padding-left: 5px; color:#666; font-weight:600; margin-top:-10px; margin-bottom: 20px;">ShulTime v3.6</p>
         <div class="settings-card">
             <div class="input-group">
                 <label class="input-label">Name</label>
@@ -445,11 +464,11 @@
             </div>
         </div>
         <div class="settings-card" style="padding: 0 20px;">
-            <a class="settings-link" onclick="alert('Feature Coming Soon')"><span class="settings-link-text">Privacy Policy</span><i class="material-icons">chevron_right</i></a>
-            <a class="settings-link" onclick="alert('Feature Coming Soon')"><span class="settings-link-text">Rate App</span><i class="material-icons">star_rate</i></a>
+            <a class="settings-link" onclick="openSearchDefaults()"><span class="settings-link-text">Search Defaults</span><i class="material-icons">tune</i></a>
+            <a class="settings-link" onclick="openPrivacyPolicy()"><span class="settings-link-text">Privacy Policy</span><i class="material-icons">chevron_right</i></a>
+            <a class="settings-link" onclick="openRateApp()"><span class="settings-link-text">Rate App</span><i class="material-icons">star_rate</i></a>
             <a class="settings-link" onclick="if(navigator.share) navigator.share({title: 'ShulTime', text: 'Find Minyanim near you!', url: window.location.href});"><span class="settings-link-text">Share App</span><i class="material-icons">ios_share</i></a>
-            <a class="settings-link" href="mailto:support@shultime.com"><span class="settings-link-text">Contact Us</span><i class="material-icons">email</i></a>
-            <a class="settings-link" href="mailto:support@shultime.com?subject=Support"><span class="settings-link-text">Support</span><i class="material-icons">help_outline</i></a>
+            <a class="settings-link" onclick="openFeedbackDrawer('Contact Us')"><span class="settings-link-text">Contact Us</span><i class="material-icons">email</i></a>
         </div>
     </div>
 
@@ -495,12 +514,15 @@
             updateDateDisplay();
             loadProfile();
             
+            // Load Default Search Params
+            const defaults = JSON.parse(localStorage.getItem('shultime_search_defaults') || '{"radius":20,"timeframe":120,"minResults":5}');
+            manualRadiusUpdate(defaults.radius);
+            
             document.getElementById('list-view').addEventListener('scroll', function() {
                 const header = document.getElementById('sticky-header');
                 if(this.scrollTop > 40 && (currentTab === 'recent' || currentTab === 'saved')) {
                     header.classList.add('visible');
                     const title = currentTab === 'recent' ? "Recent Shuls" : "Saved Shuls";
-                    // Embed edit feature inside the sticky header
                     header.innerHTML = `
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding: 0 15px;">
                             <span>${title}</span>
@@ -665,7 +687,6 @@
             document.getElementById('map-radius-pill').style.display = 'block';
         }
 
-        // Updated renderList to handle slide-to-delete wrapper AND inline Ad injection
         function renderList(results, storageKey = null) {
             const container = document.getElementById('list-view');
             
@@ -680,10 +701,8 @@
             results.forEach((m, i) => {
                 
                 // --- INJECT AD BANNER LOGIC ---
-                // Only on main list (!storageKey), after every 3rd card
                 if (!storageKey && i > 0 && i % 3 === 0) {
                     const ad = ADS_DB[adIndex % ADS_DB.length];
-                    // safe index passing since array is static
                     const safeIdx = adIndex % ADS_DB.length;
                     
                     html += `
@@ -712,11 +731,11 @@
                     </div>`;
 
                 // Safe escaping for the onClick handler
-                const safeJson = JSON.stringify(m).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                const safeJson = JSON.stringify(m).replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
                 let cardHtml = `
                 <div class="minyan-card ${storageKey && isEditingList ? 'edit-slide' : ''}" style="${storageKey ? 'margin-bottom:0;' : ''}">
-                    <div class="info-zone" onclick="openDetails(${safeJson})">
+                    <div class="info-zone" onclick='openDetails(${safeJson})'>
                         <div class="shul-name">${m.name}</div>
                         <div class="shul-address">${m.address}</div>
                         <div class="shul-city-state">${m.city || ''}, ${m.state || ''}</div>
@@ -730,7 +749,6 @@
                     ${timeZoneHtml}
                 </div>`;
 
-                // If rendering for Recent/Saved, wrap with delete functionality
                 if (storageKey) {
                     html += `
                     <div class="list-item-wrapper">
@@ -757,7 +775,6 @@
             const now = new Date();
             const nowVal = now.getHours() * 60 + now.getMinutes();
 
-            // Intelligent "Next Minyan" grouping
             results.forEach(r => { 
                 const k = r.lat+','+r.lng; 
                 if(!unique[k]) {
@@ -785,7 +802,7 @@
         // --- NAVIGATION ---
         function switchTab(tab) {
             currentTab = tab;
-            isEditingList = false; // Reset edit state whenever switching tabs
+            isEditingList = false; 
             
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('list-view').style.display = 'none';
@@ -845,8 +862,6 @@
             
             document.getElementById('drawer-title').innerText = ad.name;
             document.getElementById('drawer-address').innerText = ad.address;
-            
-            // Hide the favorite button for ads
             document.getElementById('fav-btn').style.display = 'none';
             
             const mapLink = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(ad.address)}`;
@@ -880,12 +895,7 @@
             
             document.getElementById('drawer-title').innerText = m.name;
             document.getElementById('drawer-address').innerText = m.address + ', ' + (m.city||'') + ', ' + (m.state||'') + ' ' + (m.zip||'');
-            
-            // Show favorite button for shuls
             document.getElementById('fav-btn').style.display = 'flex';
-            
-            const updateBody = `Dear GoDaven,\n\nI would like to update the following Shul with these updates:\n\n[Type your updates here]\n\nThank you\n\nShul Info:\nName: ${m.name}\nAddress: ${m.address}\nLink: ${goDavenUrl}`;
-            const updateMailto = `mailto:support@godaven.com?subject=Update Listing: ${encodeURIComponent(m.name)}&body=${encodeURIComponent(updateBody)}`;
 
             let notesHtml = "";
             if (m.notes || m.contact_info) {
@@ -919,7 +929,7 @@
                     <a href="${m.email ? 'mailto:'+m.email : '#'}" class="contact-btn ${!m.email?'disabled':''}" ${!m.email?'onclick="return false;"':''}><i class="material-icons" style="font-size:14px">email</i> Email</a>
                     <a href="${goDavenUrl}" target="_blank" class="contact-btn"><i class="material-icons" style="font-size:14px">open_in_new</i> GoDaven</a>
                     <button class="contact-btn" onclick="shareShul()"><i class="material-icons" style="font-size:14px">ios_share</i> Share</button>
-                    <a href="${updateMailto}" class="contact-btn" style="flex-basis:100%; justify-content:center; background:#E3F2FD; color:#1565C0; border-color:#2196F3;"><i class="material-icons" style="font-size:14px">edit</i> Update Listing</a>
+                    <button class="contact-btn" style="flex-basis:100%; justify-content:center; background:#E3F2FD; color:#1565C0; border-color:#2196F3;" onclick="openFeedbackDrawer('Update Listing: ${m.name.replace(/'/g, "\\'")}')"><i class="material-icons" style="font-size:14px">edit</i> Update Listing</button>
                 </div>
 
                 <div style="margin-top:20px; font-weight:800; border-bottom:1px solid #eee; padding-bottom:5px; font-size:16px; color:#333;">Weekday Schedule</div>
@@ -1027,7 +1037,6 @@
             const title = currentStorageKey === 'shultime_recents' ? 'Recent Shuls' : 'Saved Shuls';
             renderStorageList(currentStorageKey, title);
             
-            // Sync with sticky header if it is currently visible
             const header = document.getElementById('sticky-header');
             if(header.classList.contains('visible')) {
                 header.innerHTML = `
@@ -1048,6 +1057,99 @@
             
             const title = currentStorageKey === 'shultime_recents' ? 'Recent Shuls' : 'Saved Shuls';
             renderStorageList(currentStorageKey, title);
+        }
+
+        // --- GENERIC ACTION DRAWER (Feedback, Privacy, Rates) ---
+        function openActionDrawer(title, contentHtml) {
+            document.getElementById('action-drawer-title').innerText = title;
+            document.getElementById('action-drawer-content').innerHTML = contentHtml;
+            document.getElementById('action-drawer').classList.add('open');
+            document.getElementById('action-scrim').style.display = 'block';
+        }
+
+        function closeActionDrawer() {
+            document.getElementById('action-drawer').classList.remove('open');
+            document.getElementById('action-scrim').style.display = 'none';
+        }
+
+        function openSearchDefaults() {
+            const defaults = JSON.parse(localStorage.getItem('shultime_search_defaults') || '{"radius":20,"timeframe":120,"minResults":5}');
+            const html = `
+                <div class="input-group">
+                    <label class="input-label">Default Radius (Miles)</label>
+                    <input type="number" id="def-radius" class="settings-input" value="${defaults.radius}">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Default Timeframe (Minutes)</label>
+                    <input type="number" id="def-timeframe" class="settings-input" value="${defaults.timeframe}">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Minimum Results Amount</label>
+                    <input type="number" id="def-min-results" class="settings-input" value="${defaults.minResults}">
+                </div>
+                <button class="search-now-btn" style="margin-top:20px;" onclick="saveSearchDefaults()">Save Defaults</button>
+            `;
+            openActionDrawer('Search Defaults', html);
+        }
+
+        function saveSearchDefaults() {
+            const radius = document.getElementById('def-radius').value;
+            const timeframe = document.getElementById('def-timeframe').value;
+            const minResults = document.getElementById('def-min-results').value;
+            localStorage.setItem('shultime_search_defaults', JSON.stringify({radius, timeframe, minResults}));
+            manualRadiusUpdate(radius);
+            closeActionDrawer();
+            alert('Defaults saved!');
+        }
+
+        function openFeedbackDrawer(context) {
+            const html = `
+                <div style="font-size:14px; color:#555; margin-bottom:15px;">Please leave your feedback here:</div>
+                <textarea class="settings-input" style="height:120px; resize:none; margin-bottom:15px;" placeholder="Type your feedback..."></textarea>
+                <button class="search-now-btn" onclick="submitDummy()">Submit Feedback</button>
+            `;
+            openActionDrawer(context || 'Feedback', html);
+        }
+
+        function openRateApp() {
+            const html = `
+                <div style="font-size:14px; color:#555; margin-bottom:15px; text-align:center;">How would you rate ShulTime?</div>
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:25px; color:#FFB300;" id="star-container">
+                    <i class="material-icons" style="font-size:36px; cursor:pointer;" onclick="setStars(1)">star_border</i>
+                    <i class="material-icons" style="font-size:36px; cursor:pointer;" onclick="setStars(2)">star_border</i>
+                    <i class="material-icons" style="font-size:36px; cursor:pointer;" onclick="setStars(3)">star_border</i>
+                    <i class="material-icons" style="font-size:36px; cursor:pointer;" onclick="setStars(4)">star_border</i>
+                    <i class="material-icons" style="font-size:36px; cursor:pointer;" onclick="setStars(5)">star_border</i>
+                </div>
+                <button class="search-now-btn" onclick="submitDummy()">Submit Rating</button>
+            `;
+            openActionDrawer('Rate App', html);
+        }
+
+        function setStars(count) {
+            const container = document.getElementById('star-container');
+            if(!container) return;
+            const stars = container.querySelectorAll('i');
+            stars.forEach((star, index) => {
+                star.innerText = index < count ? 'star' : 'star_border';
+            });
+        }
+
+        function openPrivacyPolicy() {
+            const html = `
+                <div style="font-size:14px; color:#555; line-height:1.5;">
+                    <p><strong>Your Privacy is Important</strong></p>
+                    <p>This is a dummy privacy policy for ShulTime. We do not track your personal information or location history. Your saved shuls and recent searches are stored locally on your device.</p>
+                    <p>When you use the app, search queries are processed via Google Maps API, which is governed by Google's Privacy Policy.</p>
+                </div>
+                <button class="search-now-btn" style="margin-top:20px;" onclick="closeActionDrawer()">Close</button>
+            `;
+            openActionDrawer('Privacy Policy', html);
+        }
+
+        function submitDummy() {
+            closeActionDrawer();
+            alert('Thank you! Submitted successfully.');
         }
 
         // --- UTILS & FILTERS ---
@@ -1089,9 +1191,12 @@
         }
 
         function setNextTwoHours() {
+            const defaults = JSON.parse(localStorage.getItem('shultime_search_defaults') || '{"timeframe":120}');
+            const tf = parseInt(defaults.timeframe) * 60000; // minutes to ms
+            
             const now = new Date();
             document.getElementById('time-start').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const next = new Date(now.getTime() + 7200000); // 2 hours
+            const next = new Date(now.getTime() + tf); 
             document.getElementById('time-end').value = `${String(next.getHours()).padStart(2,'0')}:${String(next.getMinutes()).padStart(2,'0')}`;
             applyFilters();
         }
@@ -1100,7 +1205,9 @@
         
         function resetFilters() {
             filters = { tefillah: '', nusach: '', sort: 'time' };
-            manualRadiusUpdate(20);
+            const defaults = JSON.parse(localStorage.getItem('shultime_search_defaults') || '{"radius":20}');
+            manualRadiusUpdate(defaults.radius);
+            
             document.getElementById('time-start').value="00:00";
             document.getElementById('time-end').value="23:59";
             
